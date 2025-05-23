@@ -1,0 +1,30 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "references": [
+    {
+      "path": "./packages/core"
+    },
+    {
+      "path": "./packages/engine"
+    },
+    {
+      "path": "./packages/ui"
+    },
+    {
+      "path": "./packages/plugins"
+    },
+    {
+      "path": "./packages/infra-scripts"
+    },
+    {
+      "path": "./apps/mobile"
+    },
+    {
+      "path": "./apps/admin"
+    }
+  ],
+  "files": []
+}

@@ -1,5 +1,5 @@
 {
-  "name": "@ump/core",
+  "name": "@ump/engine",
   "version": "0.1.0",
   "private": true,
   "main": "./dist/index.js",
@@ -7,9 +7,12 @@
   "scripts": {
     "build": "tsc -b",
     "dev": "tsc -b --watch",
-    "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
-    "test": "echo 'Core package - test pending'",
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "echo 'Engine package - test pending'",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@ump/core": "workspace:*"
   }
 }
