@@ -67,7 +67,7 @@ root/
 
 ---
 
-### T‑0.2  Configure TypeScript Project References
+### T‑0.2  Configure TypeScript Project References - Done
 
 1. **Goal** Fast incremental builds & strong type isolation across packages.
 

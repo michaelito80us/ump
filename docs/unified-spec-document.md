@@ -1,4 +1,4 @@
-# Unified Management Specification Document
+# Unified Management Platform - Specification Document
 
 ## 1 · Overview & Architecture
 
