@@ -1,0 +1,14 @@
+{
+  "name": "@ump/core",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "echo 'Core package - build pending'",
+    "dev": "echo 'Core package - dev pending'",
+    "lint": "echo 'Core package - lint pending'",
+    "test": "echo 'Core package - test pending'",
+    "type-check": "echo 'Core package - type-check pending'"
+  }
+}
