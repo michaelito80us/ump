@@ -9,10 +9,99 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy-preview:
-    name: Deploy Preview
+  detect-changes:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    outputs:
+      mobile: ${{ steps.changes.outputs.mobile }}
+      admin: ${{ steps.changes.outputs.admin }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            mobile:
+              - 'apps/mobile/**'
+              - 'packages/**'
+            admin:
+              - 'apps/admin/**'
+              - 'packages/**'
+
+  deploy-mobile:
+    timeout-minutes: 15
+    needs: detect-changes
+    if: needs.detect-changes.outputs.mobile == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      success: ${{ steps.deploy.outcome == 'success' }}
+      url: ${{ steps.deploy.outputs.preview-url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Get pnpm store directory
+        shell: bash
+        id: pnpm-cache
+        run: |
+          echo "path=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build mobile
+        run: pnpm turbo build --filter=mobile
+
+      - name: Set deployment status
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api repos/${{ github.repository }}/statuses/${{ github.sha }} \
+            -f state=pending \
+            -f context="deploy/mobile"
+
+      - name: Deploy Mobile App to Vercel
+        id: deploy
+        continue-on-error: true
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_MOBILE_PROJECT_ID }}
+          working-directory: ./apps/mobile
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+
+      - name: Update Deployment Status
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api repos/${{ github.repository }}/statuses/${{ github.sha }} \
+            -f state=${{ steps.deploy.outcome == 'success' && 'success' || 'failure' }} \
+            -f context="deploy/mobile" \
+            -f description="${{ steps.deploy.outcome == 'success' && 'Deployment successful' || 'Deployment failed' }}"
+
+  deploy-admin:
+    timeout-minutes: 15
+    needs: detect-changes
+    if: needs.detect-changes.outputs.admin == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      success: ${{ steps.deploy.outcome == 'success' }}
+      url: ${{ steps.deploy.outputs.preview-url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,7 +114,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 9
 
       - name: Get pnpm store directory
         shell: bash
@@ -34,7 +123,7 @@ jobs:
           echo "path=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
 
       - name: Setup pnpm cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.pnpm-cache.outputs.path }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -44,18 +133,20 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Deploy Mobile App to Vercel
-        id: deploy-mobile
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_MOBILE_PROJECT_ID }}
-          working-directory: ./apps/mobile
-          scope: ${{ secrets.VERCEL_ORG_ID }}
+      - name: Build admin
+        run: pnpm turbo build --filter=admin
+
+      - name: Set deployment status
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api repos/${{ github.repository }}/statuses/${{ github.sha }} \
+            -f state=pending \
+            -f context="deploy/admin"
 
       - name: Deploy Admin App to Vercel
-        id: deploy-admin
+        id: deploy
+        continue-on-error: true
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
@@ -64,10 +155,50 @@ jobs:
           working-directory: ./apps/admin
           scope: ${{ secrets.VERCEL_ORG_ID }}
 
-      - name: Comment PR with Preview URLs
+      - name: Update Deployment Status
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api repos/${{ github.repository }}/statuses/${{ github.sha }} \
+            -f state=${{ steps.deploy.outcome == 'success' && 'success' || 'failure' }} \
+            -f context="deploy/admin" \
+            -f description="${{ steps.deploy.outcome == 'success' && 'Deployment successful' || 'Deployment failed' }}"
+
+  comment:
+    needs: [detect-changes, deploy-mobile, deploy-admin]
+    if: always() && (needs.deploy-mobile.result != 'skipped' || needs.deploy-admin.result != 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment PR with Deployment Status
         uses: actions/github-script@v7
         with:
           script: |
+            const mobileChanged = '${{ needs.detect-changes.outputs.mobile }}' === 'true';
+            const adminChanged = '${{ needs.detect-changes.outputs.admin }}' === 'true';
+
+            let rows = [];
+
+            if (mobileChanged) {
+              const success = '${{ needs.deploy-mobile.outputs.success }}' === 'true';
+              const url = '${{ needs.deploy-mobile.outputs.url }}';
+              rows.push(`| 📱 Mobile PWA | ${success ? '✅ Deployed' : '❌ Failed'} | ${success ? `[Visit Preview](${url})` : 'Deployment failed'} |`);
+            }
+
+            if (adminChanged) {
+              const success = '${{ needs.deploy-admin.outputs.success }}' === 'true';
+              const url = '${{ needs.deploy-admin.outputs.url }}';
+              rows.push(`| 🛠️ Admin Console | ${success ? '✅ Deployed' : '❌ Failed'} | ${success ? `[Visit Preview](${url})` : 'Deployment failed'} |`);
+            }
+
+            const commentBody = `🚀 **Preview Deployments**
+
+            | App | Status | Preview URL |
+            |-----|---------|-------------|
+            ${rows.join('\n')}
+
+            *Updated at: ${new Date().toISOString()}*`;
+
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -78,15 +209,6 @@ jobs:
               comment.user.login === 'github-actions[bot]' && 
               comment.body.includes('🚀 Preview Deployments')
             );
-
-            const commentBody = `🚀 **Preview Deployments**
-
-            | App | Status | Preview URL |
-            |-----|---------|-------------|
-            | 📱 Mobile PWA | ✅ Deployed | [Visit Preview](${{ steps.deploy-mobile.outputs.preview-url }}) |
-            | 🛠️ Admin Console | ✅ Deployed | [Visit Preview](${{ steps.deploy-admin.outputs.preview-url }}) |
-
-            *Updated at: ${new Date().toISOString()}*`;
 
             if (existingComment) {
               await github.rest.issues.updateComment({
