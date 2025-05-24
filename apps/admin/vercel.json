@@ -1,6 +1,7 @@
 {
-  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "cd ../.. && pnpm build --filter=@ump/admin",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "outputDirectory": ".next",
   "regions": ["iad1"],
   "functions": {

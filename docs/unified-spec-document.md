@@ -645,8 +645,8 @@ Queue consumers surface in admin dashboard; resolving a queue item writes a seco
 ```text
 root/
 ├── apps/
-│   ├── mobile/          # Next.js 14 PWA for players, coaches, and spectators
-│   └── admin/           # Management console for tournament organizers
+│   ├── mobile/        # Next.js 14 PWA for players, coaches, and spectators
+│   └── admin/       # Management console for tournament organizers
 ├── packages/
 │   ├── core/            # Canonical types, shared hooks, and utilities
 │   ├── engine/          # Plugin runtime, registry, and execution environment

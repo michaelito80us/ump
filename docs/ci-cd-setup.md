@@ -30,7 +30,7 @@ Runs on every push to `main` and on all pull requests:
 
 Deploys preview environments on pull requests:
 
-- Deploys both mobile and admin apps to Vercel
+- Deploys both Next and Admin apps to Vercel
 - Comments on PR with preview URLs
 - Updates existing comments on subsequent pushes
 
@@ -43,7 +43,7 @@ Deploys preview environments on pull requests:
 
 ### Step 1: Create Vercel Projects
 
-1. **Mobile App Project:**
+1. **Next App Project:**
 
    ```bash
    cd apps/mobile
@@ -78,12 +78,12 @@ vercel teams list
 
 Add these secrets in your GitHub repository settings (`Settings > Secrets and variables > Actions`):
 
-| Secret Name                | Description                 | Example              |
-| -------------------------- | --------------------------- | -------------------- |
-| `VERCEL_TOKEN`             | Your Vercel API token       | `vercel_abcd1234...` |
-| `VERCEL_ORG_ID`            | Your Vercel organization ID | `team_abc123`        |
-| `VERCEL_MOBILE_PROJECT_ID` | Mobile app project ID       | `prj_mobile123`      |
-| `VERCEL_ADMIN_PROJECT_ID`  | Admin app project ID        | `prj_admin456`       |
+| Secret Name                | Description                 | Example         |
+| -------------------------- | --------------------------- | --------------- |
+| `VERCEL_TOKEN`             | Your Vercel API token       | `abcd1234...`   |
+| `VERCEL_ORG_ID`            | Your Vercel organization ID | `team_abc123`   |
+| `VERCEL_MOBILE_PROJECT_ID` | Next app project ID         | `prj_mobile123` |
+| `VERCEL_ADMIN_PROJECT_ID`  | Admin app project ID        | `prj_admin456`  |
 
 ## Branch Protection Setup
 
@@ -110,9 +110,9 @@ Add these secrets in your GitHub repository settings (`Settings > Secrets and va
 ### Preview Deployments
 
 - **Trigger**: Every pull request
-- **Apps**: Both mobile and admin
+- **Apps**: Both Next and Admin
 - **URL Pattern**:
-  - Mobile: `https://ump-mobile-{hash}.vercel.app`
+  - Next: `https://ump-next-{hash}.vercel.app`
   - Admin: `https://ump-admin-{hash}.vercel.app`
 
 ### Production Deployments

@@ -31,7 +31,7 @@ root/
 
 ## 0 · Foundational Setup
 
-### T‑0.1  Establish Monorepo Workspace
+### T‑0.1  Establish Monorepo Workspace - Done
 
 1. **Goal** Monorepo skeleton ready for iterative work.
 
