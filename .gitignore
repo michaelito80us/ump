@@ -80,3 +80,4 @@ temp/
 
 # Plugin bundles (runtime generated)
 packages/plugins/*/dist/ 
+.vercel
