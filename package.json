@@ -21,6 +21,7 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
+    "adr-tools": "^2.0.4",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
     "husky": "^8.0.3",
