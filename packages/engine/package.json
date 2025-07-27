@@ -14,10 +14,13 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ump/core": "workspace:*"
+    "@ump/core": "workspace:*",
+    "isolated-vm": "^6.0.1",
+    "react": "^18.0.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
+    "@types/node": "^20.17.50",
     "@types/react": "^18.0.0",
     "jest": "^29.5.0",
     "ts-jest": "^29.1.0",
@@ -26,20 +29,26 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/__tests__/setup.ts"
+    ],
     "roots": [
       "<rootDir>/src"
     ],
     "testMatch": [
       "**/__tests__/**/*.test.ts"
     ],
-    "extensionsToTreatAsEsm": [
-      ".ts"
-    ],
     "transform": {
       "^.+\\.ts$": [
         "ts-jest",
         {
-          "useESM": true
+          "useESM": false,
+          "tsconfig": {
+            "types": [
+              "jest",
+              "node"
+            ]
+          }
         }
       ]
     },

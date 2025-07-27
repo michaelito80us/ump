@@ -40,3 +40,19 @@ export class VersionConflictError extends PluginRegistryError {
     this.name = 'VersionConflictError';
   }
 }
+
+export class PluginExecutionError extends TournamentError {
+  public readonly code: string;
+  public readonly context: any;
+
+  constructor(
+    message: string,
+    code: string = 'EXECUTION_ERROR',
+    context: any = {}
+  ) {
+    super(message);
+    this.name = 'PluginExecutionError';
+    this.code = code;
+    this.context = context;
+  }
+}

@@ -9,7 +9,7 @@ export type GraphQLTeam = any;
 export type GraphQLPlayer = any;
 export type GraphQLPhase = any;
 
-// Export commonly used types for convenience
+// Re-export specific types with explicit imports to avoid module resolution issues
 export type {
   Tournament,
   Match,
@@ -21,4 +21,4 @@ export type {
   PhaseStatus,
   PlayerRole,
   LeaderboardEntry,
-} from './graphql';
+} from './graphql.js';

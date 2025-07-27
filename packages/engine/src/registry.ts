@@ -3,6 +3,7 @@
  * Implements T-2.1 requirements with validation and version management
  */
 
+import React from 'react';
 import { Match, Phase, Team, MatchContext } from '@ump/core';
 import { satisfies } from './semverLite';
 import {

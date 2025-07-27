@@ -34,8 +34,5 @@ export type {
   SportVariantDefinition,
 } from './registry';
 
-// PluginRegistry class is exported from './registry'
-export interface PluginRegistry {
-  // Placeholder for plugin registry interface
-  plugins: Map<string, unknown>;
-}
+// Note: PluginRegistry class is exported from './registry'
+// No need to duplicate the interface here since the actual implementation exists
