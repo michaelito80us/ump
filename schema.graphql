@@ -1,0 +1,152 @@
+# Tournament Management GraphQL Schema
+scalar DateTime
+scalar JSON
+
+type Query {
+  tournaments: [Tournament!]!
+  tournament(id: ID!): Tournament
+  matches: [Match!]!
+  match(id: ID!): Match
+  teams: [Team!]!
+  team(id: ID!): Team
+  players: [Player!]!
+  player(id: ID!): Player
+}
+
+type Mutation {
+  createTournament(input: CreateTournamentInput!): Tournament!
+  updateTournament(id: ID!, input: UpdateTournamentInput!): Tournament!
+  createMatch(input: CreateMatchInput!): Match!
+  updateMatchScore(id: ID!, score: JSON!): Match!
+  createTeam(input: CreateTeamInput!): Team!
+  addPlayerToTeam(teamId: ID!, playerId: ID!): Team!
+}
+
+type Subscription {
+  matchUpdated(tournamentId: ID!): Match!
+  tournamentUpdated(id: ID!): Tournament!
+  leaderboardUpdated(tournamentId: ID!): [LeaderboardEntry!]!
+}
+
+type Tournament {
+  id: ID!
+  name: String!
+  sport: String!
+  status: TournamentStatus!
+  startDate: DateTime!
+  endDate: DateTime
+  phases: [Phase!]!
+  teams: [Team!]!
+  settings: JSON
+  isLocked: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Phase {
+  id: ID!
+  name: String!
+  pluginId: String!
+  matches: [Match!]!
+  settings: JSON
+  status: PhaseStatus!
+  tournament: Tournament!
+}
+
+type Match {
+  id: ID!
+  teamA: Team!
+  teamB: Team!
+  scoreA: JSON
+  scoreB: JSON
+  status: MatchStatus!
+  scheduledAt: DateTime
+  startedAt: DateTime
+  completedAt: DateTime
+  venue: String
+  phase: Phase!
+  referee: Player
+}
+
+type Team {
+  id: ID!
+  name: String!
+  players: [Player!]!
+  tournaments: [Tournament!]!
+  stats: JSON
+}
+
+type Player {
+  id: ID!
+  userId: String!
+  name: String!
+  email: String!
+  teams: [Team!]!
+  stats: JSON
+  role: PlayerRole!
+}
+
+type LeaderboardEntry {
+  team: Team!
+  position: Int!
+  points: Int!
+  wins: Int!
+  losses: Int!
+  draws: Int!
+  stats: JSON
+}
+
+enum TournamentStatus {
+  NOT_STARTED
+  LIVE
+  COMPLETED
+}
+
+enum PhaseStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+}
+
+enum MatchStatus {
+  PENDING
+  LIVE
+  NEEDS_APPROVAL
+  FINAL
+}
+
+enum PlayerRole {
+  PLAYER
+  COACH
+  REFEREE
+  ORG_ADMIN
+  ORG_OWNER
+}
+
+input CreateTournamentInput {
+  name: String!
+  sport: String!
+  startDate: DateTime!
+  endDate: DateTime
+  settings: JSON
+}
+
+input UpdateTournamentInput {
+  name: String
+  startDate: DateTime
+  endDate: DateTime
+  settings: JSON
+}
+
+input CreateMatchInput {
+  teamAId: ID!
+  teamBId: ID!
+  phaseId: ID!
+  scheduledAt: DateTime
+  venue: String
+}
+
+input CreateTeamInput {
+  name: String!
+  tournamentId: ID!
+}

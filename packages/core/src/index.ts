@@ -4,6 +4,9 @@
 // Export all canonical types
 export * from './types';
 
+// Export GraphQL generated types and hooks (with namespace to avoid conflicts)
+export * as GraphQL from './generated';
+
 // Export core utilities and interfaces
 export interface BaseConfig {
   version: string;
@@ -11,7 +14,7 @@ export interface BaseConfig {
 
 export const CORE_VERSION = '0.1.0';
 
-// Re-export commonly used types for convenience
+// Re-export commonly used types for convenience (using original types, not GraphQL)
 export type {
   Team,
   Player,
@@ -20,6 +23,10 @@ export type {
   Tournament,
   MatchStatus,
   AuditLog,
+} from './types';
+
+// Export error classes as values (not types)
+export {
   TournamentError,
   ValidationError,
   PermissionError,

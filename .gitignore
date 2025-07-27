@@ -80,4 +80,9 @@ temp/
 
 # Plugin bundles (runtime generated)
 packages/plugins/*/dist/ 
+
+# GraphQL generated files
+packages/core/src/generated/graphql.ts
+packages/core/src/generated/introspection.json
+
 .vercel
