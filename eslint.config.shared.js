@@ -28,6 +28,7 @@ module.exports = [
         navigator: 'readonly',
         localStorage: 'readonly',
         sessionStorage: 'readonly',
+        React: 'readonly',
       },
     },
     plugins: {
@@ -51,6 +52,22 @@ module.exports = [
     files: ['**/*.{ts,tsx}'],
     rules: {
       // TypeScript specific rules can be added here
+    },
+  },
+  {
+    files: ['**/*.test.{js,ts,tsx}', '**/__tests__/**/*.{js,ts,tsx}'],
+    languageOptions: {
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        jest: 'readonly',
+      },
     },
   },
   {

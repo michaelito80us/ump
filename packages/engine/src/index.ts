@@ -1,7 +1,13 @@
 // @ump/engine - Plugin Runtime Engine
-// Placeholder file - implementation pending
+// Main exports for the engine package
 
 export * from './types';
+export * from './registry';
+export * from './errors';
+export * from './semverLite';
 
-// Placeholder export to prevent empty module
+// Engine version
 export const ENGINE_VERSION = '0.1.0';
+
+// Main registry instance
+export { pluginRegistry } from './registry';
