@@ -1,22 +1,29 @@
 // @ump/engine - Plugin Runtime Engine
 // Main exports for the engine package
 
+// Core engine exports
 export * from './types';
 export * from './registry';
+export { EventBus } from './eventBus';
+export { SharedStore } from './sharedStore';
+export * from './hooksDispatcher';
 export * from './errors';
 export * from './semverLite';
 
-// Export sandbox executor
-export { SandboxExecutor } from './sandbox';
+// Sandbox exports
 export type {
-  SandboxOptions,
   SandboxContext,
+  SandboxOptions,
   SandboxExecutionResult,
   PluginExecutionContext,
 } from './sandbox/types';
+export { SandboxExecutor } from './sandbox';
 
 // Engine version
 export const ENGINE_VERSION = '0.1.0';
 
-// Main registry instance
+// Main registry instance (convenience re-export)
 export { pluginRegistry } from './registry';
+
+// Main hooks dispatcher instance (convenience re-export)
+export { hooksDispatcher } from './hooksDispatcher';

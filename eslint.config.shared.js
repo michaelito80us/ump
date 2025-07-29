@@ -29,6 +29,10 @@ module.exports = [
         localStorage: 'readonly',
         sessionStorage: 'readonly',
         React: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
       },
     },
     plugins: {

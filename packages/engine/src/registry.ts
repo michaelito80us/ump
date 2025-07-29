@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { Match, Phase, Team, MatchContext } from '@ump/core';
+import { LifecycleHooks } from './types';
 import { satisfies } from './semverLite';
 import {
   PluginValidationError,
@@ -23,6 +24,7 @@ export interface BasePluginMeta {
   supportedLanguages?: string[]; // e.g. ["en", "es"]
   i18n: Record<string, Record<string, string>>; // translations bundle
   capabilities?: string[]; // feature flags – e.g. ["statTier:3"]
+  lifecycleHooks?: Partial<LifecycleHooks>; // optional lifecycle hooks
 }
 
 export interface SportVariantDefinition {
@@ -202,6 +204,41 @@ export class PluginRegistry {
     };
   }
 
+  /**
+   * Get all plugins with lifecycle hooks
+   */
+  getPluginsWithHooks(): Array<{
+    category: PluginCategory;
+    plugin: AnyPlugin;
+  }> {
+    const pluginsWithHooks: Array<{
+      category: PluginCategory;
+      plugin: AnyPlugin;
+    }> = [];
+
+    const categories: PluginCategory[] = [
+      'sports',
+      'phases',
+      'seeding',
+      'scheduling',
+      'tournaments',
+    ];
+
+    for (const category of categories) {
+      const plugins = this.list(category);
+      for (const plugin of plugins) {
+        if (
+          plugin.lifecycleHooks &&
+          Object.keys(plugin.lifecycleHooks).length > 0
+        ) {
+          pluginsWithHooks.push({ category, plugin });
+        }
+      }
+    }
+
+    return pluginsWithHooks;
+  }
+
   private getRegistryForCategory(category: PluginCategory): Map<string, any> {
     switch (category) {
       case 'sports':
@@ -276,6 +313,37 @@ export class PluginRegistry {
       if (missingLanguages.length > 0) {
         throw new PluginValidationError(
           `Plugin declares support for languages not in i18n bundle: ${missingLanguages.join(', ')}`
+        );
+      }
+    }
+
+    // Validate lifecycle hooks if provided
+    if (plugin.lifecycleHooks) {
+      this.validateLifecycleHooks(plugin.lifecycleHooks);
+    }
+  }
+
+  private validateLifecycleHooks(hooks: Partial<LifecycleHooks>): void {
+    const validHookNames = [
+      'onTournamentStart',
+      'onTournamentEnd',
+      'onMatchStart',
+      'onMatchFinal',
+      'beforePhaseGenerate',
+      'afterPhaseGenerate',
+      'afterStandingsUpdate',
+    ];
+
+    for (const [hookName, hookFn] of Object.entries(hooks)) {
+      if (!validHookNames.includes(hookName)) {
+        throw new PluginValidationError(
+          `Invalid lifecycle hook name: ${hookName}. Valid hooks are: ${validHookNames.join(', ')}`
+        );
+      }
+
+      if (typeof hookFn !== 'function') {
+        throw new PluginValidationError(
+          `Lifecycle hook '${hookName}' must be a function`
         );
       }
     }
