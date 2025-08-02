@@ -7,12 +7,36 @@ export interface EventHandler<T = any> {
   (data: T): void;
 }
 
-export class EventBus {
+/**
+ * Type-safe event map interface for better TypeScript support
+ * Plugins can extend this interface to define their event types
+ */
+export interface EventMap {
+  [eventName: string]: any;
+}
+
+/**
+ * Default event map with common plugin events
+ */
+export interface DefaultEventMap extends EventMap {
+  weatherUpdate: { venue: string; forecast: string; temperature?: number };
+  matchUpdate: { matchId: string; status: string; score?: any };
+  scheduleChange: { matches: any[]; reason: string };
+  playerUpdate: { playerId: string; stats: any };
+  phaseComplete: { phaseId: string; results: any[] };
+}
+
+export class EventBus<TEventMap extends EventMap = DefaultEventMap> {
   private listeners = new Map<string, Set<EventHandler>>();
 
   /**
-   * Subscribe to an event
+   * Subscribe to an event with type safety
    */
+  subscribe<K extends keyof TEventMap>(
+    event: K,
+    handler: EventHandler<TEventMap[K]>
+  ): void;
+  subscribe(event: string, handler: EventHandler): void;
   subscribe(event: string, handler: EventHandler): void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
@@ -21,8 +45,13 @@ export class EventBus {
   }
 
   /**
-   * Unsubscribe from an event
+   * Unsubscribe from an event with type safety
    */
+  unsubscribe<K extends keyof TEventMap>(
+    event: K,
+    handler: EventHandler<TEventMap[K]>
+  ): void;
+  unsubscribe(event: string, handler: EventHandler): void;
   unsubscribe(event: string, handler: EventHandler): void {
     const handlers = this.listeners.get(event);
     if (handlers) {
@@ -34,8 +63,10 @@ export class EventBus {
   }
 
   /**
-   * Publish an event to all subscribers
+   * Publish an event with type safety
    */
+  publish<K extends keyof TEventMap>(event: K, data: TEventMap[K]): void;
+  publish(event: string, data: any): void;
   publish(event: string, data: any): void {
     const handlers = this.listeners.get(event);
     if (handlers) {
@@ -79,3 +110,15 @@ export class EventBus {
     this.listeners.delete(event);
   }
 }
+
+/**
+ * Create a typed EventBus instance for plugins
+ */
+export function createTypedEventBus<
+  TEventMap extends EventMap = DefaultEventMap,
+>(): EventBus<TEventMap> {
+  return new EventBus<TEventMap>();
+}
+
+// Export default EventBus for backward compatibility
+export const defaultEventBus = new EventBus();

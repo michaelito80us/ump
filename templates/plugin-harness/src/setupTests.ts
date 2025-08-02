@@ -3,8 +3,8 @@ import '@testing-library/jest-dom';
 
 // Type declarations
 declare global {
-  namespace NodeJS {
-    interface Global {
+  namespace _NodeJS {
+    interface _Global {
       mockCreateRoot: {
         render: jest.Mock;
         unmount: jest.Mock;
