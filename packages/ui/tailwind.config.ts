@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import { resolve } from 'path';
 
 const config: Config = {
   darkMode: 'class',
@@ -6,6 +7,12 @@ const config: Config = {
     './src/**/*.{js,ts,jsx,tsx,mdx}',
     './stories/**/*.{ts,tsx}',
     './index.html',
+    // Add absolute paths for when Storybook runs from project root
+    resolve(__dirname, './src/**/*.{js,ts,jsx,tsx,mdx}'),
+    resolve(__dirname, './src/**/*.stories.{js,ts,jsx,tsx}'),
+    // Also include paths relative to project root for Storybook
+    '../../packages/ui/src/**/*.{js,ts,jsx,tsx,mdx}',
+    '../../packages/ui/src/**/*.stories.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
