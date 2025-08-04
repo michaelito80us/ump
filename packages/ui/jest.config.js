@@ -1,11 +1,12 @@
 /** @type {import('jest').Config} */
-module.exports = {
+export default {
   displayName: '@ump/ui',
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@ump/core$': '<rootDir>/../../packages/core/src',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
   transform: {
