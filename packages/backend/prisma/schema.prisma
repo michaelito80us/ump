@@ -1,0 +1,290 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  clerkId   String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  players       Player[]
+  teams         Team[]        @relation("TeamManagers")
+  tournaments   Tournament[]  @relation("TournamentCreators")
+  invitations   Invitation[]  @relation("InvitationSender")
+  joinRequests  JoinRequest[] @relation("JoinRequestUser")
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+// Core Domain Models
+model Team {
+  id        String   @id @default(cuid())
+  name      String
+  sportIds  String[] // Array of sport plugin IDs
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  players     Player[]
+  managers    User[]        @relation("TeamManagers")
+  tournaments Tournament[]  @relation("TournamentTeams")
+  matchesA    Match[]       @relation("MatchTeamA")
+  matchesB    Match[]       @relation("MatchTeamB")
+
+  @@map("teams")
+}
+
+model Player {
+  id     String   @id @default(cuid())
+  userId String
+  sports String[] // Array of sport plugin IDs
+
+  // Relations
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teams Team[]
+  stats PlayerStats[]
+
+  @@map("players")
+}
+
+model PlayerStats {
+  id           String @id @default(cuid())
+  playerId     String
+  sport        String
+  tournamentId String
+  stats        Json   // JSON object with metric keys and values
+
+  // Relations
+  player     Player     @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, tournamentId, sport])
+  @@map("player_stats")
+}
+
+model Tournament {
+  id       String            @id @default(cuid())
+  pluginId String
+  name     String
+  sport    String            // Sport plugin ID
+  status   TournamentStatus  @default(NOT_STARTED)
+  config   Json              // TournamentConfig as JSON
+  isLocked Boolean           @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  // Relations
+  creator      User           @relation("TournamentCreators", fields: [creatorId], references: [id])
+  creatorId    String
+  teams        Team[]         @relation("TournamentTeams")
+  phases       Phase[]
+  playerStats  PlayerStats[]
+  invitations  Invitation[]
+  joinRequests JoinRequest[]
+  auditLogs    AuditLog[]
+
+  @@map("tournaments")
+}
+
+model Phase {
+  id         String @id @default(cuid())
+  pluginId   String
+  phaseName  String
+  settings   Json   // Phase-specific settings as JSON
+  tournamentId String
+
+  // Relations
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  matches    Match[]
+
+  @@map("phases")
+}
+
+model Match {
+  id            String      @id @default(cuid())
+  scoreA        Int         @default(0)
+  scoreB        Int         @default(0)
+  breakdown     Json?       // MatchBreakdown as JSON
+  scheduledTime DateTime?
+  venue         String?
+  status        MatchStatus @default(PENDING)
+  phaseId       String
+
+  // Relations
+  phase        Phase              @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  teamA        Team               @relation("MatchTeamA", fields: [teamAId], references: [id])
+  teamAId      String
+  teamB        Team               @relation("MatchTeamB", fields: [teamBId], references: [id])
+  teamBId      String
+  scoreAudits  MatchScoreAudit[]
+
+  @@map("matches")
+}
+
+model MatchScoreAudit {
+  id          String      @id @default(cuid())
+  matchId     String
+  submittedBy String
+  submittedAt DateTime    @default(now())
+  breakdown   Json        // MatchBreakdown as JSON
+  scoreA      Int
+  scoreB      Int
+  source      ScoreSource
+
+  // Relations
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@map("match_score_audits")
+}
+
+// Governance Models
+model Invitation {
+  id               String           @id @default(cuid())
+  type             InvitationType
+  senderUserId     String
+  recipientEmail   String?
+  recipientUserId  String?
+  token            String           @unique
+  role             String           // JSON array or single role
+  teamId           String?
+  tournamentId     String?
+  organizationId   String?
+  status           InvitationStatus @default(PENDING)
+  createdAt        DateTime         @default(now())
+  expiresAt        DateTime
+
+  // Relations
+  sender     User        @relation("InvitationSender", fields: [senderUserId], references: [id])
+  tournament Tournament? @relation(fields: [tournamentId], references: [id])
+
+  @@map("invitations")
+}
+
+model JoinRequest {
+  id              String            @id @default(cuid())
+  requesterUserId String
+  targetEntity    TargetEntity
+  entityId        String
+  roleRequested   String
+  status          JoinRequestStatus @default(PENDING)
+  message         String?
+  createdAt       DateTime          @default(now())
+
+  // Relations
+  requester  User        @relation("JoinRequestUser", fields: [requesterUserId], references: [id])
+  tournament Tournament? @relation(fields: [entityId], references: [id])
+
+  @@map("join_requests")
+}
+
+// Audit Logging
+model AuditLog {
+  id           String    @id @default(cuid())
+  type         LogType
+  timestamp    DateTime  @default(now())
+  actorId      String
+  actorType    ActorType
+  message      String?
+  data         Json      // Event-specific data
+  tournamentId String?
+
+  // Relations
+  actor      User        @relation(fields: [actorId], references: [id])
+  tournament Tournament? @relation(fields: [tournamentId], references: [id])
+
+  @@index([type, timestamp])
+  @@index([actorId])
+  @@map("audit_logs")
+}
+
+// Enums
+enum TournamentStatus {
+  NOT_STARTED
+  LIVE
+  COMPLETED
+
+  @@map("tournament_status")
+}
+
+enum MatchStatus {
+  PENDING
+  LIVE
+  FINAL
+  NEEDS_APPROVAL
+
+  @@map("match_status")
+}
+
+enum ScoreSource {
+  MANUAL
+  PLUGIN
+  ADMIN_OVERRIDE
+
+  @@map("score_source")
+}
+
+enum InvitationType {
+  TEAM_PLAYER
+  TOURNAMENT_TEAM
+  TOURNAMENT_USER
+  ORG_USER
+
+  @@map("invitation_type")
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+
+  @@map("invitation_status")
+}
+
+enum JoinRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+
+  @@map("join_request_status")
+}
+
+enum TargetEntity {
+  TEAM
+  TOURNAMENT
+
+  @@map("target_entity")
+}
+
+enum LogType {
+  MATCH_EVENT
+  SCORE_SUBMISSION
+  CONSTRAINT_VIOLATION
+  PLAYER_MOVEMENT
+  MANUAL_OVERRIDE
+
+  @@map("log_type")
+}
+
+enum ActorType {
+  USER
+  SYSTEM
+  PLUGIN
+
+  @@map("actor_type")
+}

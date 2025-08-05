@@ -1,0 +1,377 @@
+# Scalars
+scalar DateTime
+scalar JSON
+
+# User Types
+type User {
+  id: ID!
+  email: String!
+  name: String
+  clerkId: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relations
+  players: [Player!]!
+  teams: [Team!]!
+  tournaments: [Tournament!]!
+  invitations: [Invitation!]!
+  joinRequests: [JoinRequest!]!
+}
+
+# Core Domain Types
+type Team {
+  id: ID!
+  name: String!
+  sportIds: [String!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relations
+  players: [Player!]!
+  managers: [User!]!
+  tournaments: [Tournament!]!
+  matches: [Match!]!
+}
+
+type Player {
+  id: ID!
+  userId: String!
+  sports: [String!]!
+  
+  # Relations
+  user: User!
+  teams: [Team!]!
+  stats: [PlayerStats!]!
+}
+
+type PlayerStats {
+  id: ID!
+  playerId: String!
+  sport: String!
+  tournamentId: String!
+  stats: JSON!
+  
+  # Relations
+  player: Player!
+  tournament: Tournament!
+}
+
+type Tournament {
+  id: ID!
+  pluginId: String!
+  name: String!
+  sport: String!
+  status: TournamentStatus!
+  config: JSON!
+  isLocked: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relations
+  creator: User!
+  teams: [Team!]!
+  phases: [Phase!]!
+  playerStats: [PlayerStats!]!
+  invitations: [Invitation!]!
+  joinRequests: [JoinRequest!]!
+  leaderboard: [LeaderboardEntry!]!
+}
+
+type Phase {
+  id: ID!
+  pluginId: String!
+  phaseName: String!
+  settings: JSON!
+  tournamentId: String!
+  
+  # Relations
+  tournament: Tournament!
+  matches: [Match!]!
+}
+
+type Match {
+  id: ID!
+  scoreA: Int!
+  scoreB: Int!
+  breakdown: JSON
+  scheduledTime: DateTime
+  venue: String
+  status: MatchStatus!
+  phaseId: String!
+  
+  # Relations
+  phase: Phase!
+  teamA: Team!
+  teamB: Team!
+  scoreAudits: [MatchScoreAudit!]!
+}
+
+type MatchScoreAudit {
+  id: ID!
+  matchId: String!
+  submittedBy: String!
+  submittedAt: DateTime!
+  breakdown: JSON!
+  scoreA: Int!
+  scoreB: Int!
+  source: ScoreSource!
+  
+  # Relations
+  match: Match!
+}
+
+# Governance Types
+type Invitation {
+  id: ID!
+  type: InvitationType!
+  senderUserId: String!
+  recipientEmail: String
+  recipientUserId: String
+  token: String!
+  role: String!
+  teamId: String
+  tournamentId: String
+  organizationId: String
+  status: InvitationStatus!
+  createdAt: DateTime!
+  expiresAt: DateTime!
+  
+  # Relations
+  sender: User!
+  tournament: Tournament
+}
+
+type JoinRequest {
+  id: ID!
+  requesterUserId: String!
+  targetEntity: TargetEntity!
+  entityId: String!
+  roleRequested: String!
+  status: JoinRequestStatus!
+  message: String
+  createdAt: DateTime!
+  
+  # Relations
+  requester: User!
+  tournament: Tournament
+}
+
+# Computed Types
+type LeaderboardEntry {
+  teamId: String!
+  team: Team!
+  position: Int!
+  points: Int!
+  wins: Int!
+  losses: Int!
+  draws: Int!
+  goalsFor: Int!
+  goalsAgainst: Int!
+  goalDifference: Int!
+}
+
+# Audit Types
+type AuditLog {
+  id: ID!
+  type: LogType!
+  timestamp: DateTime!
+  actorId: String!
+  actorType: ActorType!
+  message: String
+  data: JSON!
+  tournamentId: String
+  
+  # Relations
+  actor: User!
+  tournament: Tournament
+}
+
+# Enums
+enum TournamentStatus {
+  NOT_STARTED
+  LIVE
+  COMPLETED
+}
+
+enum MatchStatus {
+  PENDING
+  LIVE
+  FINAL
+  NEEDS_APPROVAL
+}
+
+enum ScoreSource {
+  MANUAL
+  PLUGIN
+  ADMIN_OVERRIDE
+}
+
+enum InvitationType {
+  TEAM_PLAYER
+  TOURNAMENT_TEAM
+  TOURNAMENT_USER
+  ORG_USER
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+enum JoinRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TargetEntity {
+  TEAM
+  TOURNAMENT
+}
+
+enum LogType {
+  MATCH_EVENT
+  SCORE_SUBMISSION
+  CONSTRAINT_VIOLATION
+  PLAYER_MOVEMENT
+  MANUAL_OVERRIDE
+}
+
+enum ActorType {
+  USER
+  SYSTEM
+  PLUGIN
+}
+
+# Input Types
+input CreateTournamentInput {
+  name: String!
+  sport: String!
+  pluginId: String!
+  config: JSON!
+}
+
+input UpdateTournamentInput {
+  name: String
+  config: JSON
+  isLocked: Boolean
+}
+
+input CreateTeamInput {
+  name: String!
+  sportIds: [String!]!
+}
+
+input UpdateTeamInput {
+  name: String
+  sportIds: [String!]
+}
+
+input CreateMatchInput {
+  phaseId: String!
+  teamAId: String!
+  teamBId: String!
+  scheduledTime: DateTime
+  venue: String
+}
+
+input UpdateMatchScoreInput {
+  scoreA: Int!
+  scoreB: Int!
+  breakdown: JSON
+}
+
+input SendInvitationInput {
+  type: InvitationType!
+  recipientEmail: String
+  recipientUserId: String
+  role: String!
+  teamId: String
+  tournamentId: String
+  organizationId: String
+}
+
+input CreateJoinRequestInput {
+  targetEntity: TargetEntity!
+  entityId: String!
+  roleRequested: String!
+  message: String
+}
+
+# Root Types
+type Query {
+  # User queries
+  me: User
+  user(id: ID!): User
+  users: [User!]!
+  
+  # Tournament queries
+  tournament(id: ID!): Tournament
+  tournaments: [Tournament!]!
+  myTournaments: [Tournament!]!
+  
+  # Team queries
+  team(id: ID!): Team
+  teams: [Team!]!
+  myTeams: [Team!]!
+  
+  # Match queries
+  match(id: ID!): Match
+  matches(tournamentId: ID): [Match!]!
+  
+  # Governance queries
+  invitations: [Invitation!]!
+  joinRequests: [JoinRequest!]!
+  
+  # Audit queries
+  auditLogs(tournamentId: ID): [AuditLog!]!
+  
+  # Health check
+  health: String!
+}
+
+type Mutation {
+  # Tournament mutations
+  createTournament(input: CreateTournamentInput!): Tournament!
+  updateTournament(id: ID!, input: UpdateTournamentInput!): Tournament!
+  deleteTournament(id: ID!): Boolean!
+  startTournament(id: ID!): Tournament!
+  completeTournament(id: ID!): Tournament!
+  
+  # Team mutations
+  createTeam(input: CreateTeamInput!): Team!
+  updateTeam(id: ID!, input: UpdateTeamInput!): Team!
+  deleteTeam(id: ID!): Boolean!
+  joinTeam(teamId: ID!): Team!
+  leaveTeam(teamId: ID!): Boolean!
+  
+  # Match mutations
+  createMatch(input: CreateMatchInput!): Match!
+  updateMatchScore(id: ID!, input: UpdateMatchScoreInput!): Match!
+  approveMatch(id: ID!): Match!
+  
+  # Governance mutations
+  sendInvitation(input: SendInvitationInput!): Invitation!
+  acceptInvitation(token: String!): Boolean!
+  rejectInvitation(token: String!): Boolean!
+  
+  createJoinRequest(input: CreateJoinRequestInput!): JoinRequest!
+  approveJoinRequest(id: ID!): Boolean!
+  rejectJoinRequest(id: ID!): Boolean!
+}
+
+type Subscription {
+  # Tournament subscriptions
+  tournamentUpdated(id: ID!): Tournament!
+  
+  # Match subscriptions
+  matchUpdated(id: ID!): Match!
+  matchScoreUpdated(tournamentId: ID!): Match!
+  
+  # Real-time notifications
+  invitationReceived(userId: ID!): Invitation!
+  joinRequestReceived(entityId: ID!): JoinRequest!
+}
