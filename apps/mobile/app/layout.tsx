@@ -1,5 +1,7 @@
+// app/layout.tsx
 import React from 'react';
 import type { Metadata, Viewport } from 'next';
+import { Providers } from '../lib/providers';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -43,9 +45,11 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </head>
       <body className="min-h-screen bg-background font-sans antialiased">
-        <div id="root" className="relative flex min-h-screen flex-col">
-          {children}
-        </div>
+        <Providers>
+          <div id="root" className="relative flex min-h-screen flex-col">
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   );

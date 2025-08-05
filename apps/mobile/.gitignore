@@ -8,3 +8,5 @@ public/workbox-*.js.map
 
 # next-pwa cache
 .next/cache/
+# clerk configuration (can include secrets)
+/.clerk/
