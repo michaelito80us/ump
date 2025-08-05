@@ -9,6 +9,8 @@ import {
   DialogFooter,
 } from './Dialog';
 import { Button } from './Button';
+import { Input } from './Input';
+import { Label } from './Label';
 
 const meta = {
   title: 'UI/Dialog',
@@ -17,35 +19,22 @@ const meta = {
     layout: 'centered',
   },
   tags: ['autodocs'],
-  argTypes: {
-    open: {
-      control: 'boolean',
-      description: 'Controls whether the dialog is open',
-    },
-    onOpenChange: {
-      action: 'onOpenChange',
-      description: 'Callback when dialog open state changes',
-    },
-  },
 } satisfies Meta<typeof Dialog>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {
-    children: null,
-  },
-  render: (args) => (
-    <Dialog {...args}>
+  render: () => (
+    <Dialog>
       <DialogTrigger asChild>
-        <Button>Open Dialog</Button>
+        <Button variant="outline">Open Dialog</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Dialog Title</DialogTitle>
           <DialogDescription>
-            This is a dialog description that explains what the dialog is for.
+            This is a dialog description that explains what this dialog is for.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
@@ -60,12 +49,9 @@ export const Default: Story = {
   ),
 };
 
-export const ConfirmationDialog: Story = {
-  args: {
-    children: null,
-  },
-  render: (args) => (
-    <Dialog {...args}>
+export const Destructive: Story = {
+  render: () => (
+    <Dialog>
       <DialogTrigger asChild>
         <Button variant="destructive">Delete Tournament</Button>
       </DialogTrigger>
@@ -79,46 +65,120 @@ export const ConfirmationDialog: Story = {
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline">Cancel</Button>
-          <Button variant="destructive">Delete</Button>
+          <Button variant="destructive">Delete Tournament</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   ),
 };
 
-export const FormDialog: Story = {
-  args: {
-    children: null,
-  },
-  render: (args) => (
-    <Dialog {...args}>
+export const WithForm: Story = {
+  render: () => (
+    <Dialog>
       <DialogTrigger asChild>
         <Button>Add Team</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add New Team</DialogTitle>
-          <DialogDescription>Enter the team details below.</DialogDescription>
+          <DialogDescription>
+            Enter the team details below to add them to the tournament.
+          </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Team Name</label>
-            <input
-              className="w-full px-3 py-2 border rounded-md"
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="team-name" className="text-right">
+              Team Name
+            </Label>
+            <Input
+              id="team-name"
+              className="col-span-3"
               placeholder="Enter team name"
             />
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Coach</label>
-            <input
-              className="w-full px-3 py-2 border rounded-md"
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="coach-name" className="text-right">
+              Coach
+            </Label>
+            <Input
+              id="coach-name"
+              className="col-span-3"
               placeholder="Enter coach name"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="contact-email" className="text-right">
+              Email
+            </Label>
+            <Input
+              id="contact-email"
+              type="email"
+              className="col-span-3"
+              placeholder="team@example.com"
             />
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline">Cancel</Button>
           <Button>Add Team</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  ),
+};
+
+export const LongContent: Story = {
+  render: () => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">Tournament Rules</Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Tournament Rules & Regulations</DialogTitle>
+          <DialogDescription>
+            Please read the following rules carefully before participating.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="py-4 space-y-4">
+          <div>
+            <h3 className="font-semibold mb-2">1. General Rules</h3>
+            <p className="text-sm text-muted-foreground">
+              All participants must register before the tournament begins. Late
+              registrations will not be accepted under any circumstances.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-2">2. Equipment</h3>
+            <p className="text-sm text-muted-foreground">
+              Teams are responsible for bringing their own equipment. The
+              tournament organizers will provide basic field equipment only.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-2">3. Match Duration</h3>
+            <p className="text-sm text-muted-foreground">
+              Each match will consist of two 40-minute halves with a 10-minute
+              break. The referee's decision on timing is final.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-2">4. Scoring</h3>
+            <p className="text-sm text-muted-foreground">
+              Points will be awarded as follows: Win = 3 points, Draw = 1 point,
+              Loss = 0 points. In case of a tie, goal difference will be used.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-2">5. Conduct</h3>
+            <p className="text-sm text-muted-foreground">
+              Unsporting behavior will result in immediate disqualification.
+              Respect for opponents, officials, and spectators is mandatory.
+            </p>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button>I Understand</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

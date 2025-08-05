@@ -15,10 +15,14 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.2",
+    "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-visually-hidden": "^1.1.0",
     "@ump/core": "workspace:*",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "lucide-react": "^0.460.0",
     "tailwind-merge": "^2.2.0"
   },
   "peerDependencies": {
