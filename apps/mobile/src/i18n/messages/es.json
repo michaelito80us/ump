@@ -1,0 +1,95 @@
+{
+  "common": {
+    "appName": "UMP Móvil",
+    "appDescription": "Plataforma de Gestión Unificada - Gestión de Torneos Móvil",
+    "graphqlSetupComplete": "Configuración del Cliente GraphQL Completa",
+    "apolloClientIntegration": "Integración de Apollo Client con Autenticación Clerk",
+    "welcome": "Bienvenido",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "submit": "Enviar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "sort": "Ordenar",
+    "refresh": "Actualizar"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "schedule": "Calendario",
+    "live": "Marcadores en Vivo",
+    "standings": "Clasificaciones",
+    "teams": "Equipos",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "tournaments": "Torneos",
+    "players": "Jugadores"
+  },
+  "tournament": {
+    "title": "Torneo",
+    "name": "Nombre del Torneo",
+    "status": "Estado",
+    "startDate": "Fecha de Inicio",
+    "endDate": "Fecha de Finalización",
+    "venue": "Sede",
+    "participants": "Participantes",
+    "matches": "Partidos",
+    "phases": "Fases"
+  },
+  "match": {
+    "title": "Partido",
+    "vs": "vs",
+    "score": "Marcador",
+    "time": "Hora",
+    "venue": "Sede",
+    "status": {
+      "scheduled": "Programado",
+      "live": "En Vivo",
+      "completed": "Completado",
+      "cancelled": "Cancelado",
+      "postponed": "Pospuesto"
+    },
+    "startMatch": "Iniciar Partido",
+    "endMatch": "Finalizar Partido"
+  },
+  "team": {
+    "title": "Equipo",
+    "name": "Nombre del Equipo",
+    "players": "Jugadores",
+    "coach": "Entrenador",
+    "stats": "Estadísticas"
+  },
+  "player": {
+    "title": "Jugador",
+    "name": "Nombre del Jugador",
+    "position": "Posición",
+    "number": "Número",
+    "stats": "Estadísticas"
+  },
+  "auth": {
+    "signIn": "Iniciar Sesión",
+    "signOut": "Cerrar Sesión",
+    "signUp": "Registrarse",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "rememberMe": "Recordarme"
+  },
+  "errors": {
+    "generic": "Algo salió mal. Por favor, inténtalo de nuevo.",
+    "network": "Error de red. Por favor, verifica tu conexión.",
+    "unauthorized": "No tienes autorización para realizar esta acción.",
+    "notFound": "El recurso solicitado no fue encontrado.",
+    "validation": "Por favor, verifica tu entrada e inténtalo de nuevo."
+  }
+}

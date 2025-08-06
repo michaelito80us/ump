@@ -1,0 +1,95 @@
+{
+  "common": {
+    "appName": "UMP Mobile",
+    "appDescription": "Unified Management Platform - Mobile Tournament Management",
+    "graphqlSetupComplete": "GraphQL Client Setup Complete",
+    "apolloClientIntegration": "Apollo Client with Clerk Auth Integration",
+    "welcome": "Welcome",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "refresh": "Refresh"
+  },
+  "navigation": {
+    "home": "Home",
+    "schedule": "Schedule",
+    "live": "Live Scores",
+    "standings": "Standings",
+    "teams": "Teams",
+    "profile": "Profile",
+    "settings": "Settings",
+    "tournaments": "Tournaments",
+    "players": "Players"
+  },
+  "tournament": {
+    "title": "Tournament",
+    "name": "Tournament Name",
+    "status": "Status",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "venue": "Venue",
+    "participants": "Participants",
+    "matches": "Matches",
+    "phases": "Phases"
+  },
+  "match": {
+    "title": "Match",
+    "vs": "vs",
+    "score": "Score",
+    "time": "Time",
+    "venue": "Venue",
+    "status": {
+      "scheduled": "Scheduled",
+      "live": "Live",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "postponed": "Postponed"
+    },
+    "startMatch": "Start Match",
+    "endMatch": "End Match"
+  },
+  "team": {
+    "title": "Team",
+    "name": "Team Name",
+    "players": "Players",
+    "coach": "Coach",
+    "stats": "Statistics"
+  },
+  "player": {
+    "title": "Player",
+    "name": "Player Name",
+    "position": "Position",
+    "number": "Number",
+    "stats": "Statistics"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "signUp": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?",
+    "rememberMe": "Remember Me"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Network error. Please check your connection.",
+    "unauthorized": "You are not authorized to perform this action.",
+    "notFound": "The requested resource was not found.",
+    "validation": "Please check your input and try again."
+  }
+}
