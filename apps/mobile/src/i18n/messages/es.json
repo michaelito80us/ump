@@ -24,6 +24,15 @@
     "sort": "Ordenar",
     "refresh": "Actualizar"
   },
+  "test": {
+    "title": "¡La Página de Prueba Funciona!",
+    "description": "Esta es una prueba simple de ruta estática.",
+    "i18nIntegration": "Esta página ahora está correctamente integrada con la estructura de layout i18n.",
+    "layoutFixed": "¡Layout Corregido!",
+    "layoutDescription": "Esta página ahora tiene acceso al layout raíz y soporta internacionalización.",
+    "currentLocale": "Idioma Actual",
+    "backToHome": "Volver al Inicio"
+  },
   "navigation": {
     "home": "Inicio",
     "schedule": "Calendario",
