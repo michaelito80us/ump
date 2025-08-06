@@ -1,9 +1,5 @@
 // @ump/core - Canonical types and shared utilities
 // This is the foundational package for the unified management platform
-
-// Import types for internal use in utility functions
-import type { MatchStatus, Tournament, Match } from './types';
-
 import {
   MATCH_STATUSES,
   TOURNAMENT_STATUSES,
@@ -12,40 +8,11 @@ import {
   PermissionError,
   PluginExecutionError,
 } from './types';
-
 // Export all canonical types
 export * from './types';
-
 // Export GraphQL generated types and hooks (with namespace to avoid conflicts)
 export * as GraphQL from './generated';
-
-// Export core utilities and interfaces
-export interface BaseConfig {
-  version: string;
-}
-
 export const CORE_VERSION = '0.1.0';
-
-// Re-export commonly used types for convenience (using original types, not GraphQL)
-export type {
-  Team,
-  Player,
-  Match,
-  Phase,
-  Tournament,
-  MatchStatus,
-  AuditLog,
-  TournamentConfig,
-  MatchContext,
-  TournamentContext,
-  LeaderboardEntry,
-  Invitation,
-  JoinRequest,
-  PlayerOverride,
-  SchedulingConstraints,
-  Slot,
-} from './types';
-
 // Export error classes as values (not types) - already imported above
 export {
   TournamentError,
@@ -53,7 +20,6 @@ export {
   PermissionError,
   PluginExecutionError,
 };
-
 // Export frozen constants - already imported above
 export {
   MATCH_STATUSES,
@@ -69,28 +35,22 @@ export {
   AFFECTED_ENTITIES,
   SCORE_SOURCES,
 } from './types';
-
 // Package metadata
 export const PACKAGE_NAME = '@ump/core';
 export const PACKAGE_VERSION = '0.1.0';
-
 // Utility type guards
-export function isValidMatchStatus(status: string): status is MatchStatus {
-  return MATCH_STATUSES.includes(status as any);
+export function isValidMatchStatus(status) {
+  return MATCH_STATUSES.includes(status);
 }
-
-export function isValidTournamentStatus(
-  status: string
-): status is Tournament['status'] {
-  return TOURNAMENT_STATUSES.includes(status as any);
+export function isValidTournamentStatus(status) {
+  return TOURNAMENT_STATUSES.includes(status);
 }
-
 // Type assertion helpers
-export function assertMatch(obj: unknown): asserts obj is Match {
+export function assertMatch(obj) {
   if (!obj || typeof obj !== 'object') {
     throw new ValidationError('Invalid match object');
   }
-  const match = obj as any;
+  const match = obj;
   if (
     !match.id ||
     !match.teamA ||
@@ -100,12 +60,11 @@ export function assertMatch(obj: unknown): asserts obj is Match {
     throw new ValidationError('Invalid match structure');
   }
 }
-
-export function assertTournament(obj: unknown): asserts obj is Tournament {
+export function assertTournament(obj) {
   if (!obj || typeof obj !== 'object') {
     throw new ValidationError('Invalid tournament object');
   }
-  const tournament = obj as any;
+  const tournament = obj;
   if (
     !tournament.id ||
     !tournament.name ||
@@ -114,3 +73,4 @@ export function assertTournament(obj: unknown): asserts obj is Tournament {
     throw new ValidationError('Invalid tournament structure');
   }
 }
+//# sourceMappingURL=index.js.map

@@ -1,16 +1,125 @@
 # @ump/core
 
-Core package containing canonical types, GraphQL generated types, and shared utilities for the Unified Management Platform.
+Core types and utilities for the Unified Management Platform (UMP).
 
-## Features
+## Overview
 
-- **Canonical Types**: Domain entities (Tournament, Match, Team, Player, etc.)
-- **GraphQL Code Generation**: Fully-typed GraphQL operations and React Query hooks
-- **Shared Utilities**: Common interfaces and error types
+This package provides the canonical TypeScript definitions and shared utilities that form the foundation of the UMP tournament management system. It serves as the single source of truth for all domain entities and their relationships.
 
-## GraphQL Code Generation
+## Installation
 
-This package includes automatically generated TypeScript types and React Query hooks from the GraphQL schema.
+```bash
+pnpm add @ump/core
+```
+
+## Usage
+
+### Basic Types
+
+```typescript
+import { Tournament, Match, Team, Player } from '@ump/core';
+
+// Use the canonical types in your application
+const tournament: Tournament = {
+  id: 'tournament-1',
+  name: 'Summer Championship',
+  sport: 'rugby',
+  status: 'not_started',
+  phases: [],
+  config: {
+    statTier: 2,
+    plugins: {
+      sport: 'rugby-7s',
+      phases: [],
+    },
+  },
+  isLocked: false,
+};
+```
+
+### Error Handling
+
+```typescript
+import { ValidationError, TournamentError } from '@ump/core';
+
+try {
+  // Tournament operations
+} catch (error) {
+  if (error instanceof ValidationError) {
+    console.error('Validation failed:', error.message);
+  } else if (error instanceof TournamentError) {
+    console.error('Tournament error:', error.message);
+  }
+}
+```
+
+### Type Guards
+
+```typescript
+import { isValidMatchStatus, assertMatch } from '@ump/core';
+
+// Type guard
+if (isValidMatchStatus(status)) {
+  // status is now typed as MatchStatus
+}
+
+// Type assertion
+try {
+  assertMatch(unknownObject);
+  // unknownObject is now typed as Match
+} catch (error) {
+  // Handle invalid match
+}
+```
+
+### GraphQL Integration
+
+```typescript
+import { GraphQL } from '@ump/core';
+
+// Access generated GraphQL types and hooks
+const { useTournamentQuery } = GraphQL;
+```
+
+## Exports
+
+- **Main exports** (`@ump/core`): All canonical types, error classes, constants, and utilities
+- **Generated GraphQL** (`@ump/core/generated`): Auto-generated GraphQL types and React Query hooks
+- **Types only** (`@ump/core/types`): Just the type definitions without utilities
+
+## Type Safety
+
+All types are strictly typed with TypeScript and include:
+
+- Frozen enums and string unions to prevent runtime modification
+- Comprehensive error hierarchy with structured error codes
+- Type guards and assertion helpers for runtime validation
+- Full JSDoc documentation for better IDE support
+
+## Dependencies
+
+- `@tanstack/react-query`: For GraphQL hooks (peer dependency)
+- `graphql`: For GraphQL type definitions
+
+## Development
+
+```bash
+# Build the package
+pnpm build
+
+# Run type checking
+pnpm type-check
+
+# Run tests
+pnpm test
+
+# Generate GraphQL types
+pnpm codegen
+```
+
+## License
+
+Private - Part of the Unified Management Platform
 
 ### Setup
 

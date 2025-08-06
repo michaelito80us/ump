@@ -1,31 +1,81 @@
 {
   "name": "@ump/core",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
+  "description": "Core types and utilities for the Unified Management Platform",
+  "keywords": [
+    "tournament",
+    "sports",
+    "management",
+    "typescript"
+  ],
   "main": "./dist/index.js",
+  "module": "./dist-esm/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "import": "./dist-esm/index.js",
+      "require": "./dist/index.js",
       "default": "./dist/index.js"
     },
     "./generated": {
       "types": "./dist/generated/index.d.ts",
+      "import": "./dist-esm/generated/index.js",
+      "require": "./dist/generated/index.js",
       "default": "./dist/generated/index.js"
-    }
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist-esm/types.js",
+      "require": "./dist/types.js",
+      "default": "./dist/types.js"
+    },
+    "./package.json": "./package.json"
   },
+  "files": [
+    "dist/**/*",
+    "dist-esm/**/*",
+    "README.md",
+    "package.json"
+  ],
   "scripts": {
-    "build": "pnpm run codegen && tsc -b",
+    "build": "pnpm run codegen && pnpm run build:tsc && pnpm run build:esm",
+    "build:tsc": "tsc -b",
+    "build:esm": "tsc -b tsconfig.esm.json",
     "dev": "tsc -b --watch",
     "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
-    "test": "tsc --noEmit --project . && echo 'TypeScript compilation test passed'",
+    "test": "pnpm run test:types && pnpm run test:build",
+    "test:types": "tsc --noEmit --project .",
+    "test:build": "pnpm run build && echo 'Build verification passed'",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist",
-    "prepublishOnly": "pnpm run build",
-    "codegen": "graphql-codegen --config ../../codegen.yml"
+    "clean": "rm -rf dist dist-esm",
+    "prepublishOnly": "pnpm run test && pnpm run build",
+    "codegen": "cd ../.. && graphql-codegen --config codegen.yml"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.59.0",
     "graphql": "^16.9.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "restricted"
   }
 }
