@@ -2,6 +2,8 @@ import '../globals.css';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import { PWAInstaller } from '../../src/components/PWAInstaller';
+import { OfflineIndicator } from '../../src/components/OfflineIndicator';
 
 const locales = ['en', 'es'];
 
@@ -22,12 +24,83 @@ export default async function Layout({ children, params }: LayoutProps) {
 
   return (
     <html lang={locale}>
+      <head>
+        {/* PWA Meta Tags */}
+        <meta name="application-name" content="UMP Tournament Manager" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta
+          name="apple-mobile-web-app-title"
+          content="UMP Tournament Manager"
+        />
+        <meta
+          name="description"
+          content="Unified Management Platform for Tournament Management"
+        />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="msapplication-config" content="/icons/browserconfig.xml" />
+        <meta name="msapplication-TileColor" content="#2B5797" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <meta name="theme-color" content="#000000" />
+
+        {/* Viewport */}
+        <meta
+          name="viewport"
+          content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover"
+        />
+
+        {/* Apple Touch Icons */}
+        <link rel="apple-touch-icon" href="/icons/icon-152x152.svg" />
+        <link
+          rel="apple-touch-icon"
+          sizes="152x152"
+          href="/icons/icon-152x152.svg"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/icons/icon-192x192.svg"
+        />
+
+        {/* Favicon */}
+        <link rel="icon" type="image/svg+xml" href="/icons/icon-192x192.svg" />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/icons/icon-192x192.svg"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/icons/icon-192x192.svg"
+        />
+
+        {/* Manifest */}
+        <link rel="manifest" href="/manifest.json" />
+
+        {/* Splash Screen */}
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
+
+        {/* Prevent zoom on input focus (iOS) */}
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"
+        />
+      </head>
       <body>
         <NextIntlClientProvider messages={messages}>
+          <OfflineIndicator />
           <div>
             <p>Locale: {locale}</p>
             {children}
           </div>
+          <PWAInstaller />
         </NextIntlClientProvider>
       </body>
     </html>

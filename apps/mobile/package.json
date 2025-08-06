@@ -10,6 +10,8 @@
     "test": "echo 'Mobile app - test pending'",
     "type-check": "tsc --noEmit",
     "validate-translations": "tsx scripts/validate-translations.ts",
+    "generate-icons": "tsx scripts/generate-icons.ts",
+    "convert-icons": "tsx scripts/convert-icons.ts",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "e2e": "start-server-and-test dev http://localhost:3000 cypress:run",

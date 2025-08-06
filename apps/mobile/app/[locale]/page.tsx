@@ -1,11 +1,12 @@
 import { getTranslations, getMessages } from 'next-intl/server';
 import { LanguageSwitcher } from '../../src/components/LanguageSwitcher';
+import Link from 'next/link';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-export default async function Page({ params }: PageProps) {
+export default async function HomePage({ params }: PageProps) {
   const { locale } = await params;
 
   // Try getting translations with explicit locale
@@ -29,6 +30,33 @@ export default async function Page({ params }: PageProps) {
             Current locale: <strong>{locale}</strong>
           </p>
           <p className="text-sm text-gray-600">{t('appDescription')}</p>
+        </div>
+
+        {/* Navigation Links for PWA Testing */}
+        <div className="space-y-2">
+          <Link
+            href={`/${locale}/test`}
+            className="block p-3 bg-blue-100 rounded hover:bg-blue-200 transition-colors"
+          >
+            📋 Test Page (Original)
+          </Link>
+
+          <Link
+            href={`/${locale}/test-pwa`}
+            className="block p-3 bg-green-100 rounded hover:bg-green-200 transition-colors"
+          >
+            🚀 PWA Test Page (New!)
+          </Link>
+        </div>
+
+        <div className="mt-6 p-4 bg-gray-100 rounded">
+          <h2 className="font-semibold mb-2">PWA Features to Test:</h2>
+          <ul className="text-sm space-y-1">
+            <li>• 📱 Install app prompt</li>
+            <li>• 🔄 Offline data storage</li>
+            <li>• 📶 Online/offline indicators</li>
+            <li>• 🔄 Background sync</li>
+          </ul>
         </div>
 
         {/* Debug information */}
@@ -61,8 +89,8 @@ export default async function Page({ params }: PageProps) {
         <div className="bg-blue-50 p-3 rounded">
           <h3 className="font-semibold text-blue-800">Navigation</h3>
           <div className="text-sm text-blue-600 space-x-2">
-            <span>{t('loading')}</span> •<span>{t('search')}</span> •
-            <span>{t('filter')}</span> •<span>{t('refresh')}</span>
+            <span>{t('loading')}</span> • <span>{t('search')}</span> •
+            <span>{t('filter')}</span> • <span>{t('refresh')}</span>
           </div>
         </div>
       </div>
