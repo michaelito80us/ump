@@ -3,11 +3,10 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -35,7 +34,7 @@ model User {
 model Team {
   id        String   @id @default(cuid())
   name      String
-  sportIds  String[] // Array of sport plugin IDs
+  sportIds  String   // Comma-separated sport plugin IDs
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -50,9 +49,9 @@ model Team {
 }
 
 model Player {
-  id     String   @id @default(cuid())
+  id     String @id @default(cuid())
   userId String
-  sports String[] // Array of sport plugin IDs
+  sports String // Comma-separated sport plugin IDs
 
   // Relations
   user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -67,7 +66,7 @@ model PlayerStats {
   playerId     String
   sport        String
   tournamentId String
-  stats        Json   // JSON object with metric keys and values
+  stats        String // JSON string with metric keys and values
 
   // Relations
   player     Player     @relation(fields: [playerId], references: [id], onDelete: Cascade)
@@ -78,15 +77,15 @@ model PlayerStats {
 }
 
 model Tournament {
-  id       String            @id @default(cuid())
-  pluginId String
-  name     String
-  sport    String            // Sport plugin ID
-  status   TournamentStatus  @default(NOT_STARTED)
-  config   Json              // TournamentConfig as JSON
-  isLocked Boolean           @default(false)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  id        String   @id @default(cuid())
+  pluginId  String
+  name      String
+  sport     String   // Sport plugin ID
+  status    String   @default("NOT_STARTED") // TournamentStatus as string
+  config    String   // TournamentConfig as JSON string
+  isLocked  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   creator      User           @relation("TournamentCreators", fields: [creatorId], references: [id])
@@ -102,10 +101,10 @@ model Tournament {
 }
 
 model Phase {
-  id         String @id @default(cuid())
-  pluginId   String
-  phaseName  String
-  settings   Json   // Phase-specific settings as JSON
+  id           String @id @default(cuid())
+  pluginId     String
+  phaseName    String
+  settings     String // Phase-specific settings as JSON string
   tournamentId String
 
   // Relations
@@ -116,35 +115,35 @@ model Phase {
 }
 
 model Match {
-  id            String      @id @default(cuid())
-  scoreA        Int         @default(0)
-  scoreB        Int         @default(0)
-  breakdown     Json?       // MatchBreakdown as JSON
+  id            String    @id @default(cuid())
+  scoreA        Int       @default(0)
+  scoreB        Int       @default(0)
+  breakdown     String?   // MatchBreakdown as JSON string
   scheduledTime DateTime?
   venue         String?
-  status        MatchStatus @default(PENDING)
+  status        String    @default("PENDING") // MatchStatus as string
   phaseId       String
 
   // Relations
-  phase        Phase              @relation(fields: [phaseId], references: [id], onDelete: Cascade)
-  teamA        Team               @relation("MatchTeamA", fields: [teamAId], references: [id])
-  teamAId      String
-  teamB        Team               @relation("MatchTeamB", fields: [teamBId], references: [id])
-  teamBId      String
-  scoreAudits  MatchScoreAudit[]
+  phase       Phase              @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  teamA       Team               @relation("MatchTeamA", fields: [teamAId], references: [id])
+  teamAId     String
+  teamB       Team               @relation("MatchTeamB", fields: [teamBId], references: [id])
+  teamBId     String
+  scoreAudits MatchScoreAudit[]
 
   @@map("matches")
 }
 
 model MatchScoreAudit {
-  id          String      @id @default(cuid())
+  id          String   @id @default(cuid())
   matchId     String
   submittedBy String
-  submittedAt DateTime    @default(now())
-  breakdown   Json        // MatchBreakdown as JSON
+  submittedAt DateTime @default(now())
+  breakdown   String   // MatchBreakdown as JSON string
   scoreA      Int
   scoreB      Int
-  source      ScoreSource
+  source      String   // ScoreSource as string
 
   // Relations
   match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
@@ -154,19 +153,19 @@ model MatchScoreAudit {
 
 // Governance Models
 model Invitation {
-  id               String           @id @default(cuid())
-  type             InvitationType
-  senderUserId     String
-  recipientEmail   String?
-  recipientUserId  String?
-  token            String           @unique
-  role             String           // JSON array or single role
-  teamId           String?
-  tournamentId     String?
-  organizationId   String?
-  status           InvitationStatus @default(PENDING)
-  createdAt        DateTime         @default(now())
-  expiresAt        DateTime
+  id              String   @id @default(cuid())
+  type            String   // InvitationType as string
+  senderUserId    String
+  recipientEmail  String?
+  recipientUserId String?
+  token           String   @unique
+  role            String   // JSON array or single role
+  teamId          String?
+  tournamentId    String?
+  organizationId  String?
+  status          String   @default("PENDING") // InvitationStatus as string
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime
 
   // Relations
   sender     User        @relation("InvitationSender", fields: [senderUserId], references: [id])
@@ -176,14 +175,14 @@ model Invitation {
 }
 
 model JoinRequest {
-  id              String            @id @default(cuid())
+  id              String   @id @default(cuid())
   requesterUserId String
-  targetEntity    TargetEntity
+  targetEntity    String   // TargetEntity as string
   entityId        String
   roleRequested   String
-  status          JoinRequestStatus @default(PENDING)
+  status          String   @default("PENDING") // JoinRequestStatus as string
   message         String?
-  createdAt       DateTime          @default(now())
+  createdAt       DateTime @default(now())
 
   // Relations
   requester  User        @relation("JoinRequestUser", fields: [requesterUserId], references: [id])
@@ -194,13 +193,13 @@ model JoinRequest {
 
 // Audit Logging
 model AuditLog {
-  id           String    @id @default(cuid())
-  type         LogType
-  timestamp    DateTime  @default(now())
+  id           String   @id @default(cuid())
+  type         String   // LogType as string
+  timestamp    DateTime @default(now())
   actorId      String
-  actorType    ActorType
+  actorType    String   // ActorType as string
   message      String?
-  data         Json      // Event-specific data
+  data         String   // Event-specific data as JSON string
   tournamentId String?
 
   // Relations
@@ -210,81 +209,4 @@ model AuditLog {
   @@index([type, timestamp])
   @@index([actorId])
   @@map("audit_logs")
-}
-
-// Enums
-enum TournamentStatus {
-  NOT_STARTED
-  LIVE
-  COMPLETED
-
-  @@map("tournament_status")
-}
-
-enum MatchStatus {
-  PENDING
-  LIVE
-  FINAL
-  NEEDS_APPROVAL
-
-  @@map("match_status")
-}
-
-enum ScoreSource {
-  MANUAL
-  PLUGIN
-  ADMIN_OVERRIDE
-
-  @@map("score_source")
-}
-
-enum InvitationType {
-  TEAM_PLAYER
-  TOURNAMENT_TEAM
-  TOURNAMENT_USER
-  ORG_USER
-
-  @@map("invitation_type")
-}
-
-enum InvitationStatus {
-  PENDING
-  ACCEPTED
-  EXPIRED
-  REVOKED
-
-  @@map("invitation_status")
-}
-
-enum JoinRequestStatus {
-  PENDING
-  APPROVED
-  REJECTED
-
-  @@map("join_request_status")
-}
-
-enum TargetEntity {
-  TEAM
-  TOURNAMENT
-
-  @@map("target_entity")
-}
-
-enum LogType {
-  MATCH_EVENT
-  SCORE_SUBMISSION
-  CONSTRAINT_VIOLATION
-  PLAYER_MOVEMENT
-  MANUAL_OVERRIDE
-
-  @@map("log_type")
-}
-
-enum ActorType {
-  USER
-  SYSTEM
-  PLUGIN
-
-  @@map("actor_type")
 }
