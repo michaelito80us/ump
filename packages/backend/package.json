@@ -25,6 +25,7 @@
     "@apollo/subgraph": "^2.6.0",
     "@prisma/client": "^5.7.0",
     "graphql": "^16.9.0",
+    "graphql-tag": "^2.12.6",
     "graphql-scalars": "^1.22.4",
     "express": "^4.18.2",
     "cors": "^2.8.5",

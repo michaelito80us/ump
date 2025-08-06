@@ -15,6 +15,13 @@ import jwt from 'jsonwebtoken';
 
 import { logger } from './utils/logger';
 import { PluginSchemaLoader } from './services/pluginSchemaLoader';
+import {
+  formatError,
+  createValidationError,
+  createPermissionError,
+  createPluginExecutionError,
+  ERROR_CODES,
+} from './errorMapper';
 
 // Load environment variables
 dotenv.config();
@@ -84,6 +91,8 @@ async function startServer() {
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
     introspection: process.env.GRAPHQL_INTROSPECTION === 'true',
     includeStacktraceInErrorResponses: NODE_ENV === 'development',
+    // Apply custom error formatting
+    formatError,
   });
 
   // Start the server
@@ -150,6 +159,79 @@ async function startServer() {
       res.json({ subgraphs });
     } catch (_error) {
       res.status(500).json({ error: 'Failed to load subgraphs' });
+    }
+  });
+
+  // Test error endpoints
+  app.get('/test-validation-error', (req, res) => {
+    try {
+      throw createValidationError(
+        'This is a test validation error',
+        ERROR_CODES.INVALID_INPUT,
+        { testField: 'testValue', timestamp: new Date().toISOString() }
+      );
+    } catch (error) {
+      const err = error as any; // Type assertion since we know the error structure
+      logger.error('Test validation error triggered', {
+        errorId: `test_${Date.now()}`,
+        error: err.message,
+        stack: err.stack,
+        details: err.details,
+      });
+      res.status(400).json({
+        error: 'Validation failed',
+        message: err.message,
+        code: err.code,
+        details: err.details,
+      });
+    }
+  });
+
+  app.get('/test-permission-error', (req, res) => {
+    try {
+      throw createPermissionError(
+        'Access denied for test purposes',
+        ERROR_CODES.FORBIDDEN,
+        { requiredRole: 'admin', userRole: 'guest' }
+      );
+    } catch (error) {
+      const err = error as any; // Type assertion since we know the error structure
+      logger.error('Test permission error triggered', {
+        errorId: `test_${Date.now()}`,
+        error: err.message,
+        stack: err.stack,
+        details: err.details,
+      });
+      res.status(403).json({
+        error: 'Permission denied',
+        message: err.message,
+        code: err.code,
+        details: err.details,
+      });
+    }
+  });
+
+  app.get('/test-plugin-error', (req, res) => {
+    try {
+      throw createPluginExecutionError(
+        'Plugin execution failed for testing',
+        ERROR_CODES.TIMEOUT,
+        { pluginName: 'test-plugin', timeoutMs: 5000 }
+      );
+    } catch (error) {
+      const err = error as any; // Type assertion since we know the error structure
+      logger.error('Test plugin error triggered', {
+        errorId: `test_${Date.now()}`,
+        error: err.message,
+        stack: err.stack,
+        details: err.details,
+      });
+      res.status(500).json({
+        error: 'Plugin execution failed',
+        message: err.message,
+        code: err.code,
+        details: err.details,
+      });
     }
   });
 

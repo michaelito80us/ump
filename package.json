@@ -10,6 +10,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
+    "dev:federation": "concurrently \"pnpm --filter @ump/backend dev\" \"pnpm --filter @ump/gateway dev\"",
+    "start:federation": "concurrently \"pnpm --filter @ump/backend start\" \"pnpm --filter @ump/gateway start\"",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "type-check": "tsc -b",
@@ -43,6 +45,7 @@
     "adr-tools": "^2.0.4",
     "autoprefixer": "^10.4.16",
     "chromatic": "^11.20.0",
+    "concurrently": "^8.2.2",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
     "graphql": "^16.9.0",

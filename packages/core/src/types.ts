@@ -233,29 +233,46 @@ export type AuditLog =
 // ❌ Error Types
 
 export class TournamentError extends Error {
-  constructor(message: string) {
+  public readonly code: string;
+  public readonly details?: any;
+
+  constructor(
+    message: string,
+    code: string = 'TOURNAMENT_ERROR',
+    details?: any
+  ) {
     super(message);
     this.name = 'TournamentError';
+    this.code = code;
+    this.details = details;
   }
 }
 
 export class ValidationError extends TournamentError {
-  constructor(message: string) {
-    super(message);
+  constructor(
+    message: string,
+    code: string = 'VALIDATION_ERROR',
+    details?: any
+  ) {
+    super(message, code, details);
     this.name = 'ValidationError';
   }
 }
 
 export class PermissionError extends TournamentError {
-  constructor(message: string) {
-    super(message);
+  constructor(
+    message: string,
+    code: string = 'PERMISSION_ERROR',
+    details?: any
+  ) {
+    super(message, code, details);
     this.name = 'PermissionError';
   }
 }
 
 export class PluginExecutionError extends TournamentError {
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, code: string = 'PLUGIN_ERROR', details?: any) {
+    super(message, code, details);
     this.name = 'PluginExecutionError';
   }
 }
