@@ -33,6 +33,7 @@ module.exports = [
         clearTimeout: 'readonly',
         setInterval: 'readonly',
         clearInterval: 'readonly',
+        NodeJS: 'readonly',
         // Fetch API
         fetch: 'readonly',
         Request: 'readonly',
