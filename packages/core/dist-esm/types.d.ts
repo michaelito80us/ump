@@ -198,16 +198,18 @@ export type AuditLog =
   | PlayerMovementLog
   | ManualOverrideLog;
 export declare class TournamentError extends Error {
-  constructor(message: string);
+  readonly code: string;
+  readonly details?: any;
+  constructor(message: string, code?: string, details?: any);
 }
 export declare class ValidationError extends TournamentError {
-  constructor(message: string);
+  constructor(message: string, code?: string, details?: any);
 }
 export declare class PermissionError extends TournamentError {
-  constructor(message: string);
+  constructor(message: string, code?: string, details?: any);
 }
 export declare class PluginExecutionError extends TournamentError {
-  constructor(message: string);
+  constructor(message: string, code?: string, details?: any);
 }
 export declare const MATCH_STATUSES: readonly [
   'pending',

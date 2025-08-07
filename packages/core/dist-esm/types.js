@@ -2,26 +2,30 @@
 // This file contains the single source of truth for all domain entities
 // ❌ Error Types
 export class TournamentError extends Error {
-  constructor(message) {
+  code;
+  details;
+  constructor(message, code = 'TOURNAMENT_ERROR', details) {
     super(message);
     this.name = 'TournamentError';
+    this.code = code;
+    this.details = details;
   }
 }
 export class ValidationError extends TournamentError {
-  constructor(message) {
-    super(message);
+  constructor(message, code = 'VALIDATION_ERROR', details) {
+    super(message, code, details);
     this.name = 'ValidationError';
   }
 }
 export class PermissionError extends TournamentError {
-  constructor(message) {
-    super(message);
+  constructor(message, code = 'PERMISSION_ERROR', details) {
+    super(message, code, details);
     this.name = 'PermissionError';
   }
 }
 export class PluginExecutionError extends TournamentError {
-  constructor(message) {
-    super(message);
+  constructor(message, code = 'PLUGIN_ERROR', details) {
+    super(message, code, details);
     this.name = 'PluginExecutionError';
   }
 }

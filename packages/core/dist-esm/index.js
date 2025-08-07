@@ -12,6 +12,8 @@ import {
 export * from './types';
 // Export GraphQL generated types and hooks (with namespace to avoid conflicts)
 export * as GraphQL from './generated';
+// Export utilities
+export * from './utils/createPatch';
 export const CORE_VERSION = '0.1.0';
 // Export error classes as values (not types) - already imported above
 export {

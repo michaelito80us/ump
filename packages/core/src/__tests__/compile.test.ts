@@ -4,10 +4,7 @@ import {
   Team,
   Player,
   Match,
-  Tournament,
-  Phase,
   MatchBreakdown,
-  TournamentConfig,
   AuditLog,
   TournamentError,
   ValidationError,
@@ -18,112 +15,100 @@ import {
   CORE_VERSION,
 } from '../index';
 
-// Test that MatchStatus union works correctly
-const _testStatus: MatchStatus = 'pending';
-const _allStatuses: MatchStatus[] = [
-  'pending',
-  'live',
-  'final',
-  'needs_approval',
-];
+describe('TypeScript Compilation Tests', () => {
+  test('MatchStatus union works correctly', () => {
+    const testStatus: MatchStatus = 'pending';
+    const allStatuses: MatchStatus[] = [
+      'pending',
+      'live',
+      'final',
+      'needs_approval',
+    ];
 
-// Test that we can create instances of all core interfaces
-const _testTeam: Team = {
-  id: 'team-1',
-  name: 'Test Team',
-  sportIds: ['rugby'],
-  playerIds: ['player-1'],
-  managers: ['manager-1'],
-  tournaments: ['tournament-1'],
-};
+    expect(testStatus).toBe('pending');
+    expect(allStatuses).toHaveLength(4);
+  });
 
-const _testPlayer: Player = {
-  id: 'player-1',
-  userId: 'user-1',
-  sports: ['rugby'],
-  teamIds: ['team-1'],
-  stats: {
-    'tournament-1': {
-      playerId: 'player-1',
-      sport: 'rugby',
-      tournamentId: 'tournament-1',
-      stats: { tries: 5, conversions: 3 },
-    },
-  },
-};
+  test('can create instances of all core interfaces', () => {
+    const testTeam: Team = {
+      id: 'team-1',
+      name: 'Test Team',
+      sportIds: ['rugby'],
+      playerIds: ['player-1'],
+      managers: ['manager-1'],
+      tournaments: ['tournament-1'],
+    };
 
-const _testBreakdown: MatchBreakdown = {
-  teamA: { tries: 3, conversions: 2 },
-  teamB: { tries: 2, conversions: 1 },
-};
-
-const _testMatch: Match = {
-  id: 'match-1',
-  teamA: _testTeam,
-  teamB: { ..._testTeam, id: 'team-2', name: 'Team 2' },
-  scoreA: 17,
-  scoreB: 12,
-  breakdown: _testBreakdown,
-  status: 'final',
-  scheduledTime: '2024-01-01T10:00:00Z',
-  venue: 'Field A',
-};
-
-const _testPhase: Phase = {
-  id: 'phase-1',
-  pluginId: 'single-elimination',
-  phaseName: 'Finals',
-  settings: { maxTeams: 8 },
-  matches: [_testMatch],
-};
-
-const _testConfig: TournamentConfig = {
-  statTier: 2,
-  matchDuration: 80,
-  plugins: {
-    sport: 'rugby',
-    phases: [
-      {
-        pluginId: 'single-elimination',
-        phaseName: 'Finals',
-        settings: { maxTeams: 8 },
+    const testPlayer: Player = {
+      id: 'player-1',
+      userId: 'user-1',
+      sports: ['rugby'],
+      teamIds: ['team-1'],
+      stats: {
+        'tournament-1': {
+          playerId: 'player-1',
+          sport: 'rugby',
+          tournamentId: 'tournament-1',
+          stats: { tries: 5, conversions: 3 },
+        },
       },
-    ],
-  },
-};
+    };
 
-const _testTournament: Tournament = {
-  id: 'tournament-1',
-  pluginId: 'rugby-tournament',
-  name: 'Test Tournament',
-  sport: 'rugby',
-  status: 'live',
-  phases: [_testPhase],
-  config: _testConfig,
-  isLocked: false,
-};
+    const testBreakdown: MatchBreakdown = {
+      teamA: { tries: 3, conversions: 2 },
+      teamB: { tries: 2, conversions: 1 },
+    };
 
-// Test error classes
-const _tournamentError = new TournamentError('Test error');
-const _validationError = new ValidationError('Validation failed');
-const _permissionError = new PermissionError('Access denied');
-const _pluginError = new PluginExecutionError('Plugin failed');
+    const testMatch: Match = {
+      id: 'match-1',
+      teamA: testTeam,
+      teamB: { ...testTeam, id: 'team-2', name: 'Team 2' },
+      scoreA: 17,
+      scoreB: 12,
+      breakdown: testBreakdown,
+      status: 'final',
+      scheduledTime: '2024-01-01T10:00:00Z',
+      venue: 'Field A',
+    };
 
-// Test that constants are properly typed
-const _matchStatuses: readonly string[] = MATCH_STATUSES;
-const _tournamentStatuses: readonly string[] = TOURNAMENT_STATUSES;
-const _version: string = CORE_VERSION;
+    expect(testTeam.id).toBe('team-1');
+    expect(testPlayer.id).toBe('player-1');
+    expect(testMatch.status).toBe('final');
+  });
 
-// Test that AuditLog union type works
-const _testAuditLog: AuditLog = {
-  id: 'log-1',
-  type: 'MATCH_EVENT',
-  timestamp: new Date(),
-  actorId: 'user-1',
-  actorType: 'user',
-  matchId: 'match-1',
-  change: { status: 'final' },
-};
+  test('error classes work correctly', () => {
+    const tournamentError = new TournamentError('Test error');
+    const validationError = new ValidationError('Validation failed');
+    const permissionError = new PermissionError('Access denied');
+    const pluginError = new PluginExecutionError('Plugin failed');
+
+    expect(tournamentError.message).toBe('Test error');
+    expect(validationError.message).toBe('Validation failed');
+    expect(permissionError.message).toBe('Access denied');
+    expect(pluginError.message).toBe('Plugin failed');
+  });
+
+  test('constants are properly typed', () => {
+    expect(Array.isArray(MATCH_STATUSES)).toBe(true);
+    expect(Array.isArray(TOURNAMENT_STATUSES)).toBe(true);
+    expect(typeof CORE_VERSION).toBe('string');
+  });
+
+  test('AuditLog union type works', () => {
+    const testAuditLog: AuditLog = {
+      id: 'log-1',
+      type: 'MATCH_EVENT',
+      timestamp: new Date(),
+      actorId: 'user-1',
+      actorType: 'user',
+      matchId: 'match-1',
+      change: { status: 'final' },
+    };
+
+    expect(testAuditLog.type).toBe('MATCH_EVENT');
+    expect(testAuditLog.actorType).toBe('user');
+  });
+});
 
 // Export a function that confirms compilation succeeded
 export function confirmTypesCompile(): boolean {

@@ -13,24 +13,28 @@ import type {
   PlayerRole,
 } from '../generated';
 
-// Simple compilation test - no test framework needed
-async function testGraphQLCodeGeneration() {
-  try {
-    // Import the generated module to verify it exists and compiles
-    const generated = await import('../generated');
+describe('GraphQL Code Generation Tests', () => {
+  test('generated modules can be imported', async () => {
+    try {
+      // Import the generated module to verify it exists and compiles
+      const generated = await import('../generated');
 
-    // Import the GraphQL module to verify hooks and types exist
-    const graphqlGenerated = await import('../generated/graphql');
+      // Import the GraphQL module to verify hooks and types exist
+      const graphqlGenerated = await import('../generated/graphql');
 
-    // Verify that the generated modules export expected items
-    if (!generated) {
-      throw new Error('Generated index module not found');
+      // Verify that the generated modules export expected items
+      expect(generated).toBeDefined();
+      expect(graphqlGenerated).toBeDefined();
+    } catch (_error) {
+      // If this fails, it means codegen needs to be run
+      console.warn(
+        '⚠️ GraphQL types not yet generated. Run `pnpm codegen` first.'
+      );
+      throw new Error('GraphQL codegen required. Run: pnpm codegen');
     }
+  });
 
-    if (!graphqlGenerated) {
-      throw new Error('Generated GraphQL module not found');
-    }
-
+  test('generated types compile correctly', () => {
     // Type-only test - this will fail at compile time if types don't exist
     const typeTest = (): void => {
       // These type assertions will fail at compile time if the types don't exist
@@ -55,14 +59,26 @@ async function testGraphQLCodeGeneration() {
     };
 
     // Call the type test function to ensure it compiles
-    typeTest();
+    expect(() => typeTest()).not.toThrow();
+  });
+});
+
+// Export for potential use
+export async function testGraphQLCodeGeneration(): Promise<boolean> {
+  try {
+    // Import the generated module to verify it exists and compiles
+    const generated = await import('../generated');
+    const graphqlGenerated = await import('../generated/graphql');
+
+    if (!generated || !graphqlGenerated) {
+      throw new Error('Generated modules not found');
+    }
 
     console.log(
       '✅ GraphQL codegen test passed - types are properly generated'
     );
     return true;
   } catch (error) {
-    // If this fails, it means codegen needs to be run
     console.warn(
       '⚠️ GraphQL types not yet generated. Run `pnpm codegen` first.'
     );
@@ -70,9 +86,6 @@ async function testGraphQLCodeGeneration() {
     throw new Error('GraphQL codegen required. Run: pnpm codegen');
   }
 }
-
-// Export for potential use
-export { testGraphQLCodeGeneration };
 
 // Run the test if this file is executed directly
 if (require.main === module) {

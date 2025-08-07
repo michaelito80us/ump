@@ -83,6 +83,8 @@ module.exports = [
           caughtErrorsIgnorePattern: '^_',
         },
       ],
+      // Allow non-null assertions in test files
+      '@typescript-eslint/no-non-null-assertion': 'off',
     },
   },
   {
@@ -106,10 +108,17 @@ module.exports = [
         jest: 'readonly',
       },
     },
+    rules: {
+      // Allow non-null assertions in tests (for expect(patch!.changes))
+      '@typescript-eslint/no-non-null-assertion': 'off',
+      // Allow any type in tests for mocking
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
   },
   {
     ignores: [
       'dist/',
+      'dist-esm/',
       'build/',
       '.next/',
       'node_modules/',

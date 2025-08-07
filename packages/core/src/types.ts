@@ -60,6 +60,13 @@ export interface Match {
   status: MatchStatus;
 }
 
+// Match patch interface for efficient updates
+export interface MatchPatch {
+  id: string;
+  changes: Partial<Match>;
+  timestamp: number;
+}
+
 export interface Phase {
   id: string;
   pluginId: string;

@@ -19,6 +19,15 @@ export * from './types';
 // Export GraphQL generated types and hooks (with namespace to avoid conflicts)
 export * as GraphQL from './generated';
 
+// Export utilities (excluding MatchPatch to avoid conflict with types.ts)
+export {
+  createPatch,
+  applyPatch,
+  hasBreakdownChanged,
+  hasTeamBreakdownChanged,
+  mergePatches,
+} from './utils/createPatch';
+
 // Export core utilities and interfaces
 export interface BaseConfig {
   version: string;

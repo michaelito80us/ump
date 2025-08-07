@@ -7,6 +7,7 @@ import {
 } from './types';
 export * from './types';
 export * as GraphQL from './generated';
+export * from './utils/createPatch';
 export interface BaseConfig {
   version: string;
 }
