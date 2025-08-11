@@ -94,7 +94,12 @@ module.exports = [
     },
   },
   {
-    files: ['**/*.test.{js,ts,tsx}', '**/__tests__/**/*.{js,ts,tsx}'],
+    files: [
+      '**/*.test.{js,ts,tsx}',
+      '**/__tests__/**/*.{js,ts,tsx}',
+      '**/jest.setup.js',
+      '**/__mocks__/**/*.js',
+    ],
     languageOptions: {
       globals: {
         describe: 'readonly',
@@ -106,6 +111,7 @@ module.exports = [
         beforeAll: 'readonly',
         afterAll: 'readonly',
         jest: 'readonly',
+        URLSearchParams: 'readonly',
       },
     },
     rules: {

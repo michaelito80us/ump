@@ -28,7 +28,7 @@ interface PluginCardData {
 }
 
 // Real plugin registry using actual plugins
-const pluginRegistry = {
+export const pluginRegistry = {
   sports: [
     RugbyPlugin,
     // Additional sports plugins will be added as they're implemented

@@ -84,7 +84,7 @@ export function applyPatch(match, patch) {
  * Helper function to compare breakdown objects
  * Uses shallow comparison for performance on flat objects
  */
-function hasBreakdownChanged(oldBreakdown, newBreakdown) {
+export function hasBreakdownChanged(oldBreakdown, newBreakdown) {
   // Both undefined/null
   if (!oldBreakdown && !newBreakdown) {
     return false;
@@ -106,7 +106,7 @@ function hasBreakdownChanged(oldBreakdown, newBreakdown) {
 /**
  * Helper function to compare team breakdown objects
  */
-function hasTeamBreakdownChanged(oldTeam, newTeam) {
+export function hasTeamBreakdownChanged(oldTeam, newTeam) {
   const oldKeys = Object.keys(oldTeam);
   const newKeys = Object.keys(newTeam);
   // Different number of keys

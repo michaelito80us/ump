@@ -48,6 +48,11 @@ export interface Match {
   venue?: string;
   status: MatchStatus;
 }
+export interface MatchPatch {
+  id: string;
+  changes: Partial<Match>;
+  timestamp: number;
+}
 export interface Phase {
   id: string;
   pluginId: string;

@@ -32,6 +32,21 @@ export declare function createPatch(
  */
 export declare function applyPatch(match: Match, patch: MatchPatch): Match;
 /**
+ * Helper function to compare breakdown objects
+ * Uses shallow comparison for performance on flat objects
+ */
+export declare function hasBreakdownChanged(
+  oldBreakdown?: Match['breakdown'],
+  newBreakdown?: Match['breakdown']
+): boolean;
+/**
+ * Helper function to compare team breakdown objects
+ */
+export declare function hasTeamBreakdownChanged(
+  oldTeam: Record<string, number>,
+  newTeam: Record<string, number>
+): boolean;
+/**
  * Utility function to merge multiple patches in chronological order
  * Useful for applying a series of updates efficiently
  *
