@@ -4,41 +4,7 @@ import { logger } from '../utils/logger';
 // Extend PrismaClient with custom methods if needed
 class DatabaseService extends PrismaClient {
   constructor() {
-    super({
-      log: [
-        {
-          emit: 'event',
-          level: 'query',
-        },
-        {
-          emit: 'event',
-          level: 'error',
-        },
-        {
-          emit: 'event',
-          level: 'info',
-        },
-        {
-          emit: 'event',
-          level: 'warn',
-        },
-      ],
-    });
-
-    // Log database queries in development
-    if (process.env.NODE_ENV === 'development') {
-      this.$on('query', (e: any) => {
-        logger.debug('Database Query:', {
-          query: e.query,
-          params: e.params,
-          duration: `${e.duration}ms`,
-        });
-      });
-    }
-
-    this.$on('error', (e: any) => {
-      logger.error('Database Error:', e);
-    });
+    super();
   }
 
   async connect(): Promise<void> {
@@ -75,8 +41,13 @@ class DatabaseService extends PrismaClient {
   async withTransaction<T>(
     fn: (
       tx: Omit<
-        DatabaseService,
-        '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'
+        PrismaClient,
+        | '$connect'
+        | '$disconnect'
+        | '$on'
+        | '$transaction'
+        | '$use'
+        | '$extends'
       >
     ) => Promise<T>
   ): Promise<T> {

@@ -121,7 +121,7 @@ export const teamResolvers = {
         player = await db.player.create({
           data: {
             userId: context.user.id,
-            sports: [], // Will be updated based on team sports
+            sports: '', // Will be updated based on team sports
           },
         });
       }

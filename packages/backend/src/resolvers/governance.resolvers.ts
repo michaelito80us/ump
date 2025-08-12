@@ -194,7 +194,7 @@ export const governanceResolvers = {
               player = await db.player.create({
                 data: {
                   userId: context.user.id,
-                  sports: [],
+                  sports: '',
                 },
               });
             }

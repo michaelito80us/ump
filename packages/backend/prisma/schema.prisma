@@ -16,6 +16,8 @@ model User {
   email     String   @unique
   name      String?
   clerkId   String?  @unique
+  avatar    String?
+  role      String   @default("user")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -26,6 +28,8 @@ model User {
   invitations   Invitation[]  @relation("InvitationSender")
   joinRequests  JoinRequest[] @relation("JoinRequestUser")
   auditLogs     AuditLog[]
+  playerOverrides    PlayerOverride[]
+  createdOverrides   PlayerOverride[] @relation("CreatedOverrides")
 
   @@map("users")
 }
@@ -35,6 +39,8 @@ model Team {
   id        String   @id @default(cuid())
   name      String
   sportIds  String   // Comma-separated sport plugin IDs
+  seed      Int?
+  metadata  String   @default("{}") // Additional metadata as JSON string
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -77,15 +83,19 @@ model PlayerStats {
 }
 
 model Tournament {
-  id        String   @id @default(cuid())
-  pluginId  String
-  name      String
-  sport     String   // Sport plugin ID
-  status    String   @default("NOT_STARTED") // TournamentStatus as string
-  config    String   // TournamentConfig as JSON string
-  isLocked  Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  pluginId    String
+  name        String
+  description String?
+  sport       String   // Sport plugin ID
+  status      String   @default("NOT_STARTED") // TournamentStatus as string
+  config      String   // TournamentConfig as JSON string
+  metadata    String   @default("{}") // Additional metadata as JSON string
+  isLocked    Boolean  @default(false)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
   creator      User           @relation("TournamentCreators", fields: [creatorId], references: [id])
@@ -96,6 +106,7 @@ model Tournament {
   invitations  Invitation[]
   joinRequests JoinRequest[]
   auditLogs    AuditLog[]
+  playerOverrides PlayerOverride[]
 
   @@map("tournaments")
 }
@@ -196,17 +207,69 @@ model AuditLog {
   id           String   @id @default(cuid())
   type         String   // LogType as string
   timestamp    DateTime @default(now())
-  actorId      String
+  actorId      String?
   actorType    String   // ActorType as string
-  message      String?
-  data         String   // Event-specific data as JSON string
+  message      String
+  data         String   @default("{}")
   tournamentId String?
+  phaseId      String?
+  matchId      String?
+  playerId     String?
+  teamId       String?
+  field        String?
+  originalValue String?
+  newValue     String?
+  affectedEntity String?
+  entityId     String?
+  context      String?
+  approvedById String?
+  approvalNote String?
+  approvalTimestamp DateTime?
+  source       String?
+  scoreA       Int?
+  scoreB       Int?
+  breakdown     String?
+  description  String?
+  action       String?
+  reason       String?
 
   // Relations
-  actor      User        @relation(fields: [actorId], references: [id])
+  actor      User?       @relation(fields: [actorId], references: [id])
   tournament Tournament? @relation(fields: [tournamentId], references: [id])
 
   @@index([type, timestamp])
   @@index([actorId])
   @@map("audit_logs")
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  settings    String   @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("organizations")
+}
+
+model PlayerOverride {
+  id           String   @id @default(cuid())
+  playerId     String
+  tournamentId String
+  field        String
+  originalValue String
+  overrideValue String
+  reason       String?
+  createdBy    String
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime?
+
+  // Relations
+  player     User       @relation(fields: [playerId], references: [id])
+  tournament Tournament @relation(fields: [tournamentId], references: [id])
+  creator    User       @relation("CreatedOverrides", fields: [createdBy], references: [id])
+
+  @@unique([playerId, tournamentId, field])
+  @@map("player_overrides")
 }
