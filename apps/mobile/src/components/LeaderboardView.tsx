@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
-import { Team } from '@ump/core';
+import { Team } from '../../lib/types';
 
 // Extended interface for display purposes
 interface TeamStanding {
@@ -29,6 +29,8 @@ const mockStandingsData: TeamStanding[] = [
       playerIds: [],
       managers: [],
       tournaments: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     wins: 8,
     losses: 1,
@@ -48,6 +50,8 @@ const mockStandingsData: TeamStanding[] = [
       playerIds: [],
       managers: [],
       tournaments: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     wins: 7,
     losses: 2,
@@ -67,6 +71,8 @@ const mockStandingsData: TeamStanding[] = [
       playerIds: [],
       managers: [],
       tournaments: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     wins: 6,
     losses: 3,
@@ -86,6 +92,8 @@ const mockStandingsData: TeamStanding[] = [
       playerIds: [],
       managers: [],
       tournaments: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     wins: 5,
     losses: 4,
@@ -105,6 +113,8 @@ const mockStandingsData: TeamStanding[] = [
       playerIds: [],
       managers: [],
       tournaments: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     wins: 4,
     losses: 5,
@@ -124,6 +134,8 @@ const mockStandingsData: TeamStanding[] = [
       playerIds: [],
       managers: [],
       tournaments: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     wins: 2,
     losses: 7,

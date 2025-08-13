@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { ClerkProvider } from '@clerk/nextjs';
-import { ClerkClientUtils } from '@ump/core';
+// Using mocked ClerkClientUtils from jest.mock('@ump/core') below
 
 // Mock Clerk
 jest.mock('@clerk/nextjs', () => ({
@@ -50,16 +50,22 @@ jest.mock('@ump/core', () => ({
   },
 }));
 
+// Get the mocked ClerkClientUtils
+
+const { ClerkClientUtils } = jest.requireMock('@ump/core');
+
 describe('Clerk Authentication Integration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockToken = null; // Reset mock token state
     // Clear any existing tokens
+
     ClerkClientUtils.clearTokenFromWindow();
   });
 
   afterEach(() => {
     // Clean up after each test
+
     ClerkClientUtils.clearTokenFromWindow();
   });
 
@@ -67,9 +73,11 @@ describe('Clerk Authentication Integration', () => {
     const testToken = 'test-jwt-token';
 
     // Set token
+
     ClerkClientUtils.setTokenInWindow(testToken);
 
     // Get token
+
     const retrievedToken = ClerkClientUtils.getTokenFromWindow();
 
     expect(retrievedToken).toBe(testToken);
@@ -79,16 +87,21 @@ describe('Clerk Authentication Integration', () => {
     const testToken = 'test-jwt-token';
 
     // Set token
+
     ClerkClientUtils.setTokenInWindow(testToken);
+
     expect(ClerkClientUtils.getTokenFromWindow()).toBe(testToken);
 
     // Clear token
+
     ClerkClientUtils.clearTokenFromWindow();
+
     expect(ClerkClientUtils.getTokenFromWindow()).toBeNull();
   });
 
   it('should handle null token gracefully', () => {
     ClerkClientUtils.setTokenInWindow(null);
+
     expect(ClerkClientUtils.getTokenFromWindow()).toBeNull();
   });
 

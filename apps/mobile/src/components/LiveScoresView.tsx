@@ -2,12 +2,13 @@
 
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
-import { Match, MatchStatus } from '@ump/core';
+import { Match, MatchStatus } from '../../lib/types';
 
 // Mock live matches data
 const mockLiveMatches: Match[] = [
   {
     id: 'live-match-1',
+    phaseId: 'phase-1',
     teamA: {
       id: 'team-1',
       name: 'Dragons',
@@ -15,6 +16,8 @@ const mockLiveMatches: Match[] = [
       playerIds: [],
       managers: [],
       tournaments: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     teamB: {
       id: 'team-2',
@@ -23,15 +26,18 @@ const mockLiveMatches: Match[] = [
       playerIds: [],
       managers: [],
       tournaments: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     scoreA: 14,
     scoreB: 7,
     scheduledTime: new Date().toISOString(),
     venue: 'Stadium A',
-    status: 'live' as MatchStatus,
+    status: 'LIVE' as MatchStatus,
   },
   {
     id: 'live-match-2',
+    phaseId: 'phase-1',
     teamA: {
       id: 'team-3',
       name: 'Eagles',
@@ -39,6 +45,8 @@ const mockLiveMatches: Match[] = [
       playerIds: [],
       managers: [],
       tournaments: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     teamB: {
       id: 'team-4',
@@ -47,12 +55,14 @@ const mockLiveMatches: Match[] = [
       playerIds: [],
       managers: [],
       tournaments: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     scoreA: 21,
     scoreB: 14,
     scheduledTime: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // Started 30 min ago
     venue: 'Stadium B',
-    status: 'live' as MatchStatus,
+    status: 'LIVE' as MatchStatus,
   },
 ];
 

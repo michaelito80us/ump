@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Match, createPatch, applyPatch, MatchPatch } from '@ump/core';
+import { Match, createPatch, applyPatch, MatchPatch } from '../../lib/types';
 
 export interface UseMatchDiffOptions {
   /**

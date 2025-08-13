@@ -1,7 +1,8 @@
 /* eslint-env jest */
+/// <reference types="jest" />
 import { renderHook, act } from '@testing-library/react';
 import { useMatchDiff, useMatchUpdates } from '../useMatchDiff';
-import type { Match, MatchPatch } from '@ump/core';
+import type { Match, MatchPatch } from '../../../lib/types';
 
 // Mock match data
 const createMockMatch = (overrides: Partial<Match> = {}): Match => ({
@@ -24,7 +25,7 @@ const createMockMatch = (overrides: Partial<Match> = {}): Match => ({
   },
   scoreA: 0,
   scoreB: 0,
-  status: 'pending',
+  status: 'PENDING',
   scheduledTime: '2024-01-01T10:00:00Z',
   venue: 'Stadium A',
   breakdown: {

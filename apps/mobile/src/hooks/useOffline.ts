@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { syncManager, SyncStatus } from '../lib/syncManager';
 import { offlineStorage } from '../lib/offlineStorage';
-import { Tournament, Match, Team, Player } from '@ump/core';
+import { Tournament, Match, Team, Player } from '../../lib/types';
 
 export interface OfflineHookReturn {
   // Status

@@ -2,12 +2,13 @@
 
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
-import { Match, MatchStatus } from '@ump/core';
+import { Match, MatchStatus } from '../../lib/types';
 
 // Mock data for development - replace with real data fetching
 const mockMatches: Match[] = [
   {
     id: 'match-1',
+    phaseId: 'phase-1',
     teamA: {
       id: 'team-1',
       name: 'Dragons',
@@ -15,6 +16,8 @@ const mockMatches: Match[] = [
       playerIds: [],
       managers: [],
       tournaments: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     teamB: {
       id: 'team-2',
@@ -23,15 +26,18 @@ const mockMatches: Match[] = [
       playerIds: [],
       managers: [],
       tournaments: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     scoreA: 0,
     scoreB: 0,
     scheduledTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours from now
     venue: 'Stadium A',
-    status: 'pending' as MatchStatus,
+    status: 'PENDING' as MatchStatus,
   },
   {
     id: 'match-2',
+    phaseId: 'phase-1',
     teamA: {
       id: 'team-3',
       name: 'Eagles',
@@ -39,6 +45,8 @@ const mockMatches: Match[] = [
       playerIds: [],
       managers: [],
       tournaments: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     teamB: {
       id: 'team-1',
@@ -47,12 +55,14 @@ const mockMatches: Match[] = [
       playerIds: [],
       managers: [],
       tournaments: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     },
     scoreA: 0,
     scoreB: 0,
     scheduledTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Tomorrow
     venue: 'Stadium B',
-    status: 'pending' as MatchStatus,
+    status: 'PENDING' as MatchStatus,
   },
 ];
 
@@ -93,11 +103,11 @@ export function MyScheduleView() {
 
   const getStatusColor = (status: MatchStatus) => {
     switch (status) {
-      case 'live':
+      case 'LIVE':
         return 'bg-red-100 text-red-800';
-      case 'final':
+      case 'FINAL':
         return 'bg-green-100 text-green-800';
-      case 'needs_approval':
+      case 'NEEDS_APPROVAL':
         return 'bg-yellow-100 text-yellow-800';
       default:
         return 'bg-blue-100 text-blue-800';
@@ -179,7 +189,7 @@ export function MyScheduleView() {
               </div>
             </div>
 
-            {match.status === 'final' && (
+            {match.status === 'FINAL' && (
               <div className="text-right">
                 <div className="text-lg font-bold text-gray-900">
                   {match.scoreA} - {match.scoreB}
@@ -215,7 +225,7 @@ export function MyScheduleView() {
           )}
 
           {/* Action Button */}
-          {match.status === 'live' && (
+          {match.status === 'LIVE' && (
             <div className="mt-3 pt-3 border-t border-gray-100">
               <button className="w-full bg-red-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-red-700 transition-colors">
                 {t('status.live')} - View Details

@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useOffline } from '../../../src/hooks/useOffline';
-import { useServiceWorker, getServiceWorkerVersion } from '../../../src/components/ServiceWorkerRegistration';
-import { Tournament } from '@ump/core';
+import {
+  useServiceWorker,
+  getServiceWorkerVersion,
+} from '../../../src/components/ServiceWorkerRegistration';
+import { Tournament } from '../../../lib/types';
 
 export default function TestPWAPage() {
   const {
@@ -32,23 +35,36 @@ export default function TestPWAPage() {
         id: `test-${Date.now()}`,
         pluginId: 'single-elimination',
         name: `Test Tournament ${new Date().toLocaleTimeString()}`,
-        status: 'not_started',
+        status: 'NOT_STARTED',
         sport: 'rugby',
         phases: [],
         config: {
           statTier: 1,
           plugins: {
             sport: 'rugby',
-            phases: [{
-              pluginId: 'single-elimination',
-              phaseName: 'Main Tournament',
-              settings: {
-                allowThirdPlace: false
-              }
-            }]
-          }
+            phases: [
+              {
+                pluginId: 'single-elimination',
+                phaseName: 'Main Tournament',
+                settings: {
+                  allowThirdPlace: false,
+                },
+              },
+            ],
+          },
         },
         isLocked: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        creator: {
+          id: 'test-user-id',
+          email: 'test@example.com',
+          name: 'Test User',
+          clerkId: 'test-clerk-id',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        teams: [],
       };
 
       await saveTournamentOffline(testTournament);

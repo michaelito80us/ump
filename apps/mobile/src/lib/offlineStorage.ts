@@ -1,6 +1,6 @@
 /// <reference lib="dom" />
 
-import { Tournament, Match } from '@ump/core';
+import { Tournament, Match } from '../../lib/types';
 
 // IndexedDB database name and version
 const DB_NAME = 'UMPOfflineDB';

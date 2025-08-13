@@ -21,7 +21,30 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { createClient } from 'graphql-ws';
 import { useAuth } from '@clerk/nextjs';
-import { ClerkClientUtils } from '@ump/core';
+
+// Client-side token management utilities
+const ClerkClientUtils = {
+  setTokenInWindow: (token: string | null) => {
+    if (typeof window !== 'undefined') {
+      if (token) {
+        window.__CLERK_TOKEN__ = token;
+      } else {
+        delete window.__CLERK_TOKEN__;
+      }
+    }
+  },
+  getTokenFromWindow: (): string | null => {
+    if (typeof window !== 'undefined') {
+      return window.__CLERK_TOKEN__ || null;
+    }
+    return null;
+  },
+  clearTokenFromWindow: () => {
+    if (typeof window !== 'undefined') {
+      delete window.__CLERK_TOKEN__;
+    }
+  },
+};
 
 // HTTP Link for queries and mutations
 const httpLink = createHttpLink({
