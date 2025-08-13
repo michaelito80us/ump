@@ -32,20 +32,27 @@ export default async function HomePage({ params }: PageProps) {
           <p className="text-sm text-gray-600">{t('appDescription')}</p>
         </div>
 
-        {/* Navigation Links for PWA Testing */}
+        {/* Navigation Links for Testing */}
         <div className="space-y-2">
           <Link
             href={`/${locale}/test`}
             className="block p-3 bg-blue-100 rounded hover:bg-blue-200 transition-colors"
           >
-            📋 Test Page (Original)
+            📋 i18n Test Page
           </Link>
 
           <Link
             href={`/${locale}/test-pwa`}
             className="block p-3 bg-green-100 rounded hover:bg-green-200 transition-colors"
           >
-            🚀 PWA Test Page (New!)
+            🚀 PWA Test Page
+          </Link>
+
+          <Link
+            href={`/${locale}/test-graphql`}
+            className="block p-3 bg-purple-100 rounded hover:bg-purple-200 transition-colors"
+          >
+            🔗 GraphQL Test Page
           </Link>
         </div>
 

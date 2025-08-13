@@ -1,6 +1,14 @@
 // lib/apolloClient.ts
 'use client';
 
+// Extend Window interface for Clerk token
+declare global {
+  interface Window {
+    __CLERK_TOKEN__?: string;
+  }
+}
+
+import React from 'react';
 import {
   ApolloClient,
   InMemoryCache,
@@ -17,7 +25,7 @@ import { useAuth } from '@clerk/nextjs';
 // HTTP Link for queries and mutations
 const httpLink = createHttpLink({
   uri:
-    process.env.NEXT_PUBLIC_GRAPHQL_HTTP_URL || 'http://localhost:4000/graphql',
+    process.env.NEXT_PUBLIC_GRAPHQL_HTTP_URL || 'http://localhost:4001/graphql',
 });
 
 // WebSocket Link for subscriptions
@@ -27,7 +35,7 @@ const wsLink =
         createClient({
           url:
             process.env.NEXT_PUBLIC_GRAPHQL_WS_URL ||
-            'ws://localhost:4000/graphql',
+            'ws://localhost:4001/graphql',
           connectionParams: () => {
             // Get token from Clerk - this will be called for each connection
             const token = window.__CLERK_TOKEN__;
@@ -76,56 +84,87 @@ const splitLink =
       )
     : from([authLink, httpLink]);
 
-// Apollo Client instance
-export const apolloClient = new ApolloClient({
-  link: splitLink,
-  cache: new InMemoryCache({
-    typePolicies: {
-      Match: {
-        fields: {
-          // Enable real-time updates for match scores
-          scoreA: {
-            merge: true,
+// Create Apollo Client instance
+export function createApolloClient() {
+  return new ApolloClient({
+    link: splitLink,
+    cache: new InMemoryCache({
+      typePolicies: {
+        Match: {
+          fields: {
+            // Enable real-time updates for match scores
+            scoreA: {
+              merge: true,
+            },
+            scoreB: {
+              merge: true,
+            },
+            status: {
+              merge: true,
+            },
           },
-          scoreB: {
-            merge: true,
-          },
-          status: {
-            merge: true,
+        },
+        Tournament: {
+          fields: {
+            matches: {
+              merge: false, // Replace array completely on updates
+            },
           },
         },
       },
-      Tournament: {
-        fields: {
-          matches: {
-            merge: false, // Replace array completely on updates
-          },
-        },
+    }),
+    defaultOptions: {
+      watchQuery: {
+        errorPolicy: 'all',
+        notifyOnNetworkStatusChange: true,
+      },
+      query: {
+        errorPolicy: 'all',
       },
     },
-  }),
-  defaultOptions: {
-    watchQuery: {
-      errorPolicy: 'all',
-      notifyOnNetworkStatusChange: true,
-    },
-    query: {
-      errorPolicy: 'all',
-    },
-  },
-  connectToDevTools: process.env.NODE_ENV === 'development',
-});
+    connectToDevTools: process.env.NODE_ENV === 'development',
+  });
+}
+
+// Singleton Apollo Client instance
+let apolloClient: ApolloClient<any> | null = null;
+
+export function getApolloClient() {
+  if (!apolloClient) {
+    apolloClient = createApolloClient();
+  }
+  return apolloClient;
+}
 
 // Hook to get Apollo Client with auth context
 export function useApolloClient() {
   const { getToken } = useAuth();
+  const [client, setClient] = React.useState<ApolloClient<any> | null>(null);
 
-  // Update the global token reference for WebSocket connections
-  if (typeof window !== 'undefined') {
-    getToken().then((token) => {
-      (window as any).__CLERK_TOKEN__ = token;
+  React.useEffect(() => {
+    // Only initialize client on the client side
+    if (typeof window !== 'undefined') {
+      const apolloClientInstance = getApolloClient();
+      setClient(apolloClientInstance);
+
+      // Update the global token reference for WebSocket connections
+      getToken().then((token) => {
+        (window as any).__CLERK_TOKEN__ = token;
+      });
+    }
+  }, [getToken]);
+
+  // Return a minimal client for SSR that won't cause hydration issues
+  if (typeof window === 'undefined' || !client) {
+    return new ApolloClient({
+      link: from([authLink, httpLink]),
+      cache: new InMemoryCache(),
+      ssrMode: true,
     });
   }
 
-  return apolloClient;
+  return client;
 }
+
+// Export the Apollo Client instance for testing
+export const testApolloClient = getApolloClient();

@@ -1,3 +1,4 @@
+/* eslint-env jest */
 import { renderHook, act } from '@testing-library/react';
 import { useMatchDiff, useMatchUpdates } from '../useMatchDiff';
 import type { Match, MatchPatch } from '@ump/core';
@@ -5,11 +6,25 @@ import type { Match, MatchPatch } from '@ump/core';
 // Mock match data
 const createMockMatch = (overrides: Partial<Match> = {}): Match => ({
   id: 'match-1',
-  teamA: { id: 'team-a', name: 'Team A', players: [] },
-  teamB: { id: 'team-b', name: 'Team B', players: [] },
+  teamA: {
+    id: 'team-a',
+    name: 'Team A',
+    sportIds: [],
+    playerIds: [],
+    managers: [],
+    tournaments: [],
+  },
+  teamB: {
+    id: 'team-b',
+    name: 'Team B',
+    sportIds: [],
+    playerIds: [],
+    managers: [],
+    tournaments: [],
+  },
   scoreA: 0,
   scoreB: 0,
-  status: 'scheduled',
+  status: 'pending',
   scheduledTime: '2024-01-01T10:00:00Z',
   venue: 'Stadium A',
   breakdown: {

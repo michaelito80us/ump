@@ -2,6 +2,16 @@
 
 import { useEffect, useState } from 'react';
 
+/* eslint-disable no-undef */
+// TypeScript type definitions for Service Worker API
+declare global {
+  interface ServiceWorkerRegistration {
+    sync: {
+      register(tag: string): Promise<void>;
+    };
+  }
+}
+
 export interface ServiceWorkerStatus {
   isSupported: boolean;
   isRegistered: boolean;
@@ -24,7 +34,7 @@ export function useServiceWorker() {
       return;
     }
 
-    setStatus(prev => ({ ...prev, isSupported: true }));
+    setStatus((prev) => ({ ...prev, isSupported: true }));
 
     // Register service worker
     registerServiceWorker();
@@ -33,14 +43,14 @@ export function useServiceWorker() {
   const registerServiceWorker = async () => {
     try {
       console.log('[SW] Registering service worker...');
-      
+
       const registration = await navigator.serviceWorker.register('/sw.js', {
         scope: '/',
       });
 
       console.log('[SW] Service worker registered successfully:', registration);
-      
-      setStatus(prev => ({
+
+      setStatus((prev) => ({
         ...prev,
         isRegistered: true,
         registration,
@@ -50,12 +60,15 @@ export function useServiceWorker() {
       registration.addEventListener('updatefound', () => {
         console.log('[SW] Update found');
         const newWorker = registration.installing;
-        
+
         if (newWorker) {
           newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            if (
+              newWorker.state === 'installed' &&
+              navigator.serviceWorker.controller
+            ) {
               console.log('[SW] Update available');
-              setStatus(prev => ({ ...prev, isUpdateAvailable: true }));
+              setStatus((prev) => ({ ...prev, isUpdateAvailable: true }));
             }
           });
         }
@@ -64,7 +77,7 @@ export function useServiceWorker() {
       // Listen for messages from service worker
       navigator.serviceWorker.addEventListener('message', (event) => {
         console.log('[SW] Message from service worker:', event.data);
-        
+
         if (event.data.type === 'CACHE_UPDATED') {
           // Handle cache updates
           console.log('[SW] Cache updated for:', event.data.url);
@@ -76,7 +89,6 @@ export function useServiceWorker() {
         console.log('[SW] Controller changed - reloading page');
         window.location.reload();
       });
-
     } catch (error) {
       console.error('[SW] Service worker registration failed:', error);
     }
@@ -91,7 +103,7 @@ export function useServiceWorker() {
     try {
       console.log('[SW] Updating service worker...');
       await status.registration.update();
-      
+
       // Tell the new service worker to skip waiting
       if (status.registration.waiting) {
         status.registration.waiting.postMessage({ type: 'SKIP_WAITING' });
@@ -110,7 +122,7 @@ export function useServiceWorker() {
     try {
       console.log('[SW] Unregistering service worker...');
       const success = await status.registration.unregister();
-      
+
       if (success) {
         console.log('[SW] Service worker unregistered successfully');
         setStatus({
@@ -182,12 +194,17 @@ export function ServiceWorkerRegistration() {
 
 // Background sync helper
 export function requestBackgroundSync(tag: string = 'background-sync') {
-  if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
-    navigator.serviceWorker.ready.then((registration) => {
-      return registration.sync.register(tag);
-    }).catch((error) => {
-      console.error('[SW] Background sync registration failed:', error);
-    });
+  if (
+    'serviceWorker' in navigator &&
+    'sync' in window.ServiceWorkerRegistration.prototype
+  ) {
+    navigator.serviceWorker.ready
+      .then((registration) => {
+        return registration.sync.register(tag);
+      })
+      .catch((error) => {
+        console.error('[SW] Background sync registration failed:', error);
+      });
   } else {
     console.log('[SW] Background sync not supported');
   }
@@ -205,20 +222,20 @@ export async function getServiceWorkerVersion(): Promise<string | null> {
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     return new Promise((resolve) => {
       const messageChannel = new MessageChannel();
-      
+
       messageChannel.port1.onmessage = (event) => {
         resolve(event.data.version || null);
       };
-      
-      navigator.serviceWorker.controller.postMessage(
-        { type: 'GET_VERSION' },
-        [messageChannel.port2]
-      );
-      
+
+      const controller = navigator.serviceWorker.controller;
+      if (controller) {
+        controller.postMessage({ type: 'GET_VERSION' }, [messageChannel.port2]);
+      }
+
       // Timeout after 5 seconds
       setTimeout(() => resolve(null), 5000);
     });
   }
-  
+
   return null;
 }
