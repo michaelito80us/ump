@@ -1,5 +1,6 @@
 import React from 'react';
 import './globals.css';
+import { Providers } from '../lib/providers';
 
 export const metadata = {
   title: 'UMP Admin - Tournament Management',
@@ -26,7 +27,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

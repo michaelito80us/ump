@@ -17,6 +17,7 @@
     "e2e:open": "start-server-and-test dev http://localhost:3000 cypress:open"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.28.1",
     "@fullcalendar/core": "^6.1.19",
     "@fullcalendar/daygrid": "^6.1.19",
     "@fullcalendar/interaction": "^6.1.19",

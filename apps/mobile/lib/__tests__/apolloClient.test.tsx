@@ -25,6 +25,25 @@ jest.mock('@clerk/nextjs', () => ({
   }),
 }));
 
+// Mock Clerk server functions
+jest.mock('@clerk/nextjs/server', () => ({
+  auth: jest.fn(),
+  currentUser: jest.fn(),
+}));
+
+// Mock @ump/core to avoid server-side imports in tests
+jest.mock('@ump/core', () => ({
+  ClerkClientUtils: {
+    setTokenInWindow: jest.fn(),
+    getTokenFromWindow: jest.fn(),
+    clearTokenFromWindow: jest.fn(),
+  },
+  ClerkAuthProvider: {
+    extractTokenFromHeader: jest.fn(),
+    createUserContext: jest.fn(),
+  },
+}));
+
 // Mock WebSocket
 const MockWebSocket = jest.fn().mockImplementation(() => ({
   close: jest.fn(),
@@ -145,12 +164,12 @@ describe('Apollo Client Setup', () => {
 
 describe('WebSocket Integration', () => {
   const mockSubscription = gql`
-    subscription MatchUpdates($matchId: ID!) {
-      matchUpdated(matchId: $matchId) {
+    subscription MatchUpdatesApollo($tournamentId: ID!) {
+      matchUpdated(tournamentId: $tournamentId) {
         id
+        status
         scoreA
         scoreB
-        status
       }
     }
   `;

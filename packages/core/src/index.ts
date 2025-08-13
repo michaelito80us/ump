@@ -19,6 +19,15 @@ export * from './types';
 // Export GraphQL generated types and hooks (with namespace to avoid conflicts)
 export * as GraphQL from './generated';
 
+// Export authentication utilities
+export {
+  ClerkAuthProvider,
+  ClerkClientUtils,
+  AuthenticationError,
+  AuthorizationError,
+  type UserContext,
+} from './auth/clerkProvider';
+
 // Export utilities (excluding MatchPatch to avoid conflict with types.ts)
 export {
   createPatch,

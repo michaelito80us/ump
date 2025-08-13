@@ -14,6 +14,7 @@ import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 
 import { logger } from './utils/logger';
+import { ClerkAuthProvider } from '@ump/core';
 import { PluginSchemaLoader } from './services/pluginSchemaLoader';
 import {
   formatError,
@@ -115,9 +116,9 @@ async function startServer() {
 
         // Extract JWT token from Authorization header
         const authHeader = req.headers.authorization;
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-          const token = authHeader.substring(7);
+        const token = ClerkAuthProvider.extractTokenFromHeader(authHeader);
 
+        if (token) {
           try {
             // Verify JWT token (Clerk or custom)
             const decoded = jwt.verify(

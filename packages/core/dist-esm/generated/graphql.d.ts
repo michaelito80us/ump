@@ -405,6 +405,32 @@ export type TestConnectionQueryVariables = Exact<{
 export type TestConnectionQueryResult = {
   __typename: 'Query';
 };
+export type MatchUpdatesApolloSubscriptionVariables = Exact<{
+  tournamentId: Scalars['ID']['input'];
+}>;
+export type MatchUpdatesApolloSubscriptionResult = {
+  __typename?: 'Subscription';
+  matchUpdated: {
+    __typename?: 'Match';
+    id: string;
+    status: MatchStatus;
+    scoreA?: number | null;
+    scoreB?: number | null;
+  };
+};
+export type MatchUpdatesSubscriptionVariables = Exact<{
+  tournamentId: Scalars['ID']['input'];
+}>;
+export type MatchUpdatesSubscriptionResult = {
+  __typename?: 'Subscription';
+  matchUpdated: {
+    __typename?: 'Match';
+    id: string;
+    status: MatchStatus;
+    scoreA?: number | null;
+    scoreB?: number | null;
+  };
+};
 export type GetTournamentsQueryVariables = Exact<{
   [key: string]: never;
 }>;
@@ -709,6 +735,10 @@ export declare const useSuspenseInfiniteTestConnectionQuery: {
       }>
   )[];
 };
+export declare const MatchUpdatesApolloDocument =
+  '\n    subscription MatchUpdatesApollo($tournamentId: ID!) {\n  matchUpdated(tournamentId: $tournamentId) {\n    id\n    status\n    scoreA\n    scoreB\n  }\n}\n    ';
+export declare const MatchUpdatesDocument =
+  '\n    subscription MatchUpdates($tournamentId: ID!) {\n  matchUpdated(tournamentId: $tournamentId) {\n    id\n    status\n    scoreA\n    scoreB\n  }\n}\n    ';
 export declare const GetTournamentsDocument =
   '\n    query GetTournaments {\n  tournaments {\n    id\n    name\n    sport\n    status\n    startDate\n    endDate\n    isLocked\n    createdAt\n    updatedAt\n  }\n}\n    ';
 export declare const useGetTournamentsQuery: {

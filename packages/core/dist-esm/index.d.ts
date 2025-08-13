@@ -8,6 +8,13 @@ import {
 export * from './types';
 export * as GraphQL from './generated';
 export {
+  ClerkAuthProvider,
+  ClerkClientUtils,
+  AuthenticationError,
+  AuthorizationError,
+  type UserContext,
+} from './auth/clerkProvider';
+export {
   createPatch,
   applyPatch,
   hasBreakdownChanged,

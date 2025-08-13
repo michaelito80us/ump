@@ -125,6 +125,26 @@ useSuspenseInfiniteTestConnectionQuery.getKey = (variables) =>
   variables === undefined
     ? ['TestConnection.infiniteSuspense']
     : ['TestConnection.infiniteSuspense', variables];
+export const MatchUpdatesApolloDocument = `
+    subscription MatchUpdatesApollo($tournamentId: ID!) {
+  matchUpdated(tournamentId: $tournamentId) {
+    id
+    status
+    scoreA
+    scoreB
+  }
+}
+    `;
+export const MatchUpdatesDocument = `
+    subscription MatchUpdates($tournamentId: ID!) {
+  matchUpdated(tournamentId: $tournamentId) {
+    id
+    status
+    scoreA
+    scoreB
+  }
+}
+    `;
 export const GetTournamentsDocument = `
     query GetTournaments {
   tournaments {

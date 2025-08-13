@@ -21,6 +21,7 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { createClient } from 'graphql-ws';
 import { useAuth } from '@clerk/nextjs';
+import { ClerkClientUtils } from '@ump/core';
 
 // HTTP Link for queries and mutations
 const httpLink = createHttpLink({
@@ -38,7 +39,7 @@ const wsLink =
             'ws://localhost:4001/graphql',
           connectionParams: () => {
             // Get token from Clerk - this will be called for each connection
-            const token = window.__CLERK_TOKEN__;
+            const token = ClerkClientUtils.getTokenFromWindow();
             return {
               authorization: token ? `Bearer ${token}` : '',
             };
@@ -50,8 +51,8 @@ const wsLink =
 // Auth link to add JWT token to requests
 const authLink = setContext((_, { headers }) => {
   // Only try to get token if Clerk is configured
-  if (typeof window !== 'undefined' && window.__CLERK_TOKEN__) {
-    const token = window.__CLERK_TOKEN__;
+  const token = ClerkClientUtils.getTokenFromWindow();
+  if (token) {
     return {
       headers: {
         ...headers,
@@ -149,7 +150,7 @@ export function useApolloClient() {
 
       // Update the global token reference for WebSocket connections
       getToken().then((token) => {
-        (window as any).__CLERK_TOKEN__ = token;
+        ClerkClientUtils.setTokenInWindow(token);
       });
     }
   }, [getToken]);

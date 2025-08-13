@@ -83,13 +83,12 @@ class MockWebSocket {
 
 // Test subscription query
 const MATCH_UPDATES_SUBSCRIPTION = gql`
-  subscription MatchUpdates($matchId: ID!) {
-    matchUpdated(matchId: $matchId) {
+  subscription MatchUpdates($tournamentId: ID!) {
+    matchUpdated(tournamentId: $tournamentId) {
       id
+      status
       scoreA
       scoreB
-      status
-      updatedAt
     }
   }
 `;
