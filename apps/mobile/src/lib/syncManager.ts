@@ -1,6 +1,7 @@
 'use client';
 
 import { offlineStorage, PendingAction } from './offlineStorage';
+import { requestBackgroundSync } from '../components/ServiceWorkerRegistration';
 
 export interface SyncStatus {
   isOnline: boolean;
@@ -29,6 +30,7 @@ class SyncManager {
       this.isOnline = navigator.onLine;
       this.setupEventListeners();
       this.startPeriodicSync();
+      this.setupServiceWorkerSync();
     }
   }
 
@@ -50,6 +52,15 @@ class SyncManager {
         this.syncPendingActions();
       }
     });
+
+    // Listen for service worker messages
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data.type === 'SYNC_COMPLETED') {
+          this.handleServiceWorkerSyncCompleted(event.data);
+        }
+      });
+    }
   }
 
   private startPeriodicSync(): void {
@@ -141,12 +152,25 @@ class SyncManager {
             console.warn('Removing action after 5 failed attempts:', action);
           } else {
             await offlineStorage.save('pendingActions', action);
-          }
         }
       }
+    }
 
-      this.lastSyncTime = Date.now();
-      return result;
+    this.lastSyncTime = Date.now();
+    
+    // Notify service worker of sync completion
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'SYNC_STATUS_UPDATE',
+        data: {
+          syncedCount: result.syncedCount,
+          failedCount: result.failedCount,
+          timestamp: this.lastSyncTime
+        }
+      });
+    }
+    
+    return result;
     } catch (error) {
       console.error('Sync failed:', error);
       return {
@@ -163,6 +187,33 @@ class SyncManager {
 
   public async forcSync(): Promise<SyncResult> {
     return this.syncPendingActions();
+  }
+
+  private setupServiceWorkerSync(): void {
+    // Register for background sync when actions are added
+    if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+      console.log('[SyncManager] Service worker background sync available');
+    } else {
+      console.log('[SyncManager] Background sync not supported, using fallback');
+    }
+  }
+
+  private handleServiceWorkerSyncCompleted(data: any): void {
+    console.log('[SyncManager] Service worker sync completed:', data);
+    this.lastSyncTime = Date.now();
+    this.notifyListeners();
+  }
+
+  public async requestBackgroundSync(): Promise<void> {
+    try {
+      // Request background sync through service worker
+      requestBackgroundSync('background-sync');
+      console.log('[SyncManager] Background sync requested');
+    } catch (error) {
+      console.error('[SyncManager] Failed to request background sync:', error);
+      // Fallback to immediate sync if background sync fails
+      this.syncPendingActions();
+    }
   }
 
   private async syncSingleAction(action: PendingAction): Promise<void> {

@@ -4,6 +4,7 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { PWAInstaller } from '../../src/components/PWAInstaller';
 import { OfflineIndicator } from '../../src/components/OfflineIndicator';
+import { ServiceWorkerRegistration } from '../../src/components/ServiceWorkerRegistration';
 
 const locales = ['en', 'es'];
 
@@ -95,6 +96,7 @@ export default async function Layout({ children, params }: LayoutProps) {
       </head>
       <body>
         <NextIntlClientProvider messages={messages}>
+          <ServiceWorkerRegistration />
           <OfflineIndicator />
           <div>
             <p>Locale: {locale}</p>

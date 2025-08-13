@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useOffline } from '../../../src/hooks/useOffline';
+import { useServiceWorker, getServiceWorkerVersion } from '../../../src/components/ServiceWorkerRegistration';
 import { Tournament } from '@ump/core';
 
 export default function TestPWAPage() {
@@ -15,30 +16,39 @@ export default function TestPWAPage() {
     clearOfflineData,
   } = useOffline();
 
+  const { status: swStatus, updateServiceWorker } = useServiceWorker();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [testMessage, setTestMessage] = useState('');
+  const [swVersion, setSwVersion] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Get service worker version
+    getServiceWorkerVersion().then(setSwVersion);
+  }, []);
 
   const handleCreateTestTournament = async () => {
     try {
       const testTournament: Tournament = {
         id: `test-${Date.now()}`,
+        pluginId: 'single-elimination',
         name: `Test Tournament ${new Date().toLocaleTimeString()}`,
-        description: 'Test tournament for PWA functionality',
-        status: 'draft',
-        startDate: new Date().toISOString(),
-        endDate: new Date(Date.now() + 86400000).toISOString(),
+        status: 'not_started',
         sport: 'rugby',
-        variant: '15s',
-        teams: [],
-        matches: [],
         phases: [],
         config: {
-          maxTeams: 16,
-          allowLateRegistration: true,
-          registrationDeadline: new Date().toISOString(),
+          statTier: 1,
+          plugins: {
+            sport: 'rugby',
+            phases: [{
+              pluginId: 'single-elimination',
+              phaseName: 'Main Tournament',
+              settings: {
+                allowThirdPlace: false
+              }
+            }]
+          }
         },
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        isLocked: false,
       };
 
       await saveTournamentOffline(testTournament);
@@ -83,11 +93,28 @@ export default function TestPWAPage() {
 
       {/* Status Display */}
       <div className="mb-4 p-3 bg-gray-100 rounded">
-        <h2 className="font-semibold mb-2">Status</h2>
+        <h2 className="font-semibold mb-2">Network Status</h2>
         <p>Online: {isOnline ? '✅' : '❌'}</p>
         <p>Syncing: {isSyncing ? '🔄' : '✅'}</p>
         <p>Pending Actions: {syncStatus?.pendingActionsCount || 0}</p>
         <p>Failed Actions: {syncStatus?.failedActionsCount || 0}</p>
+      </div>
+
+      {/* Service Worker Status */}
+      <div className="mb-4 p-3 bg-blue-50 rounded">
+        <h2 className="font-semibold mb-2">Service Worker Status</h2>
+        <p>Supported: {swStatus.isSupported ? '✅' : '❌'}</p>
+        <p>Registered: {swStatus.isRegistered ? '✅' : '❌'}</p>
+        <p>Update Available: {swStatus.isUpdateAvailable ? '🔄' : '✅'}</p>
+        <p>Version: {swVersion || 'Unknown'}</p>
+        {swStatus.isUpdateAvailable && (
+          <button
+            onClick={updateServiceWorker}
+            className="mt-2 px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+          >
+            Update Service Worker
+          </button>
+        )}
       </div>
 
       {/* Test Message */}
@@ -138,7 +165,7 @@ export default function TestPWAPage() {
           {tournaments.map((tournament) => (
             <div key={tournament.id} className="p-2 bg-gray-50 rounded text-sm">
               <p className="font-medium">{tournament.name}</p>
-              <p className="text-gray-600">{tournament.description}</p>
+              <p className="text-gray-600">Sport: {tournament.sport}</p>
               <p className="text-xs text-gray-500">ID: {tournament.id}</p>
             </div>
           ))}

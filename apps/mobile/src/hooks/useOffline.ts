@@ -56,9 +56,12 @@ export function useOffline(): OfflineHookReturn {
           data: tournament,
         });
 
-        // Trigger immediate sync if online
+        // Trigger sync - either immediate if online or background sync if offline
         if (syncStatus?.isOnline && !syncStatus.isSyncing) {
           syncManager.syncPendingActions();
+        } else {
+          // Request background sync for when connection is restored
+          syncManager.requestBackgroundSync();
         }
       } catch (error) {
         console.error('Failed to save tournament offline:', error);
@@ -103,6 +106,8 @@ export function useOffline(): OfflineHookReturn {
 
         if (syncStatus?.isOnline && !syncStatus.isSyncing) {
           syncManager.syncPendingActions();
+        } else {
+          syncManager.requestBackgroundSync();
         }
       } catch (error) {
         console.error('Failed to save team offline:', error);
@@ -125,6 +130,8 @@ export function useOffline(): OfflineHookReturn {
 
         if (syncStatus?.isOnline && !syncStatus.isSyncing) {
           syncManager.syncPendingActions();
+        } else {
+          syncManager.requestBackgroundSync();
         }
       } catch (error) {
         console.error('Failed to save player offline:', error);

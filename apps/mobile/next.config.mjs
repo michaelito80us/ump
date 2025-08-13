@@ -22,9 +22,13 @@ const nextConfig = {
   },
   ...withPWA({
     dest: 'public',
-    disable: process.env.NODE_ENV === 'development',
+    disable: false, // Enable PWA in development for testing
     register: true,
     skipWaiting: true,
+    sw: 'sw.js', // Use our custom service worker
+    fallbacks: {
+      document: '/offline', // Fallback page when offline
+    },
     runtimeCaching: [
       {
         urlPattern: /^https:\/\/fonts\.(?:gstatic)\.com\/.*/i,
