@@ -28,3 +28,6 @@ export { pluginRegistry } from './registry';
 // Main hooks dispatcher instance (convenience re-export)
 export { hooksDispatcher } from './hooksDispatcher';
 export * from './harness';
+
+// RBAC exports
+export * from './rbac';
