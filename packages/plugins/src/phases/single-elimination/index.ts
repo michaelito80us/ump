@@ -180,12 +180,16 @@ export const SingleEliminationPlugin: PhasePlugin = {
   },
 
   // Render bracket UI
-  renderBracketUI: (phase: Phase): React.ReactNode => {
-    return React.createElement(SingleEliminationBracket, { phase });
+  renderBracketUI: (phase: Phase): React.ReactElement => {
+    return React.createElement(SingleEliminationBracket, {
+      phase,
+    }) as React.ReactElement;
   },
 
   // Render standings
-  renderStandings: (phase: Phase): React.ReactNode => {
-    return React.createElement(SingleEliminationStandings, { phase });
+  renderStandings: (phase: Phase): React.ReactElement => {
+    return React.createElement(SingleEliminationStandings, {
+      phase,
+    }) as React.ReactElement;
   },
 };

@@ -177,7 +177,7 @@ describe('Single Elimination Plugin Tests', () => {
         ],
       };
 
-      const nextMatches = SingleEliminationPlugin.getNextMatches(mockPhase);
+      const nextMatches = SingleEliminationPlugin.getNextMatches!(mockPhase);
 
       // Should only return match-1 (pending with real teams)
       expect(nextMatches).toHaveLength(1);

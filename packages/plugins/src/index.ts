@@ -8,9 +8,14 @@ export const PLUGINS_VERSION = '0.1.0';
 export { RugbyPlugin, rugbyVariants } from './sports/rugby';
 export type { RugbyScoreBreakdown } from './sports/rugby';
 
-// Export Single Elimination Plugin (T-10.2)
+// Export Single Elimination Plugin
 export { SingleEliminationPlugin } from './phases/single-elimination';
 export type {
   SingleEliminationSettings,
   BracketPosition,
 } from './phases/single-elimination';
+
+// Export Round Robin Plugin (T-10.2)
+export { RoundRobinPlugin } from './phases/round-robin';
+export type { RoundRobinSettings, StandingsEntry } from './phases/round-robin';
+export { getHeadToHeadRecord } from './phases/round-robin';
