@@ -1,4 +1,26 @@
 {
+  "status": {
+    "live": "Live",
+    "final": "Final",
+    "pending": "Pending",
+    "scheduled": "Scheduled",
+    "LIVE": "Live",
+    "FINAL": "Final",
+    "PENDING": "Pending",
+    "SCHEDULED": "Scheduled"
+  },
+  "match": {
+    "status": {
+      "live": "Live",
+      "final": "Final",
+      "pending": "Pending",
+      "scheduled": "Scheduled",
+      "LIVE": "Live",
+      "FINAL": "Final",
+      "PENDING": "Pending",
+      "SCHEDULED": "Scheduled"
+    }
+  },
   "common": {
     "welcome": "Welcome",
     "appName": "UMP Tournament Manager",

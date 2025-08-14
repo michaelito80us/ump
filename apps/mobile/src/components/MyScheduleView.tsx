@@ -162,7 +162,7 @@ export function MyScheduleView() {
               <span
                 className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(match.status)}`}
               >
-                {t(`status.${match.status}`)}
+                {t(`status.${match.status.toLowerCase()}`)}
               </span>
               <span className="text-sm text-gray-500">
                 {formatMatchTime(match.scheduledTime)}
