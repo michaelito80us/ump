@@ -10,7 +10,11 @@ import {
   Button,
 } from '@ump/ui';
 import type { SportPlugin, BasePluginMeta } from '@ump/engine';
-import { RugbyPlugin, SingleEliminationPlugin } from '@ump/plugins';
+import {
+  RugbyPlugin,
+  SingleEliminationPlugin,
+  RoundRobinPlugin,
+} from '@ump/plugins';
 
 export interface PluginPickerProps {
   category: 'sports' | 'phases' | 'seeding' | 'scheduling';
@@ -70,20 +74,8 @@ export const pluginRegistry = {
   ],
   phases: [
     SingleEliminationPlugin,
+    RoundRobinPlugin,
     // Additional phase plugins will be added as they're implemented
-    {
-      id: 'round-robin',
-      name: 'Round Robin',
-      version: '1.0.0',
-      description: 'All teams play each other once',
-      author: 'UMP Core Team',
-      supportedLanguages: ['en', 'es'],
-      capabilities: ['teams:2-16'],
-      i18n: {
-        en: { name: 'Round Robin' },
-        es: { name: 'Todos contra Todos' },
-      } as Record<string, Record<string, string>>,
-    },
     {
       id: 'double-elimination',
       name: 'Double Elimination',

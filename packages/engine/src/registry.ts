@@ -45,9 +45,12 @@ export interface SportPlugin extends BasePluginMeta {
 
 export interface PhasePlugin extends BasePluginMeta {
   generateSchedule(seedings: Team[], settings: any): Match[];
-  getNextMatches(phase: Phase): Match[];
-  renderBracketUI(phase: Phase): React.ReactNode;
-  renderStandings?(phase: Phase): React.ReactNode;
+  getNextMatches?(phase: Phase): Match[];
+  renderBracketUI(phase: Phase): React.ReactElement;
+  renderStandings?(phase: Phase): React.ReactElement;
+  calculateStandings?: (phase: Phase, settings?: any) => any[];
+  getHeadToHeadRecord?: (phase: Phase, teamAId: string, teamBId: string) => any;
+  meta?: any;
 }
 
 export interface SeedingPlugin extends BasePluginMeta {

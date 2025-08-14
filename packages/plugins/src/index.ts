@@ -19,3 +19,6 @@ export type {
 export { RoundRobinPlugin } from './phases/round-robin';
 export type { RoundRobinSettings, StandingsEntry } from './phases/round-robin';
 export { getHeadToHeadRecord } from './phases/round-robin';
+
+// Export Greedy Scheduler Plugin (T-9.1)
+export { GreedyScheduler } from './scheduling/greedy';
