@@ -1,8 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { Match, MatchStatus } from '../../lib/types';
+import { useMatchUpdatesSubscription } from '../hooks/useMatchSubscription';
 
 // Mock live matches data
 const mockLiveMatches: Match[] = [
@@ -66,43 +68,96 @@ const mockLiveMatches: Match[] = [
   },
 ];
 
-export function LiveScoresView() {
+interface LiveScoresViewProps {
+  tournamentId?: string;
+}
+
+export function LiveScoresView({
+  tournamentId = 'default-tournament',
+}: LiveScoresViewProps) {
   const t = useTranslations('live');
   const tCommon = useTranslations('common');
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
+  const [scoreAnimations, setScoreAnimations] = useState<
+    Record<string, { teamA: boolean; teamB: boolean }>
+  >({});
+  const previousScores = useRef<
+    Record<string, { scoreA: number; scoreB: number }>
+  >({});
+
+  // Subscribe to real-time match updates
+  const { loading: subscriptionLoading } = useMatchUpdatesSubscription(
+    tournamentId,
+    (updatedMatch) => {
+      setMatches((prevMatches) => {
+        const existingIndex = prevMatches.findIndex(
+          (m) => m.id === updatedMatch.id
+        );
+
+        // Check for score changes to trigger animations
+        const prevScore = previousScores.current[updatedMatch.id];
+        if (prevScore) {
+          const scoreAChanged = prevScore.scoreA !== updatedMatch.scoreA;
+          const scoreBChanged = prevScore.scoreB !== updatedMatch.scoreB;
+
+          if (scoreAChanged || scoreBChanged) {
+            setScoreAnimations((prev) => ({
+              ...prev,
+              [updatedMatch.id]: {
+                teamA: scoreAChanged,
+                teamB: scoreBChanged,
+              },
+            }));
+
+            // Clear animation after 2 seconds
+            setTimeout(() => {
+              setScoreAnimations((prev) => {
+                const newAnimations = { ...prev };
+                delete newAnimations[updatedMatch.id];
+                return newAnimations;
+              });
+            }, 2000);
+          }
+        }
+
+        // Update previous scores
+        previousScores.current[updatedMatch.id] = {
+          scoreA: updatedMatch.scoreA,
+          scoreB: updatedMatch.scoreB,
+        };
+
+        if (existingIndex >= 0) {
+          const newMatches = [...prevMatches];
+          newMatches[existingIndex] = updatedMatch;
+          return newMatches;
+        } else {
+          return [...prevMatches, updatedMatch];
+        }
+      });
+    },
+    true // enabled
+  );
 
   useEffect(() => {
-    // Simulate API call
+    // Initialize with mock data for development
     const fetchLiveMatches = async () => {
       setLoading(true);
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setMatches(mockLiveMatches);
+
+      // Initialize previous scores
+      mockLiveMatches.forEach((match) => {
+        previousScores.current[match.id] = {
+          scoreA: match.scoreA,
+          scoreB: match.scoreB,
+        };
+      });
+
       setLoading(false);
     };
 
     fetchLiveMatches();
-
-    // Simulate real-time score updates
-    const interval = setInterval(() => {
-      setMatches((prevMatches) =>
-        prevMatches.map((match) => {
-          // Randomly update scores
-          if (Math.random() > 0.8) {
-            const updatedMatch = { ...match };
-            if (Math.random() > 0.5) {
-              updatedMatch.scoreA += Math.floor(Math.random() * 3) + 1;
-            } else {
-              updatedMatch.scoreB += Math.floor(Math.random() * 3) + 1;
-            }
-            return updatedMatch;
-          }
-          return match;
-        })
-      );
-    }, 5000); // Update every 5 seconds
-
-    return () => clearInterval(interval);
   }, []);
 
   const getMatchDuration = (startTime: string) => {
@@ -114,7 +169,7 @@ export function LiveScoresView() {
     return `${diffInMinutes}'`;
   };
 
-  if (loading) {
+  if (loading || subscriptionLoading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
@@ -188,9 +243,20 @@ export function LiveScoresView() {
                 <div className="font-semibold text-lg text-gray-900 mb-1">
                   {match.teamA.name}
                 </div>
-                <div className="text-3xl font-bold text-gray-900">
+                <motion.div
+                  className="text-3xl font-bold text-gray-900"
+                  animate={
+                    scoreAnimations[match.id]?.teamA
+                      ? {
+                          scale: [1, 1.2, 1],
+                          color: ['#111827', '#dc2626', '#111827'],
+                        }
+                      : {}
+                  }
+                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                >
                   {match.scoreA}
-                </div>
+                </motion.div>
               </div>
 
               {/* VS Separator */}
@@ -203,9 +269,20 @@ export function LiveScoresView() {
                 <div className="font-semibold text-lg text-gray-900 mb-1">
                   {match.teamB.name}
                 </div>
-                <div className="text-3xl font-bold text-gray-900">
+                <motion.div
+                  className="text-3xl font-bold text-gray-900"
+                  animate={
+                    scoreAnimations[match.id]?.teamB
+                      ? {
+                          scale: [1, 1.2, 1],
+                          color: ['#111827', '#dc2626', '#111827'],
+                        }
+                      : {}
+                  }
+                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                >
                   {match.scoreB}
-                </div>
+                </motion.div>
               </div>
             </div>
           </div>

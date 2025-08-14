@@ -24,6 +24,7 @@
     "@ump/core": "workspace:*",
     "@ump/engine": "workspace:*",
     "@ump/ui": "workspace:*",
+    "framer-motion": "^12.23.12",
     "graphql": "^16.9.0",
     "graphql-ws": "^6.0.6",
     "next": "^15.3.2",

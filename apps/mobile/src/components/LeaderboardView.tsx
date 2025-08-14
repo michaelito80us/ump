@@ -2,7 +2,9 @@
 
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Team } from '../../lib/types';
+import { useLeaderboardSubscription } from '../hooks/useLeaderboardSubscription';
 
 // Extended interface for display purposes
 interface TeamStanding {
@@ -148,14 +150,55 @@ const mockStandingsData: TeamStanding[] = [
   },
 ];
 
-export function LeaderboardView() {
+interface LeaderboardViewProps {
+  tournamentId?: string;
+}
+
+export function LeaderboardView({
+  tournamentId = 'default-tournament',
+}: LeaderboardViewProps) {
   const t = useTranslations('standings');
   const tCommon = useTranslations('common');
   const [standings, setStandings] = useState<TeamStanding[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Subscribe to real-time leaderboard updates
+  const { loading: subscriptionLoading, positionChanges } =
+    useLeaderboardSubscription({
+      tournamentId,
+      onLeaderboardUpdate: (updatedLeaderboard) => {
+        // Convert LeaderboardEntry to TeamStanding format
+        const convertedStandings: TeamStanding[] = updatedLeaderboard.map(
+          (entry) => ({
+            rank: entry.position,
+            team: {
+              id: entry.teamId,
+              name: `Team ${entry.teamId}`, // This should come from a team lookup
+              sportIds: [],
+              playerIds: [],
+              managers: [],
+              tournaments: [],
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+            wins: entry.wins,
+            losses: entry.losses,
+            draws: entry.draws,
+            points: entry.points,
+            goalsFor: entry.goalsFor,
+            goalsAgainst: entry.goalsAgainst,
+            goalDifference: entry.goalDifference,
+            played: entry.played,
+          })
+        );
+        setStandings(convertedStandings);
+      },
+      enabled: true,
+      debug: true,
+    });
+
   useEffect(() => {
-    // Simulate API call
+    // Initialize with mock data for development
     const fetchStandings = async () => {
       setLoading(true);
       await new Promise((resolve) => setTimeout(resolve, 800));
@@ -179,7 +222,7 @@ export function LeaderboardView() {
     return 'text-gray-600';
   };
 
-  if (loading) {
+  if (loading || subscriptionLoading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -230,98 +273,192 @@ export function LeaderboardView() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {standings.map((standing) => (
-                <tr key={standing.team.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getRankBadgeColor(standing.rank)}`}
+              <AnimatePresence>
+                {standings.map((standing) => {
+                  const hasPositionChange = positionChanges[standing.team.id];
+                  return (
+                    <motion.tr
+                      key={standing.team.id}
+                      className="hover:bg-gray-50"
+                      layout
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                        backgroundColor: hasPositionChange
+                          ? '#fef3c7'
+                          : 'transparent',
+                      }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{
+                        duration: 0.5,
+                        ease: 'easeOut',
+                        backgroundColor: { duration: 2 },
+                      }}
                     >
-                      {standing.rank}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="font-medium text-gray-900">
-                      {standing.team.name}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 text-center text-sm text-gray-900">
-                    {standing.played}
-                  </td>
-                  <td className="px-4 py-4 text-center text-sm text-gray-900">
-                    {standing.wins}
-                  </td>
-                  <td className="px-4 py-4 text-center text-sm text-gray-900">
-                    {standing.draws}
-                  </td>
-                  <td className="px-4 py-4 text-center text-sm text-gray-900">
-                    {standing.losses}
-                  </td>
-                  <td
-                    className={`px-4 py-4 text-center text-sm font-medium ${getGoalDifferenceColor(standing.goalDifference)}`}
-                  >
-                    {standing.goalDifference > 0 ? '+' : ''}
-                    {standing.goalDifference}
-                  </td>
-                  <td className="px-4 py-4 text-center text-sm font-bold text-gray-900">
-                    {standing.points}
-                  </td>
-                </tr>
-              ))}
+                      <td className="px-4 py-4">
+                        <motion.span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getRankBadgeColor(standing.rank)}`}
+                          animate={
+                            hasPositionChange
+                              ? {
+                                  scale: [1, 1.3, 1],
+                                  rotate: [0, 10, -10, 0],
+                                }
+                              : {}
+                          }
+                          transition={{ duration: 0.8, ease: 'easeOut' }}
+                        >
+                          {standing.rank}
+                          {hasPositionChange && (
+                            <motion.div
+                              className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"
+                              initial={{ scale: 0 }}
+                              animate={{ scale: [0, 1.2, 1] }}
+                              exit={{ scale: 0 }}
+                              transition={{ duration: 0.5 }}
+                            />
+                          )}
+                        </motion.span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="font-medium text-gray-900">
+                          {standing.team.name}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-center text-sm text-gray-900">
+                        {standing.played}
+                      </td>
+                      <td className="px-4 py-4 text-center text-sm text-gray-900">
+                        {standing.wins}
+                      </td>
+                      <td className="px-4 py-4 text-center text-sm text-gray-900">
+                        {standing.draws}
+                      </td>
+                      <td className="px-4 py-4 text-center text-sm text-gray-900">
+                        {standing.losses}
+                      </td>
+                      <td
+                        className={`px-4 py-4 text-center text-sm font-medium ${getGoalDifferenceColor(standing.goalDifference)}`}
+                      >
+                        {standing.goalDifference > 0 ? '+' : ''}
+                        {standing.goalDifference}
+                      </td>
+                      <td className="px-4 py-4 text-center text-sm font-bold text-gray-900">
+                        <motion.span
+                          animate={
+                            hasPositionChange
+                              ? {
+                                  scale: [1, 1.2, 1],
+                                  color: ['#111827', '#059669', '#111827'],
+                                }
+                              : {}
+                          }
+                          transition={{ duration: 0.6, ease: 'easeOut' }}
+                        >
+                          {standing.points}
+                        </motion.span>
+                      </td>
+                    </motion.tr>
+                  );
+                })}
+              </AnimatePresence>
             </tbody>
           </table>
         </div>
 
         {/* Mobile Card View */}
         <div className="md:hidden space-y-3 p-4">
-          {standings.map((standing) => (
-            <div key={standing.team.id} className="bg-gray-50 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-3">
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getRankBadgeColor(standing.rank)}`}
-                  >
-                    #{standing.rank}
-                  </span>
-                  <span className="font-semibold text-gray-900">
-                    {standing.team.name}
-                  </span>
-                </div>
-                <span className="text-lg font-bold text-gray-900">
-                  {standing.points} pts
-                </span>
-              </div>
+          <AnimatePresence>
+            {standings.map((standing) => {
+              const hasPositionChange = positionChanges[standing.team.id];
+              return (
+                <motion.div
+                  key={standing.team.id}
+                  className="bg-gray-50 rounded-lg p-4"
+                  layout
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{
+                    opacity: 1,
+                    x: 0,
+                    backgroundColor: hasPositionChange ? '#fef3c7' : '#f9fafb',
+                  }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{
+                    duration: 0.5,
+                    ease: 'easeOut',
+                    backgroundColor: { duration: 2 },
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <motion.span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getRankBadgeColor(standing.rank)}`}
+                        animate={
+                          hasPositionChange
+                            ? {
+                                scale: [1, 1.3, 1],
+                                rotate: [0, 10, -10, 0],
+                              }
+                            : {}
+                        }
+                        transition={{ duration: 0.8, ease: 'easeOut' }}
+                      >
+                        #{standing.rank}
+                      </motion.span>
+                      <span className="font-semibold text-gray-900">
+                        {standing.team.name}
+                      </span>
+                    </div>
+                    <motion.span
+                      className="text-lg font-bold text-gray-900"
+                      animate={
+                        hasPositionChange
+                          ? {
+                              scale: [1, 1.2, 1],
+                              color: ['#111827', '#059669', '#111827'],
+                            }
+                          : {}
+                      }
+                      transition={{ duration: 0.6, ease: 'easeOut' }}
+                    >
+                      {standing.points} pts
+                    </motion.span>
+                  </div>
 
-              <div className="grid grid-cols-3 gap-4 text-sm">
-                <div className="text-center">
-                  <div className="text-gray-500">{t('wins')}</div>
-                  <div className="font-medium">{standing.wins}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-gray-500">{t('draws')}</div>
-                  <div className="font-medium">{standing.draws}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-gray-500">{t('losses')}</div>
-                  <div className="font-medium">{standing.losses}</div>
-                </div>
-              </div>
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div className="text-center">
+                      <div className="text-gray-500">{t('wins')}</div>
+                      <div className="font-medium">{standing.wins}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-gray-500">{t('draws')}</div>
+                      <div className="font-medium">{standing.draws}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-gray-500">{t('losses')}</div>
+                      <div className="font-medium">{standing.losses}</div>
+                    </div>
+                  </div>
 
-              <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between text-sm">
-                <span className="text-gray-500">
-                  {t('goalDiff')}:{' '}
-                  <span
-                    className={`font-medium ${getGoalDifferenceColor(standing.goalDifference)}`}
-                  >
-                    {standing.goalDifference > 0 ? '+' : ''}
-                    {standing.goalDifference}
-                  </span>
-                </span>
-                <span className="text-gray-500">
-                  {t('played')}: {standing.played}
-                </span>
-              </div>
-            </div>
-          ))}
+                  <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between text-sm">
+                    <span className="text-gray-500">
+                      {t('goalDiff')}:{' '}
+                      <span
+                        className={`font-medium ${getGoalDifferenceColor(standing.goalDifference)}`}
+                      >
+                        {standing.goalDifference > 0 ? '+' : ''}
+                        {standing.goalDifference}
+                      </span>
+                    </span>
+                    <span className="text-gray-500">
+                      {t('played')}: {standing.played}
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </div>
       </div>
 

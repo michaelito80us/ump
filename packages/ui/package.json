@@ -23,6 +23,7 @@
     "@ump/core": "workspace:*",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "framer-motion": "^12.23.12",
     "lucide-react": "^0.460.0",
     "tailwind-merge": "^2.2.0"
   },
