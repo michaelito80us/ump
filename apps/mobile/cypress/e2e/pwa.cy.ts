@@ -5,13 +5,14 @@ describe('PWA Functionality', () => {
     // Visit the homepage first to ensure app is loaded
     cy.visit('/en');
     // Wait for the page to load completely
+    cy.contains('Welcome').should('be.visible');
     cy.contains('UMP Tournament Manager').should('be.visible');
   });
 
   it('should display PWA features on homepage', () => {
     // Verify PWA test page link exists
     cy.contains('PWA Test Page').should('be.visible');
-    
+
     // Verify PWA features list
     cy.contains('PWA Features to Test:').should('be.visible');
     cy.contains('Install app prompt').should('be.visible');
@@ -21,11 +22,16 @@ describe('PWA Functionality', () => {
   });
 
   it('should navigate to PWA test page successfully', () => {
-    // Click PWA test page link
-    cy.contains('PWA Test Page').click();
-    
+    // Click on PWA Test Page link using more specific text matching
+    cy.contains('🚀 PWA Test Page').should('be.visible').click();
+
+    // Wait for navigation to complete by checking URL change
+    cy.url({ timeout: 15000 }).should('include', '/test-pwa');
+
+    // Wait for page to fully load
+    cy.wait(1000);
+
     // Verify we're on the PWA test page
-    cy.url().should('include', '/test-pwa');
     cy.contains('PWA Test Page').should('be.visible');
   });
 
@@ -38,10 +44,13 @@ describe('PWA Functionality', () => {
   it('should verify PWA navigation works', () => {
     // Navigate to PWA test page from homepage
     cy.contains('PWA Test Page').click();
-    
+
     // Verify we're on the PWA test page
     cy.url().should('include', '/test-pwa');
     cy.contains('PWA Test Page').should('be.visible');
+
+    // Wait for database initialization to complete
+    cy.wait(2000);
   });
 
   it('should verify service worker file exists', () => {
@@ -57,7 +66,7 @@ describe('PWA Functionality', () => {
 describe('PWA Installation', () => {
   it('should have proper PWA manifest', () => {
     cy.visit('/en');
-    
+
     // Check for manifest link in head
     cy.get('head link[rel="manifest"]').should('exist');
   });

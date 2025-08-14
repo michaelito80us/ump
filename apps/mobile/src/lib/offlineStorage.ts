@@ -109,7 +109,11 @@ class OfflineStorageManager {
 
   // Generic CRUD operations
   async save<T>(storeName: string, data: T): Promise<void> {
-    if (!this.db) throw new Error('Database not initialized');
+    if (!this.db) {
+      // Try to initialize if not already done
+      await this.init();
+      if (!this.db) throw new Error('Database not initialized');
+    }
 
     return new Promise((resolve, reject) => {
       const transaction = this.db.transaction([storeName], 'readwrite');
@@ -122,7 +126,11 @@ class OfflineStorageManager {
   }
 
   async get<T>(storeName: string, id: string): Promise<T | null> {
-    if (!this.db) throw new Error('Database not initialized');
+    if (!this.db) {
+      // Try to initialize if not already done
+      await this.init();
+      if (!this.db) throw new Error('Database not initialized');
+    }
 
     return new Promise((resolve, reject) => {
       const transaction = this.db.transaction([storeName], 'readonly');
@@ -135,7 +143,11 @@ class OfflineStorageManager {
   }
 
   async getAll<T>(storeName: string): Promise<T[]> {
-    if (!this.db) throw new Error('Database not initialized');
+    if (!this.db) {
+      // Try to initialize if not already done
+      await this.init();
+      if (!this.db) throw new Error('Database not initialized');
+    }
 
     return new Promise((resolve, reject) => {
       const transaction = this.db.transaction([storeName], 'readonly');
@@ -148,7 +160,11 @@ class OfflineStorageManager {
   }
 
   async delete(storeName: string, id: string): Promise<void> {
-    if (!this.db) throw new Error('Database not initialized');
+    if (!this.db) {
+      // Try to initialize if not already done
+      await this.init();
+      if (!this.db) throw new Error('Database not initialized');
+    }
 
     return new Promise((resolve, reject) => {
       const transaction = this.db.transaction([storeName], 'readwrite');
@@ -181,7 +197,11 @@ class OfflineStorageManager {
   }
 
   async getMatchesByTournament(tournamentId: string): Promise<Match[]> {
-    if (!this.db) throw new Error('Database not initialized');
+    if (!this.db) {
+      // Try to initialize if not already done
+      await this.init();
+      if (!this.db) throw new Error('Database not initialized');
+    }
 
     return new Promise((resolve, reject) => {
       const transaction = this.db.transaction([STORES.MATCHES], 'readonly');
@@ -220,7 +240,11 @@ class OfflineStorageManager {
   }
 
   async clearAllData(): Promise<void> {
-    if (!this.db) throw new Error('Database not initialized');
+    if (!this.db) {
+      // Try to initialize if not already done
+      await this.init();
+      if (!this.db) throw new Error('Database not initialized');
+    }
 
     const storeNames = Object.values(STORES);
     const transaction = this.db.transaction(storeNames, 'readwrite');
