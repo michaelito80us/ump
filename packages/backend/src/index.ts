@@ -74,7 +74,7 @@ async function startServer() {
     cors<cors.CorsRequest>({
       origin: process.env.CORS_ORIGINS?.split(',') || [
         'http://localhost:3000',
-        'http://localhost:4000', // Gateway
+        'http://localhost:3000', // Gateway
       ],
       credentials: true,
     }),
