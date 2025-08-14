@@ -262,13 +262,18 @@ export function LiveMatchCard({
         {/* Match details */}
         {displayMatch.scheduledTime && (
           <div className="text-sm text-gray-600 mb-2">
-            🕒 {new Date(displayMatch.scheduledTime).toLocaleString()}
+            🕒{' '}
+            {new Date(displayMatch.scheduledTime)
+              .toISOString()
+              .replace('T', ' ')
+              .slice(0, 19)}
           </div>
         )}
 
         {lastUpdateTime && (
           <div className="text-xs text-gray-500">
-            Last updated: {lastUpdateTime.toLocaleTimeString()}
+            Last updated:{' '}
+            {lastUpdateTime.toISOString().replace('T', ' ').slice(11, 19)}
           </div>
         )}
       </div>
