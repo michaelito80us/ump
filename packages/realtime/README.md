@@ -55,6 +55,9 @@ const server = new RealtimeWebSocketServer({
   jwtSecret: config.jwt.secret,
   pubsub,
 });
+
+// Initialize the server (required)
+await server.initialize();
 ```
 
 ### Client Connection

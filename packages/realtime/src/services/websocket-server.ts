@@ -44,13 +44,17 @@ export class RealtimeWebSocketServer {
       console.error('WebSocket server error:', error);
     });
 
+    console.log(`WebSocket server listening on port ${config.port}`);
+  }
+
+  async initialize(): Promise<void> {
     // Set up PubSub pattern subscription to catch all events
-    this.setupPubSubHandler();
+    await this.setupPubSubHandler();
 
     // Start ping timer
     this.startPingTimer();
 
-    console.log(`WebSocket server listening on port ${config.port}`);
+    console.log('WebSocket server initialized with PubSub');
   }
 
   private async setupPubSubHandler(): Promise<void> {

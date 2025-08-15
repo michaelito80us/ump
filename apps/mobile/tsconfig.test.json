@@ -4,9 +4,11 @@
     "types": ["node", "jest", "@testing-library/jest-dom"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "typeRoots": ["../../node_modules/@types", "./node_modules/@types"]
   },
   "include": [
+    "types/jest-global.d.ts",
     "**/__tests__/**/*",
     "**/*.test.ts",
     "**/*.test.tsx",

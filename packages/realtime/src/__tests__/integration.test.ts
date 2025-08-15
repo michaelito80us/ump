@@ -31,6 +31,7 @@ describe('Integration Tests', () => {
       pingInterval: config.websocket.pingInterval,
     });
 
+    await server.initialize();
     await new Promise((resolve) => setTimeout(resolve, 100));
   });
 

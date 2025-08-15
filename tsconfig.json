@@ -20,6 +20,15 @@
       "path": "./packages/infra-scripts"
     },
     {
+      "path": "./packages/realtime"
+    },
+    {
+      "path": "./packages/gateway"
+    },
+    {
+      "path": "./packages/backend"
+    },
+    {
       "path": "./apps/mobile"
     },
     {

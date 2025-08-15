@@ -38,6 +38,7 @@ async function main() {
       pubsub,
     });
 
+    await server.initialize();
     console.log(`✅ WebSocket server listening on port ${config.port}`);
     console.log('📡 Try connecting with: ws://localhost:4001');
     console.log('🎯 Server is ready for connections!');

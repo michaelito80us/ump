@@ -32,6 +32,7 @@ describe('RealtimeWebSocketServer', () => {
       pingInterval: config.websocket.pingInterval,
     });
 
+    await server.initialize();
     // Wait a bit for server to be ready
     await new Promise((resolve) => setTimeout(resolve, 100));
   });

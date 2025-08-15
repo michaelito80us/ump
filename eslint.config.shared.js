@@ -99,6 +99,7 @@ module.exports = [
       '**/__tests__/**/*.{js,ts,tsx}',
       '**/jest.setup.js',
       '**/__mocks__/**/*.js',
+      '**/tests/**/*.{js,ts,tsx}',
     ],
     languageOptions: {
       globals: {

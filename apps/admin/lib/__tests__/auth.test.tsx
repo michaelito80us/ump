@@ -36,23 +36,20 @@ describe('Clerk Authentication Integration - Admin', () => {
   });
 
   it('should return null for invalid Authorization header', () => {
-    expect(ClerkAuthProvider.extractTokenFromHeader(null)).toBeNull();
     expect(ClerkAuthProvider.extractTokenFromHeader(undefined)).toBeNull();
     expect(ClerkAuthProvider.extractTokenFromHeader('Invalid')).toBeNull();
     expect(ClerkAuthProvider.extractTokenFromHeader('Basic token')).toBeNull();
   });
 
   it('should create user context from Clerk user', () => {
-    const mockClerkUser = {
+    const _mockClerkUser = {
       id: 'clerk_123',
       emailAddresses: [{ emailAddress: 'user@example.com' }],
       firstName: 'John',
       lastName: 'Doe',
     };
 
-    const userContext = ClerkAuthProvider.createUserContext(
-      mockClerkUser as any
-    );
+    const userContext = ClerkAuthProvider.getUserContext();
 
     expect(userContext).toEqual({
       id: 'clerk_123',

@@ -1,0 +1,412 @@
+{
+  "consumer": {
+    "name": "mobile-app"
+  },
+  "interactions": [
+    {
+      "description": "a request for matches list",
+      "providerState": "matches exist",
+      "request": {
+        "body": {
+          "operationName": "GetMatches",
+          "query": "\n  query GetMatches {\n    matches {\n      id\n      teamA {\n        id\n        name\n      }\n      teamB {\n        id\n        name\n      }\n      scoreA\n      scoreB\n      status\n      startTime\n    }\n  }\n",
+          "variables": {}
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/graphql"
+      },
+      "response": {
+        "body": {
+          "data": {
+            "matches": [
+              {
+                "id": "1",
+                "scoreA": 2,
+                "scoreB": 1,
+                "startTime": "2025-03-01T10:00:00Z",
+                "status": "COMPLETED",
+                "teamA": {
+                  "id": "1",
+                  "name": "Team A"
+                },
+                "teamB": {
+                  "id": "2",
+                  "name": "Team B"
+                }
+              }
+            ]
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.data.matches": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body.data.matches[*].id": {
+            "match": "type"
+          },
+          "$.body.data.matches[*].scoreA": {
+            "match": "type"
+          },
+          "$.body.data.matches[*].scoreB": {
+            "match": "type"
+          },
+          "$.body.data.matches[*].startTime": {
+            "match": "type"
+          },
+          "$.body.data.matches[*].status": {
+            "match": "regex",
+            "regex": "SCHEDULED|LIVE|COMPLETED|CANCELLED"
+          },
+          "$.body.data.matches[*].teamA.id": {
+            "match": "type"
+          },
+          "$.body.data.matches[*].teamA.name": {
+            "match": "type"
+          },
+          "$.body.data.matches[*].teamB.id": {
+            "match": "type"
+          },
+          "$.body.data.matches[*].teamB.name": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request for non-existent tournament",
+      "providerState": "tournament does not exist",
+      "request": {
+        "body": {
+          "operationName": "GetTournament",
+          "query": "\n  query GetTournament($id: ID!) {\n    tournament(id: $id) {\n      id\n      name\n      status\n      startDate\n      endDate\n      phases {\n        id\n        name\n        matches {\n          id\n          teamA {\n            id\n            name\n          }\n          teamB {\n            id\n            name\n          }\n          scoreA\n          scoreB\n          status\n          startTime\n        }\n      }\n    }\n  }\n",
+          "variables": {
+            "id": "non-existent"
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/graphql"
+      },
+      "response": {
+        "body": {
+          "data": {
+            "tournament": null
+          },
+          "errors": [
+            {
+              "extensions": {
+                "code": "NOT_FOUND",
+                "httpStatus": 404
+              },
+              "message": "Tournament not found"
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.errors": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body.errors[*].extensions.code": {
+            "match": "type"
+          },
+          "$.body.errors[*].extensions.httpStatus": {
+            "match": "type"
+          },
+          "$.body.errors[*].message": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request for tournament with ID 1",
+      "providerState": "tournament with ID 1 exists",
+      "request": {
+        "body": {
+          "operationName": "GetTournament",
+          "query": "\n  query GetTournament($id: ID!) {\n    tournament(id: $id) {\n      id\n      name\n      status\n      startDate\n      endDate\n      phases {\n        id\n        name\n        matches {\n          id\n          teamA {\n            id\n            name\n          }\n          teamB {\n            id\n            name\n          }\n          scoreA\n          scoreB\n          status\n          startTime\n        }\n      }\n    }\n  }\n",
+          "variables": {
+            "id": "1"
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/graphql"
+      },
+      "response": {
+        "body": {
+          "data": {
+            "tournament": {
+              "endDate": "2025-03-03",
+              "id": "1",
+              "name": "Test Tournament",
+              "phases": [
+                {
+                  "id": "1",
+                  "matches": [
+                    {
+                      "id": "1",
+                      "scoreA": 2,
+                      "scoreB": 1,
+                      "startTime": "2025-03-01T10:00:00Z",
+                      "status": "COMPLETED",
+                      "teamA": {
+                        "id": "1",
+                        "name": "Team A"
+                      },
+                      "teamB": {
+                        "id": "2",
+                        "name": "Team B"
+                      }
+                    }
+                  ],
+                  "name": "Group Stage"
+                }
+              ],
+              "startDate": "2025-03-01",
+              "status": "PUBLISHED"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.data.tournament.endDate": {
+            "match": "type"
+          },
+          "$.body.data.tournament.id": {
+            "match": "type"
+          },
+          "$.body.data.tournament.name": {
+            "match": "type"
+          },
+          "$.body.data.tournament.phases": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body.data.tournament.phases[*].id": {
+            "match": "type"
+          },
+          "$.body.data.tournament.phases[*].matches": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body.data.tournament.phases[*].matches[*].id": {
+            "match": "type"
+          },
+          "$.body.data.tournament.phases[*].matches[*].scoreA": {
+            "match": "type"
+          },
+          "$.body.data.tournament.phases[*].matches[*].scoreB": {
+            "match": "type"
+          },
+          "$.body.data.tournament.phases[*].matches[*].startTime": {
+            "match": "type"
+          },
+          "$.body.data.tournament.phases[*].matches[*].status": {
+            "match": "regex",
+            "regex": "SCHEDULED|LIVE|COMPLETED|CANCELLED"
+          },
+          "$.body.data.tournament.phases[*].matches[*].teamA.id": {
+            "match": "type"
+          },
+          "$.body.data.tournament.phases[*].matches[*].teamA.name": {
+            "match": "type"
+          },
+          "$.body.data.tournament.phases[*].matches[*].teamB.id": {
+            "match": "type"
+          },
+          "$.body.data.tournament.phases[*].matches[*].teamB.name": {
+            "match": "type"
+          },
+          "$.body.data.tournament.phases[*].name": {
+            "match": "type"
+          },
+          "$.body.data.tournament.startDate": {
+            "match": "type"
+          },
+          "$.body.data.tournament.status": {
+            "match": "regex",
+            "regex": "DRAFT|PUBLISHED|LIVE|COMPLETED|CANCELLED"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request for tournaments list",
+      "providerState": "tournaments exist",
+      "request": {
+        "body": {
+          "operationName": "GetTournaments",
+          "query": "\n  query GetTournaments {\n    tournaments {\n      id\n      name\n      status\n      startDate\n      endDate\n    }\n  }\n",
+          "variables": {}
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/graphql"
+      },
+      "response": {
+        "body": {
+          "data": {
+            "tournaments": [
+              {
+                "endDate": "2025-03-03",
+                "id": "1",
+                "name": "Test Tournament",
+                "startDate": "2025-03-01",
+                "status": "PUBLISHED"
+              }
+            ]
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.data.tournaments": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body.data.tournaments[*].endDate": {
+            "match": "type"
+          },
+          "$.body.data.tournaments[*].id": {
+            "match": "type"
+          },
+          "$.body.data.tournaments[*].name": {
+            "match": "type"
+          },
+          "$.body.data.tournaments[*].startDate": {
+            "match": "type"
+          },
+          "$.body.data.tournaments[*].status": {
+            "match": "regex",
+            "regex": "DRAFT|PUBLISHED|LIVE|COMPLETED|CANCELLED"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "an authenticated request for tournaments",
+      "providerState": "user is authenticated",
+      "request": {
+        "body": {
+          "operationName": "GetTournaments",
+          "query": "\n  query GetTournaments {\n    tournaments {\n      id\n      name\n      status\n      startDate\n      endDate\n    }\n  }\n",
+          "variables": {}
+        },
+        "headers": {
+          "Authorization": "Bearer jwt-token",
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body": {
+            "match": "type"
+          },
+          "$.header.Authorization": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/graphql"
+      },
+      "response": {
+        "body": {
+          "data": {
+            "tournaments": [
+              {
+                "endDate": "2025-03-03",
+                "id": "1",
+                "name": "Test Tournament",
+                "startDate": "2025-03-01",
+                "status": "PUBLISHED"
+              }
+            ]
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.data.tournaments": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body.data.tournaments[*].endDate": {
+            "match": "type"
+          },
+          "$.body.data.tournaments[*].id": {
+            "match": "type"
+          },
+          "$.body.data.tournaments[*].name": {
+            "match": "type"
+          },
+          "$.body.data.tournaments[*].startDate": {
+            "match": "type"
+          },
+          "$.body.data.tournaments[*].status": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "15.0.1"
+    },
+    "pactRust": {
+      "ffi": "0.4.22",
+      "models": "1.2.3"
+    },
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  },
+  "provider": {
+    "name": "ump-gateway"
+  }
+}

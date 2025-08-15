@@ -32,6 +32,7 @@ async function startServer() {
       connectionTimeout: config.websocket.pongTimeout,
     });
 
+    await server.initialize();
     console.log(`✅ WebSocket server listening on port ${config.port}`);
     console.log('🎯 Ready to handle real-time connections!');
 
