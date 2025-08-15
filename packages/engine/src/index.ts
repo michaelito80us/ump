@@ -34,3 +34,6 @@ export * from './rbac';
 
 // Logging exports
 export * from './logging';
+
+// Privacy exports
+export * from './privacy';

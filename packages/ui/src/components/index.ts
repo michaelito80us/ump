@@ -1,5 +1,6 @@
 export * from './Button';
 export * from './Card';
+export * from './ConsentCheckbox';
 export * from './Dialog';
 export * from './Input';
 export * from './Label';
