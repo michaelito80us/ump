@@ -127,3 +127,62 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+  accessibility:
+    name: Accessibility Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        shell: bash
+        id: pnpm-cache
+        run: |
+          echo "path=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Browsers
+        run: |
+          cd apps/admin && npx playwright install --with-deps
+          cd ../mobile && npx playwright install --with-deps
+
+      - name: Run Admin App Accessibility Tests
+        run: |
+          cd apps/admin
+          pnpm test:a11y
+
+      - name: Run Mobile App Accessibility Tests
+        run: |
+          cd apps/mobile
+          pnpm test:a11y
+
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: |
+            apps/admin/playwright-report/
+            apps/mobile/playwright-report/
+          retention-days: 30

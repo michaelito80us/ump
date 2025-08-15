@@ -18,7 +18,10 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "e2e": "start-server-and-test dev http://localhost:3001/en cypress:run",
-    "e2e:open": "start-server-and-test dev http://localhost:3001/en cypress:open"
+    "e2e:open": "start-server-and-test dev http://localhost:3001/en cypress:open",
+    "test:a11y": "playwright test tests/e2e/a11y.spec.ts",
+    "test:a11y:headed": "playwright test tests/e2e/a11y.spec.ts --headed",
+    "test:a11y:ui": "playwright test tests/e2e/a11y.spec.ts --ui"
   },
   "dependencies": {
     "@apollo/client": "^3.13.9",
@@ -36,8 +39,10 @@
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
     "@eslint/js": "^9.33.0",
     "@pact-foundation/pact": "^15.0.1",
+    "@playwright/test": "^1.54.2",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.1",
