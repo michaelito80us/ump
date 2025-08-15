@@ -1,6 +1,7 @@
 import { Tournament, Prisma } from '@prisma/client';
 import { BaseService, PaginatedResult, ListOptions } from './base.service';
 import { ValidationError } from '@ump/core';
+import { auditLogger, AuditContext } from './auditLogIntegration';
 
 export interface CreateTournamentInput {
   pluginId: string;
@@ -131,7 +132,11 @@ export class TournamentService extends BaseService {
   /**
    * Update tournament
    */
-  async update(id: string, input: UpdateTournamentInput): Promise<Tournament> {
+  async update(
+    id: string,
+    input: UpdateTournamentInput,
+    auditContext?: AuditContext
+  ): Promise<Tournament> {
     try {
       if (input.startDate && input.endDate) {
         this.validateDateRange(input.startDate, input.endDate);
@@ -158,12 +163,31 @@ export class TournamentService extends BaseService {
         data: updateData,
       });
 
+      if (auditContext) {
+        await auditLogger.logTournamentOperation(
+          'update',
+          tournament.id,
+          auditContext,
+          {
+            updatedFields: Object.keys(input),
+            name: tournament.name,
+            status: tournament.status,
+          }
+        );
+      }
+
       return {
         ...tournament,
         config: this.safeJsonParse(tournament.config),
         metadata: this.safeJsonParse(tournament.metadata),
       };
     } catch (error: any) {
+      if (auditContext) {
+        await auditLogger.logTournamentOperation('update', id, auditContext, {
+          updatedFields: Object.keys(input),
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
       this.handlePrismaError(error, 'TournamentService.update');
     }
   }

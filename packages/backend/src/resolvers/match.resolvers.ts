@@ -106,16 +106,23 @@ export const matchResolvers = {
         },
       });
 
-      // Update match
-      return await db.match.update({
-        where: { id },
-        data: {
+      // Update match using service with audit context
+      const { matchService } = await import('../services');
+      return await matchService.update(
+        id,
+        {
           scoreA: input.scoreA,
           scoreB: input.scoreB,
           breakdown: input.breakdown,
-          status: 'NEEDS_APPROVAL', // Require approval for score changes
+          status: input.status || 'NEEDS_APPROVAL', // Require approval for score changes
         },
-      });
+        {
+          actorId: context.user.id,
+          actorType: 'user',
+          tournamentId: match.phase.tournament.id,
+          source: 'graphql_score_update',
+        }
+      );
     },
 
     approveMatch: async (_: any, { id }: { id: string }, context: any) => {

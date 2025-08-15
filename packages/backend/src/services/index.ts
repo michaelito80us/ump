@@ -37,3 +37,6 @@ export type {
   UpdateMatchInput,
   MatchWithRelations,
 } from './match.service';
+
+// Audit logging integration
+export * from './auditLogIntegration';

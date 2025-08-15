@@ -1,6 +1,7 @@
 import { Match, Prisma } from '@prisma/client';
 import { BaseService, PaginatedResult, ListOptions } from './base.service';
 import { ValidationError } from '@ump/core';
+import { auditLogger, AuditContext } from './auditLogIntegration';
 
 export interface CreateMatchInput {
   phaseId: string;
@@ -36,7 +37,10 @@ export class MatchService extends BaseService {
   /**
    * Create a new match
    */
-  async create(input: CreateMatchInput): Promise<Match> {
+  async create(
+    input: CreateMatchInput,
+    auditContext?: AuditContext
+  ): Promise<Match> {
     try {
       this.validateRequired(input, ['phaseId', 'teamAId', 'teamBId']);
 
@@ -58,9 +62,24 @@ export class MatchService extends BaseService {
         },
       };
 
-      return await this.db.match.create({
+      const match = await this.db.match.create({
         data: matchData,
       });
+
+      // Log the match creation
+      if (auditContext) {
+        await auditLogger.logMatchOperation('create', match, auditContext, {
+          phaseId: input.phaseId,
+          teamAId: input.teamAId,
+          teamBId: input.teamBId,
+          initialScore: {
+            scoreA: match.scoreA,
+            scoreB: match.scoreB,
+          },
+        });
+      }
+
+      return match;
     } catch (error: any) {
       this.handlePrismaError(error, 'MatchService.create');
     }
@@ -120,8 +139,28 @@ export class MatchService extends BaseService {
   /**
    * Update match
    */
-  async update(id: string, input: UpdateMatchInput): Promise<Match> {
+  async update(
+    id: string,
+    input: UpdateMatchInput,
+    auditContext?: AuditContext
+  ): Promise<Match> {
     try {
+      // Get current match for audit logging
+      const currentMatch = await this.db.match.findUnique({
+        where: { id },
+        include: {
+          phase: {
+            include: {
+              tournament: true,
+            },
+          },
+        },
+      });
+
+      if (!currentMatch) {
+        throw new ValidationError('Match not found');
+      }
+
       const updateData: Prisma.MatchUpdateInput = {};
 
       if (input.teamAId !== undefined) {
@@ -148,6 +187,47 @@ export class MatchService extends BaseService {
         data: updateData,
       });
 
+      // Log the match update
+      if (auditContext) {
+        await auditLogger.logMatchOperation(
+          'update',
+          match,
+          {
+            ...auditContext,
+            tournamentId:
+              auditContext.tournamentId || currentMatch.phase.tournament.id,
+          },
+          {
+            previousData: {
+              scoreA: currentMatch.scoreA,
+              scoreB: currentMatch.scoreB,
+              status: currentMatch.status,
+              venue: currentMatch.venue,
+            },
+            updatedFields: Object.keys(input),
+          }
+        );
+
+        // Special logging for score submissions (T-11.2 requirement)
+        if (input.scoreA !== undefined || input.scoreB !== undefined) {
+          await auditLogger.logScoreSubmission(
+            match,
+            {
+              ...auditContext,
+              tournamentId:
+                auditContext.tournamentId || currentMatch.phase.tournament.id,
+            },
+            {
+              previousScoreA: currentMatch.scoreA,
+              previousScoreB: currentMatch.scoreB,
+              newScoreA: match.scoreA,
+              newScoreB: match.scoreB,
+              breakdown: input.breakdown,
+            }
+          );
+        }
+      }
+
       return {
         ...match,
         breakdown: this.safeJsonParse(match.breakdown || '{}'),
@@ -160,11 +240,51 @@ export class MatchService extends BaseService {
   /**
    * Delete match
    */
-  async delete(id: string): Promise<Match> {
+  async delete(id: string, auditContext?: AuditContext): Promise<Match> {
     try {
-      return await this.db.match.delete({
+      // Get match data before deletion for audit logging
+      const matchToDelete = await this.db.match.findUnique({
+        where: { id },
+        include: {
+          phase: {
+            include: {
+              tournament: true,
+            },
+          },
+        },
+      });
+
+      if (!matchToDelete) {
+        throw new ValidationError('Match not found');
+      }
+
+      const deletedMatch = await this.db.match.delete({
         where: { id },
       });
+
+      // Log the match deletion
+      if (auditContext) {
+        await auditLogger.logMatchOperation(
+          'delete',
+          deletedMatch,
+          {
+            ...auditContext,
+            tournamentId:
+              auditContext.tournamentId || matchToDelete.phase.tournament.id,
+          },
+          {
+            deletedData: {
+              scoreA: deletedMatch.scoreA,
+              scoreB: deletedMatch.scoreB,
+              status: deletedMatch.status,
+              venue: deletedMatch.venue,
+              scheduledTime: deletedMatch.scheduledTime,
+            },
+          }
+        );
+      }
+
+      return deletedMatch;
     } catch (error: any) {
       this.handlePrismaError(error, 'MatchService.delete');
     }

@@ -31,3 +31,6 @@ export * from './harness';
 
 // RBAC exports
 export * from './rbac';
+
+// Logging exports
+export * from './logging';

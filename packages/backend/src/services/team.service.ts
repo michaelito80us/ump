@@ -1,6 +1,7 @@
 import { Team, Prisma } from '@prisma/client';
 import { BaseService, PaginatedResult, ListOptions } from './base.service';
 import { ValidationError } from '@ump/core';
+import { auditLogger, AuditContext } from './auditLogIntegration';
 
 export interface CreateTeamInput {
   name: string;
@@ -105,7 +106,11 @@ export class TeamService extends BaseService {
   /**
    * Update team
    */
-  async update(id: string, input: UpdateTeamInput): Promise<Team> {
+  async update(
+    id: string,
+    input: UpdateTeamInput,
+    auditContext?: AuditContext
+  ): Promise<Team> {
     try {
       const updateData: Prisma.TeamUpdateInput = {};
 
@@ -120,11 +125,24 @@ export class TeamService extends BaseService {
         data: updateData,
       });
 
+      if (auditContext) {
+        await auditLogger.logTeamOperation('update', team.id, auditContext, {
+          updatedFields: Object.keys(input),
+          name: team.name,
+        });
+      }
+
       return {
         ...team,
         metadata: this.safeJsonParse(team.metadata),
       };
     } catch (error: any) {
+      if (auditContext) {
+        await auditLogger.logTeamOperation('update', id, auditContext, {
+          updatedFields: Object.keys(input),
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
       this.handlePrismaError(error, 'TeamService.update');
     }
   }
@@ -132,12 +150,25 @@ export class TeamService extends BaseService {
   /**
    * Delete team
    */
-  async delete(id: string): Promise<Team> {
+  async delete(id: string, auditContext?: AuditContext): Promise<Team> {
     try {
-      return await this.db.team.delete({
+      const team = await this.db.team.delete({
         where: { id },
       });
+
+      if (auditContext) {
+        await auditLogger.logTeamOperation('delete', team.id, auditContext, {
+          name: team.name,
+        });
+      }
+
+      return team;
     } catch (error: any) {
+      if (auditContext) {
+        await auditLogger.logTeamOperation('delete', id, auditContext, {
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
       this.handlePrismaError(error, 'TeamService.delete');
     }
   }

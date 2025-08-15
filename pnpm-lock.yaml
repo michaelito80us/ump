@@ -391,6 +391,9 @@ importers:
         specifier: ^9.0.2
         version: 9.0.2
     devDependencies:
+      '@jest/globals':
+        specifier: ^29.7.0
+        version: 29.7.0
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
@@ -409,6 +412,9 @@ importers:
       '@types/node':
         specifier: ^20.17.50
         version: 20.17.50
+      '@ump/engine':
+        specifier: workspace:*
+        version: link:../engine
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@20.17.50)
@@ -473,6 +479,9 @@ importers:
       react-dom:
         specifier: ^18.0.0
         version: 18.3.1(react@18.3.1)
+      uuid:
+        specifier: ^9.0.0
+        version: 9.0.1
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^6.0.0
@@ -492,6 +501,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.0.0
         version: 18.3.1
+      '@types/uuid':
+        specifier: ^9.0.0
+        version: 9.0.8
       jest:
         specifier: ^29.5.0
         version: 29.7.0(@types/node@20.17.50)(ts-node@10.9.2)

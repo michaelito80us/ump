@@ -1,5 +1,6 @@
 import { User, Prisma } from '@prisma/client';
 import { BaseService, PaginatedResult, ListOptions } from './base.service';
+import { auditLogger, AuditContext } from './auditLogIntegration';
 
 export interface CreateUserInput {
   email: string;
@@ -32,7 +33,10 @@ export class UserService extends BaseService {
   /**
    * Create a new user
    */
-  async create(input: CreateUserInput): Promise<User> {
+  async create(
+    input: CreateUserInput,
+    auditContext?: AuditContext
+  ): Promise<User> {
     try {
       this.validateRequired(input, ['email']);
       this.validateEmail(input.email);
@@ -45,10 +49,25 @@ export class UserService extends BaseService {
         clerkId: input.clerkId,
       };
 
-      return await this.db.user.create({
+      const user = await this.db.user.create({
         data: userData,
       });
+
+      if (auditContext) {
+        await auditLogger.logUserOperation('create', user.id, auditContext, {
+          email: user.email,
+          clerkId: user.clerkId,
+        });
+      }
+
+      return user;
     } catch (error: any) {
+      if (auditContext) {
+        await auditLogger.logUserOperation('create', 'unknown', auditContext, {
+          email: input.email,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
       this.handlePrismaError(error, 'UserService.create');
     }
   }
@@ -148,7 +167,11 @@ export class UserService extends BaseService {
   /**
    * Update user
    */
-  async update(id: string, input: UpdateUserInput): Promise<User> {
+  async update(
+    id: string,
+    input: UpdateUserInput,
+    auditContext?: AuditContext
+  ): Promise<User> {
     try {
       if (input.email) {
         this.validateEmail(input.email);
@@ -162,11 +185,26 @@ export class UserService extends BaseService {
       if (input.role !== undefined) updateData.role = input.role;
       if (input.clerkId !== undefined) updateData.clerkId = input.clerkId;
 
-      return await this.db.user.update({
+      const user = await this.db.user.update({
         where: { id },
         data: updateData,
       });
+
+      if (auditContext) {
+        await auditLogger.logUserOperation('update', user.id, auditContext, {
+          updatedFields: Object.keys(input),
+          email: user.email,
+        });
+      }
+
+      return user;
     } catch (error: any) {
+      if (auditContext) {
+        await auditLogger.logUserOperation('update', id, auditContext, {
+          updatedFields: Object.keys(input),
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
       this.handlePrismaError(error, 'UserService.update');
     }
   }
@@ -174,12 +212,26 @@ export class UserService extends BaseService {
   /**
    * Delete user
    */
-  async delete(id: string): Promise<User> {
+  async delete(id: string, auditContext?: AuditContext): Promise<User> {
     try {
-      return await this.db.user.delete({
+      const user = await this.db.user.delete({
         where: { id },
       });
+
+      if (auditContext) {
+        await auditLogger.logUserOperation('delete', user.id, auditContext, {
+          email: user.email,
+          clerkId: user.clerkId,
+        });
+      }
+
+      return user;
     } catch (error: any) {
+      if (auditContext) {
+        await auditLogger.logUserOperation('delete', id, auditContext, {
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
       this.handlePrismaError(error, 'UserService.delete');
     }
   }
