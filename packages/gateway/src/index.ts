@@ -9,11 +9,17 @@ import {
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
-import helmet from 'helmet';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 
 import { logger } from './utils/logger';
+import {
+  createSecurityHeadersMiddleware,
+  additionalSecurityHeaders,
+  cspReportHandler,
+  SECURITY_CONFIGS,
+  validateSecurityConfig,
+} from './middleware/securityHeaders';
 import { ClerkAuthProvider } from '@ump/core';
 import { PluginSchemaLoader } from './services/pluginSchemaLoader';
 import {
@@ -75,13 +81,25 @@ async function startServer() {
   const app = express();
   const httpServer = http.createServer(app);
 
-  // Security middleware
-  app.use(
-    helmet({
-      contentSecurityPolicy: NODE_ENV === 'production' ? undefined : false,
-      crossOriginEmbedderPolicy: false,
-    })
-  );
+  // OWASP Baseline Security Headers
+  const securityConfig =
+    SECURITY_CONFIGS[NODE_ENV as keyof typeof SECURITY_CONFIGS] ||
+    SECURITY_CONFIGS.development;
+
+  if (!validateSecurityConfig(securityConfig)) {
+    logger.error('Invalid security configuration, using defaults');
+  }
+
+  // Apply security headers middleware
+  app.use(createSecurityHeadersMiddleware(securityConfig));
+  app.use(additionalSecurityHeaders);
+  app.use(cspReportHandler);
+
+  logger.info('Security headers configured', {
+    environment: NODE_ENV,
+    csp: securityConfig.enableCSP,
+    hsts: securityConfig.enableHSTS,
+  });
 
   // Create gateway
   const gateway = await createGateway();
