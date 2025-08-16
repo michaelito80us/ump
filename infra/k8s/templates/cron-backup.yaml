@@ -1,0 +1,145 @@
+{{- if and .Values.backup.enabled .Values.postgresql.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "ump.fullname" . }}-postgres-backup
+  labels:
+    {{- include "ump.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backup
+spec:
+  schedule: {{ .Values.backup.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            {{- include "ump.selectorLabels" . | nindent 12 }}
+            app.kubernetes.io/component: backup
+        spec:
+          restartPolicy: OnFailure
+          {{- with .Values.global.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          serviceAccountName: {{ include "ump.serviceAccountName" . }}
+          securityContext:
+            {{- toYaml .Values.podSecurityContext | nindent 12 }}
+          containers:
+            - name: postgres-backup
+              securityContext:
+                {{- toYaml .Values.securityContext | nindent 16 }}
+              image: "{{ .Values.backup.image.repository }}:{{ .Values.backup.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  
+                  # Install AWS CLI
+                  apk add --no-cache aws-cli
+                  
+                  # Generate backup filename with timestamp
+                  BACKUP_FILE="postgres-backup-$(date +%Y%m%d-%H%M%S).sql"
+                  BACKUP_PATH="/tmp/$BACKUP_FILE"
+                  
+                  echo "Starting PostgreSQL backup: $BACKUP_FILE"
+                  
+                  # Create database backup
+                  PGPASSWORD="$POSTGRES_PASSWORD" pg_dump \
+                    -h "$POSTGRES_HOST" \
+                    -p "$POSTGRES_PORT" \
+                    -U "$POSTGRES_USER" \
+                    -d "$POSTGRES_DB" \
+                    --verbose \
+                    --no-password \
+                    --format=custom \
+                    --compress=9 \
+                    --file="$BACKUP_PATH"
+                  
+                  echo "Backup created successfully: $BACKUP_PATH"
+                  
+                  # Upload to S3
+                  S3_KEY="$S3_PREFIX/$BACKUP_FILE"
+                  echo "Uploading backup to S3: s3://$S3_BUCKET/$S3_KEY"
+                  
+                  aws s3 cp "$BACKUP_PATH" "s3://$S3_BUCKET/$S3_KEY" \
+                    --region "$S3_REGION" \
+                    --storage-class STANDARD_IA
+                  
+                  echo "Backup uploaded successfully to S3"
+                  
+                  # Clean up old backups (retention policy)
+                  echo "Cleaning up old backups (retention: $RETENTION_DAYS days)"
+                  
+                  CUTOFF_DATE=$(date -d "$RETENTION_DAYS days ago" +%Y%m%d)
+                  
+                  aws s3 ls "s3://$S3_BUCKET/$S3_PREFIX/" --region "$S3_REGION" | \
+                    awk '{print $4}' | \
+                    grep -E "postgres-backup-[0-9]{8}-[0-9]{6}\.sql" | \
+                    while read backup_file; do
+                      backup_date=$(echo "$backup_file" | sed -n 's/postgres-backup-\([0-9]\{8\}\)-.*/\1/p')
+                      if [ "$backup_date" -lt "$CUTOFF_DATE" ]; then
+                        echo "Deleting old backup: $backup_file"
+                        aws s3 rm "s3://$S3_BUCKET/$S3_PREFIX/$backup_file" --region "$S3_REGION"
+                      fi
+                    done
+                  
+                  echo "Backup process completed successfully"
+              env:
+                - name: POSTGRES_HOST
+                  value: {{ include "ump.fullname" . }}-postgres
+                - name: POSTGRES_PORT
+                  value: "5432"
+                - name: POSTGRES_USER
+                  valueFrom:
+                    configMapKeyRef:
+                      name: {{ include "ump.fullname" . }}-config
+                      key: POSTGRES_USER
+                - name: POSTGRES_DB
+                  valueFrom:
+                    configMapKeyRef:
+                      name: {{ include "ump.fullname" . }}-config
+                      key: POSTGRES_DB
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "ump.fullname" . }}-secret
+                      key: POSTGRES_PASSWORD
+                - name: S3_BUCKET
+                  value: {{ .Values.backup.s3.bucket | quote }}
+                - name: S3_REGION
+                  value: {{ .Values.backup.s3.region | quote }}
+                - name: S3_PREFIX
+                  value: {{ .Values.backup.s3.prefix | quote }}
+                - name: RETENTION_DAYS
+                  value: {{ .Values.backup.retention.days | quote }}
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "ump.fullname" . }}-secret
+                      key: AWS_ACCESS_KEY_ID
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "ump.fullname" . }}-secret
+                      key: AWS_SECRET_ACCESS_KEY
+              resources:
+                {{- toYaml .Values.backup.resources | nindent 16 }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}

@@ -199,6 +199,27 @@ ingress:
   #    hosts:
   #      - ump.local
 
+# Backup configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM UTC
+  retention:
+    days: 30
+  s3:
+    bucket: "ump-backups"
+    region: "us-east-1"
+    prefix: "postgres-backups"
+  image:
+    repository: postgres
+    tag: "15-alpine"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
 # Autoscaling
 autoscaling:
   enabled: false
