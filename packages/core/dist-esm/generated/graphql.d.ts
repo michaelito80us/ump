@@ -1,10 +1,10 @@
 import {
+  UseMutationOptions,
   UseQueryOptions,
   UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
   InfiniteData,
   UseSuspenseInfiniteQueryOptions,
-  UseMutationOptions,
 } from '@tanstack/react-query';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -399,6 +399,156 @@ export type UpdateTournamentInput = {
   startDate?: InputMaybe<Scalars['DateTime']['input']>;
   status?: InputMaybe<TournamentStatus>;
 };
+export type CreateTournamentAdminTestMutationVariables = Exact<{
+  input: CreateTournamentInput;
+}>;
+export type CreateTournamentAdminTestMutationResult = {
+  __typename?: 'Mutation';
+  createTournament: {
+    __typename?: 'Tournament';
+    id: string;
+    name: string;
+    status: TournamentStatus;
+    startDate?: string | null;
+    endDate?: string | null;
+  };
+};
+export type UpdateTournamentMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: UpdateTournamentInput;
+}>;
+export type UpdateTournamentMutationResult = {
+  __typename?: 'Mutation';
+  updateTournament: {
+    __typename?: 'Tournament';
+    id: string;
+    name: string;
+    status: TournamentStatus;
+    startDate?: string | null;
+    endDate?: string | null;
+  };
+};
+export type DeleteTournamentMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+export type DeleteTournamentMutationResult = {
+  __typename?: 'Mutation';
+  deleteTournament: boolean;
+};
+export type GetTournamentDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+export type GetTournamentDetailsQueryResult = {
+  __typename?: 'Query';
+  tournament?: {
+    __typename?: 'Tournament';
+    id: string;
+    name: string;
+    status: TournamentStatus;
+    startDate?: string | null;
+    endDate?: string | null;
+    settings?: any | null;
+    phases: Array<{
+      __typename?: 'Phase';
+      id: string;
+      name: string;
+      matches: Array<{
+        __typename?: 'Match';
+        id: string;
+        scoreA?: number | null;
+        scoreB?: number | null;
+        status: MatchStatus;
+        startedAt?: string | null;
+        venue?: string | null;
+        teamA?: {
+          __typename?: 'Team';
+          id: string;
+          name: string;
+        } | null;
+        teamB?: {
+          __typename?: 'Team';
+          id: string;
+          name: string;
+        } | null;
+      }>;
+    }>;
+  } | null;
+};
+export type GetTournamentsMobileTestQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+export type GetTournamentsMobileTestQueryResult = {
+  __typename?: 'Query';
+  tournaments: Array<{
+    __typename?: 'Tournament';
+    id: string;
+    name: string;
+    status: TournamentStatus;
+    startDate?: string | null;
+    endDate?: string | null;
+  }>;
+};
+export type GetTournamentMobileTestQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+export type GetTournamentMobileTestQueryResult = {
+  __typename?: 'Query';
+  tournament?: {
+    __typename?: 'Tournament';
+    id: string;
+    name: string;
+    status: TournamentStatus;
+    startDate?: string | null;
+    endDate?: string | null;
+    phases: Array<{
+      __typename?: 'Phase';
+      id: string;
+      name: string;
+      matches: Array<{
+        __typename?: 'Match';
+        id: string;
+        scoreA?: number | null;
+        scoreB?: number | null;
+        status: MatchStatus;
+        startedAt?: string | null;
+        teamA?: {
+          __typename?: 'Team';
+          id: string;
+          name: string;
+        } | null;
+        teamB?: {
+          __typename?: 'Team';
+          id: string;
+          name: string;
+        } | null;
+      }>;
+    }>;
+  } | null;
+};
+export type GetMatchesMobileTestQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+export type GetMatchesMobileTestQueryResult = {
+  __typename?: 'Query';
+  matches: Array<{
+    __typename?: 'Match';
+    id: string;
+    scoreA?: number | null;
+    scoreB?: number | null;
+    status: MatchStatus;
+    startedAt?: string | null;
+    teamA?: {
+      __typename?: 'Team';
+      id: string;
+      name: string;
+    } | null;
+    teamB?: {
+      __typename?: 'Team';
+      id: string;
+      name: string;
+    } | null;
+  }>;
+};
 export type TestConnectionQueryVariables = Exact<{
   [key: string]: never;
 }>;
@@ -429,6 +579,51 @@ export type MatchUpdatesSubscriptionResult = {
     status: MatchStatus;
     scoreA?: number | null;
     scoreB?: number | null;
+  };
+};
+export type LeaderboardUpdatedMobileSubscriptionVariables = Exact<{
+  tournamentId: Scalars['ID']['input'];
+}>;
+export type LeaderboardUpdatedMobileSubscriptionResult = {
+  __typename?: 'Subscription';
+  leaderboardUpdated: Array<{
+    __typename?: 'LeaderboardEntry';
+    teamId: string;
+    position: number;
+    points: number;
+    wins: number;
+    losses: number;
+    draws: number;
+    goalsFor?: number | null;
+    goalsAgainst?: number | null;
+    goalDifference?: number | null;
+  }>;
+};
+export type MatchUpdatedMobileSubscriptionVariables = Exact<{
+  tournamentId: Scalars['ID']['input'];
+}>;
+export type MatchUpdatedMobileSubscriptionResult = {
+  __typename?: 'Subscription';
+  matchUpdated: {
+    __typename?: 'Match';
+    id: string;
+    phaseId: string;
+    scoreA?: number | null;
+    scoreB?: number | null;
+    status: MatchStatus;
+    scheduledAt?: string | null;
+    venue?: string | null;
+    updatedAt: string;
+    teamA?: {
+      __typename?: 'Team';
+      id: string;
+      name: string;
+    } | null;
+    teamB?: {
+      __typename?: 'Team';
+      id: string;
+      name: string;
+    } | null;
   };
 };
 export type GetTournamentsQueryVariables = Exact<{
@@ -628,6 +823,563 @@ export type LeaderboardUpdatedSubscriptionResult = {
     };
   }>;
 };
+export declare const CreateTournamentAdminTestDocument =
+  '\n    mutation CreateTournamentAdminTest($input: CreateTournamentInput!) {\n  createTournament(input: $input) {\n    id\n    name\n    status\n    startDate\n    endDate\n  }\n}\n    ';
+export declare const useCreateTournamentAdminTestMutation: {
+  <TError = unknown, TContext = unknown>(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    options?: UseMutationOptions<
+      CreateTournamentAdminTestMutationResult,
+      TError,
+      CreateTournamentAdminTestMutationVariables,
+      TContext
+    >
+  ): import('@tanstack/react-query').UseMutationResult<
+    CreateTournamentAdminTestMutationResult,
+    TError,
+    Exact<{
+      input: CreateTournamentInput;
+    }>,
+    TContext
+  >;
+  getKey(): string[];
+};
+export declare const UpdateTournamentDocument =
+  '\n    mutation UpdateTournament($id: ID!, $input: UpdateTournamentInput!) {\n  updateTournament(id: $id, input: $input) {\n    id\n    name\n    status\n    startDate\n    endDate\n  }\n}\n    ';
+export declare const useUpdateTournamentMutation: {
+  <TError = unknown, TContext = unknown>(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    options?: UseMutationOptions<
+      UpdateTournamentMutationResult,
+      TError,
+      UpdateTournamentMutationVariables,
+      TContext
+    >
+  ): import('@tanstack/react-query').UseMutationResult<
+    UpdateTournamentMutationResult,
+    TError,
+    Exact<{
+      id: Scalars['ID']['input'];
+      input: UpdateTournamentInput;
+    }>,
+    TContext
+  >;
+  getKey(): string[];
+};
+export declare const DeleteTournamentDocument =
+  '\n    mutation DeleteTournament($id: ID!) {\n  deleteTournament(id: $id)\n}\n    ';
+export declare const useDeleteTournamentMutation: {
+  <TError = unknown, TContext = unknown>(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    options?: UseMutationOptions<
+      DeleteTournamentMutationResult,
+      TError,
+      DeleteTournamentMutationVariables,
+      TContext
+    >
+  ): import('@tanstack/react-query').UseMutationResult<
+    DeleteTournamentMutationResult,
+    TError,
+    Exact<{
+      id: Scalars['ID']['input'];
+    }>,
+    TContext
+  >;
+  getKey(): string[];
+};
+export declare const GetTournamentDetailsDocument =
+  '\n    query GetTournamentDetails($id: ID!) {\n  tournament(id: $id) {\n    id\n    name\n    status\n    startDate\n    endDate\n    phases {\n      id\n      name\n      matches {\n        id\n        teamA {\n          id\n          name\n        }\n        teamB {\n          id\n          name\n        }\n        scoreA\n        scoreB\n        status\n        startedAt\n        venue\n      }\n    }\n    settings\n  }\n}\n    ';
+export declare const useGetTournamentDetailsQuery: {
+  <TData = GetTournamentDetailsQueryResult, TError = unknown>(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    variables: GetTournamentDetailsQueryVariables,
+    options?: Omit<
+      UseQueryOptions<GetTournamentDetailsQueryResult, TError, TData>,
+      'queryKey'
+    > & {
+      queryKey?: UseQueryOptions<
+        GetTournamentDetailsQueryResult,
+        TError,
+        TData
+      >['queryKey'];
+    }
+  ): import('@tanstack/react-query').UseQueryResult<TData, TError>;
+  document: string;
+  getKey(variables: GetTournamentDetailsQueryVariables): (
+    | string
+    | Exact<{
+        id: Scalars['ID']['input'];
+      }>
+  )[];
+};
+export declare const useSuspenseGetTournamentDetailsQuery: {
+  <TData = GetTournamentDetailsQueryResult, TError = unknown>(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    variables: GetTournamentDetailsQueryVariables,
+    options?: Omit<
+      UseSuspenseQueryOptions<GetTournamentDetailsQueryResult, TError, TData>,
+      'queryKey'
+    > & {
+      queryKey?: UseSuspenseQueryOptions<
+        GetTournamentDetailsQueryResult,
+        TError,
+        TData
+      >['queryKey'];
+    }
+  ): import('@tanstack/react-query').UseSuspenseQueryResult<TData, TError>;
+  document: string;
+  getKey(variables: GetTournamentDetailsQueryVariables): (
+    | string
+    | Exact<{
+        id: Scalars['ID']['input'];
+      }>
+  )[];
+};
+export declare const useInfiniteGetTournamentDetailsQuery: {
+  <
+    TData = InfiniteData<GetTournamentDetailsQueryResult, unknown>,
+    TError = unknown,
+  >(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    variables: GetTournamentDetailsQueryVariables,
+    options: Omit<
+      UseInfiniteQueryOptions<GetTournamentDetailsQueryResult, TError, TData>,
+      'queryKey'
+    > & {
+      queryKey?: UseInfiniteQueryOptions<
+        GetTournamentDetailsQueryResult,
+        TError,
+        TData
+      >['queryKey'];
+    }
+  ): import('@tanstack/react-query').UseInfiniteQueryResult<TData, TError>;
+  getKey(variables: GetTournamentDetailsQueryVariables): (
+    | string
+    | Exact<{
+        id: Scalars['ID']['input'];
+      }>
+  )[];
+};
+export declare const useSuspenseInfiniteGetTournamentDetailsQuery: {
+  <
+    TData = InfiniteData<GetTournamentDetailsQueryResult, unknown>,
+    TError = unknown,
+  >(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    variables: GetTournamentDetailsQueryVariables,
+    options: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        GetTournamentDetailsQueryResult,
+        TError,
+        TData
+      >,
+      'queryKey'
+    > & {
+      queryKey?: UseSuspenseInfiniteQueryOptions<
+        GetTournamentDetailsQueryResult,
+        TError,
+        TData
+      >['queryKey'];
+    }
+  ): import('@tanstack/react-query').UseSuspenseInfiniteQueryResult<
+    TData,
+    TError
+  >;
+  getKey(variables: GetTournamentDetailsQueryVariables): (
+    | string
+    | Exact<{
+        id: Scalars['ID']['input'];
+      }>
+  )[];
+};
+export declare const GetTournamentsMobileTestDocument =
+  '\n    query GetTournamentsMobileTest {\n  tournaments {\n    id\n    name\n    status\n    startDate\n    endDate\n  }\n}\n    ';
+export declare const useGetTournamentsMobileTestQuery: {
+  <TData = GetTournamentsMobileTestQueryResult, TError = unknown>(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    variables?: GetTournamentsMobileTestQueryVariables,
+    options?: Omit<
+      UseQueryOptions<GetTournamentsMobileTestQueryResult, TError, TData>,
+      'queryKey'
+    > & {
+      queryKey?: UseQueryOptions<
+        GetTournamentsMobileTestQueryResult,
+        TError,
+        TData
+      >['queryKey'];
+    }
+  ): import('@tanstack/react-query').UseQueryResult<TData, TError>;
+  document: string;
+  getKey(variables?: GetTournamentsMobileTestQueryVariables): (
+    | string
+    | Exact<{
+        [key: string]: never;
+      }>
+  )[];
+};
+export declare const useSuspenseGetTournamentsMobileTestQuery: {
+  <TData = GetTournamentsMobileTestQueryResult, TError = unknown>(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    variables?: GetTournamentsMobileTestQueryVariables,
+    options?: Omit<
+      UseSuspenseQueryOptions<
+        GetTournamentsMobileTestQueryResult,
+        TError,
+        TData
+      >,
+      'queryKey'
+    > & {
+      queryKey?: UseSuspenseQueryOptions<
+        GetTournamentsMobileTestQueryResult,
+        TError,
+        TData
+      >['queryKey'];
+    }
+  ): import('@tanstack/react-query').UseSuspenseQueryResult<TData, TError>;
+  document: string;
+  getKey(variables?: GetTournamentsMobileTestQueryVariables): (
+    | string
+    | Exact<{
+        [key: string]: never;
+      }>
+  )[];
+};
+export declare const useInfiniteGetTournamentsMobileTestQuery: {
+  <
+    TData = InfiniteData<GetTournamentsMobileTestQueryResult, unknown>,
+    TError = unknown,
+  >(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    variables: GetTournamentsMobileTestQueryVariables,
+    options: Omit<
+      UseInfiniteQueryOptions<
+        GetTournamentsMobileTestQueryResult,
+        TError,
+        TData
+      >,
+      'queryKey'
+    > & {
+      queryKey?: UseInfiniteQueryOptions<
+        GetTournamentsMobileTestQueryResult,
+        TError,
+        TData
+      >['queryKey'];
+    }
+  ): import('@tanstack/react-query').UseInfiniteQueryResult<TData, TError>;
+  getKey(variables?: GetTournamentsMobileTestQueryVariables): (
+    | string
+    | Exact<{
+        [key: string]: never;
+      }>
+  )[];
+};
+export declare const useSuspenseInfiniteGetTournamentsMobileTestQuery: {
+  <
+    TData = InfiniteData<GetTournamentsMobileTestQueryResult, unknown>,
+    TError = unknown,
+  >(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    variables: GetTournamentsMobileTestQueryVariables,
+    options: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        GetTournamentsMobileTestQueryResult,
+        TError,
+        TData
+      >,
+      'queryKey'
+    > & {
+      queryKey?: UseSuspenseInfiniteQueryOptions<
+        GetTournamentsMobileTestQueryResult,
+        TError,
+        TData
+      >['queryKey'];
+    }
+  ): import('@tanstack/react-query').UseSuspenseInfiniteQueryResult<
+    TData,
+    TError
+  >;
+  getKey(variables?: GetTournamentsMobileTestQueryVariables): (
+    | string
+    | Exact<{
+        [key: string]: never;
+      }>
+  )[];
+};
+export declare const GetTournamentMobileTestDocument =
+  '\n    query GetTournamentMobileTest($id: ID!) {\n  tournament(id: $id) {\n    id\n    name\n    status\n    startDate\n    endDate\n    phases {\n      id\n      name\n      matches {\n        id\n        teamA {\n          id\n          name\n        }\n        teamB {\n          id\n          name\n        }\n        scoreA\n        scoreB\n        status\n        startedAt\n      }\n    }\n  }\n}\n    ';
+export declare const useGetTournamentMobileTestQuery: {
+  <TData = GetTournamentMobileTestQueryResult, TError = unknown>(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    variables: GetTournamentMobileTestQueryVariables,
+    options?: Omit<
+      UseQueryOptions<GetTournamentMobileTestQueryResult, TError, TData>,
+      'queryKey'
+    > & {
+      queryKey?: UseQueryOptions<
+        GetTournamentMobileTestQueryResult,
+        TError,
+        TData
+      >['queryKey'];
+    }
+  ): import('@tanstack/react-query').UseQueryResult<TData, TError>;
+  document: string;
+  getKey(variables: GetTournamentMobileTestQueryVariables): (
+    | string
+    | Exact<{
+        id: Scalars['ID']['input'];
+      }>
+  )[];
+};
+export declare const useSuspenseGetTournamentMobileTestQuery: {
+  <TData = GetTournamentMobileTestQueryResult, TError = unknown>(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    variables: GetTournamentMobileTestQueryVariables,
+    options?: Omit<
+      UseSuspenseQueryOptions<
+        GetTournamentMobileTestQueryResult,
+        TError,
+        TData
+      >,
+      'queryKey'
+    > & {
+      queryKey?: UseSuspenseQueryOptions<
+        GetTournamentMobileTestQueryResult,
+        TError,
+        TData
+      >['queryKey'];
+    }
+  ): import('@tanstack/react-query').UseSuspenseQueryResult<TData, TError>;
+  document: string;
+  getKey(variables: GetTournamentMobileTestQueryVariables): (
+    | string
+    | Exact<{
+        id: Scalars['ID']['input'];
+      }>
+  )[];
+};
+export declare const useInfiniteGetTournamentMobileTestQuery: {
+  <
+    TData = InfiniteData<GetTournamentMobileTestQueryResult, unknown>,
+    TError = unknown,
+  >(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    variables: GetTournamentMobileTestQueryVariables,
+    options: Omit<
+      UseInfiniteQueryOptions<
+        GetTournamentMobileTestQueryResult,
+        TError,
+        TData
+      >,
+      'queryKey'
+    > & {
+      queryKey?: UseInfiniteQueryOptions<
+        GetTournamentMobileTestQueryResult,
+        TError,
+        TData
+      >['queryKey'];
+    }
+  ): import('@tanstack/react-query').UseInfiniteQueryResult<TData, TError>;
+  getKey(variables: GetTournamentMobileTestQueryVariables): (
+    | string
+    | Exact<{
+        id: Scalars['ID']['input'];
+      }>
+  )[];
+};
+export declare const useSuspenseInfiniteGetTournamentMobileTestQuery: {
+  <
+    TData = InfiniteData<GetTournamentMobileTestQueryResult, unknown>,
+    TError = unknown,
+  >(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    variables: GetTournamentMobileTestQueryVariables,
+    options: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        GetTournamentMobileTestQueryResult,
+        TError,
+        TData
+      >,
+      'queryKey'
+    > & {
+      queryKey?: UseSuspenseInfiniteQueryOptions<
+        GetTournamentMobileTestQueryResult,
+        TError,
+        TData
+      >['queryKey'];
+    }
+  ): import('@tanstack/react-query').UseSuspenseInfiniteQueryResult<
+    TData,
+    TError
+  >;
+  getKey(variables: GetTournamentMobileTestQueryVariables): (
+    | string
+    | Exact<{
+        id: Scalars['ID']['input'];
+      }>
+  )[];
+};
+export declare const GetMatchesMobileTestDocument =
+  '\n    query GetMatchesMobileTest {\n  matches {\n    id\n    teamA {\n      id\n      name\n    }\n    teamB {\n      id\n      name\n    }\n    scoreA\n    scoreB\n    status\n    startedAt\n  }\n}\n    ';
+export declare const useGetMatchesMobileTestQuery: {
+  <TData = GetMatchesMobileTestQueryResult, TError = unknown>(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    variables?: GetMatchesMobileTestQueryVariables,
+    options?: Omit<
+      UseQueryOptions<GetMatchesMobileTestQueryResult, TError, TData>,
+      'queryKey'
+    > & {
+      queryKey?: UseQueryOptions<
+        GetMatchesMobileTestQueryResult,
+        TError,
+        TData
+      >['queryKey'];
+    }
+  ): import('@tanstack/react-query').UseQueryResult<TData, TError>;
+  document: string;
+  getKey(variables?: GetMatchesMobileTestQueryVariables): (
+    | string
+    | Exact<{
+        [key: string]: never;
+      }>
+  )[];
+};
+export declare const useSuspenseGetMatchesMobileTestQuery: {
+  <TData = GetMatchesMobileTestQueryResult, TError = unknown>(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    variables?: GetMatchesMobileTestQueryVariables,
+    options?: Omit<
+      UseSuspenseQueryOptions<GetMatchesMobileTestQueryResult, TError, TData>,
+      'queryKey'
+    > & {
+      queryKey?: UseSuspenseQueryOptions<
+        GetMatchesMobileTestQueryResult,
+        TError,
+        TData
+      >['queryKey'];
+    }
+  ): import('@tanstack/react-query').UseSuspenseQueryResult<TData, TError>;
+  document: string;
+  getKey(variables?: GetMatchesMobileTestQueryVariables): (
+    | string
+    | Exact<{
+        [key: string]: never;
+      }>
+  )[];
+};
+export declare const useInfiniteGetMatchesMobileTestQuery: {
+  <
+    TData = InfiniteData<GetMatchesMobileTestQueryResult, unknown>,
+    TError = unknown,
+  >(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    variables: GetMatchesMobileTestQueryVariables,
+    options: Omit<
+      UseInfiniteQueryOptions<GetMatchesMobileTestQueryResult, TError, TData>,
+      'queryKey'
+    > & {
+      queryKey?: UseInfiniteQueryOptions<
+        GetMatchesMobileTestQueryResult,
+        TError,
+        TData
+      >['queryKey'];
+    }
+  ): import('@tanstack/react-query').UseInfiniteQueryResult<TData, TError>;
+  getKey(variables?: GetMatchesMobileTestQueryVariables): (
+    | string
+    | Exact<{
+        [key: string]: never;
+      }>
+  )[];
+};
+export declare const useSuspenseInfiniteGetMatchesMobileTestQuery: {
+  <
+    TData = InfiniteData<GetMatchesMobileTestQueryResult, unknown>,
+    TError = unknown,
+  >(
+    dataSource: {
+      endpoint: string;
+      fetchParams?: RequestInit;
+    },
+    variables: GetMatchesMobileTestQueryVariables,
+    options: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        GetMatchesMobileTestQueryResult,
+        TError,
+        TData
+      >,
+      'queryKey'
+    > & {
+      queryKey?: UseSuspenseInfiniteQueryOptions<
+        GetMatchesMobileTestQueryResult,
+        TError,
+        TData
+      >['queryKey'];
+    }
+  ): import('@tanstack/react-query').UseSuspenseInfiniteQueryResult<
+    TData,
+    TError
+  >;
+  getKey(variables?: GetMatchesMobileTestQueryVariables): (
+    | string
+    | Exact<{
+        [key: string]: never;
+      }>
+  )[];
+};
 export declare const TestConnectionDocument =
   '\n    query TestConnection {\n  __typename\n}\n    ';
 export declare const useTestConnectionQuery: {
@@ -739,6 +1491,10 @@ export declare const MatchUpdatesApolloDocument =
   '\n    subscription MatchUpdatesApollo($tournamentId: ID!) {\n  matchUpdated(tournamentId: $tournamentId) {\n    id\n    status\n    scoreA\n    scoreB\n  }\n}\n    ';
 export declare const MatchUpdatesDocument =
   '\n    subscription MatchUpdates($tournamentId: ID!) {\n  matchUpdated(tournamentId: $tournamentId) {\n    id\n    status\n    scoreA\n    scoreB\n  }\n}\n    ';
+export declare const LeaderboardUpdatedMobileDocument =
+  '\n    subscription LeaderboardUpdatedMobile($tournamentId: ID!) {\n  leaderboardUpdated(tournamentId: $tournamentId) {\n    teamId\n    position\n    points\n    wins\n    losses\n    draws\n    goalsFor\n    goalsAgainst\n    goalDifference\n  }\n}\n    ';
+export declare const MatchUpdatedMobileDocument =
+  '\n    subscription MatchUpdatedMobile($tournamentId: ID!) {\n  matchUpdated(tournamentId: $tournamentId) {\n    id\n    phaseId\n    teamA {\n      id\n      name\n    }\n    teamB {\n      id\n      name\n    }\n    scoreA\n    scoreB\n    status\n    scheduledAt\n    venue\n    updatedAt\n  }\n}\n    ';
 export declare const GetTournamentsDocument =
   '\n    query GetTournaments {\n  tournaments {\n    id\n    name\n    sport\n    status\n    startDate\n    endDate\n    isLocked\n    createdAt\n    updatedAt\n  }\n}\n    ';
 export declare const useGetTournamentsQuery: {

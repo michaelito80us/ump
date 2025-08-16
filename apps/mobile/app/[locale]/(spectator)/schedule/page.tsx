@@ -1,6 +1,9 @@
 import { getTranslations } from 'next-intl/server';
 import { MyScheduleView } from '../../../../src/components/MyScheduleView';
 
+// Force dynamic rendering to prevent prerendering issues with Apollo subscriptions
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ locale: string }>;
 }

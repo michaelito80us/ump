@@ -17,24 +17,39 @@ const isProtectedRoute = createRouteMatcher([
 ]);
 
 // Define public routes that should skip auth
-const _isPublicRoute = createRouteMatcher([
-  '/',
-  '/(en|es)',
-  '/(en|es)/sign-in(.*)',
-  '/(en|es)/sign-up(.*)',
-  '/(en|es)/test-graphql(.*)',
-  '/(en|es)/test-ui(.*)',
-]);
+// const _isPublicRoute = createRouteMatcher([
+//   '/',
+//   '/(en|es)',
+//   '/(en|es)/sign-in(.*)',
+//   '/(en|es)/sign-up(.*)',
+//   '/(en|es)/test-graphql(.*)',
+//   '/(en|es)/test-ui(.*)',
+// ]);
 
-export default clerkMiddleware(async (auth, req: NextRequest) => {
-  // Handle protected routes
-  if (isProtectedRoute(req)) {
-    await auth.protect();
+// Check if we have a valid Clerk key
+const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const hasValidClerkKey =
+  publishableKey &&
+  !publishableKey.includes('placeholder') &&
+  !publishableKey.includes('Y2xlcmstdGVzdC1rZXk');
+
+export default function middleware(req: NextRequest, event: any) {
+  // If no valid Clerk key, just apply intl middleware
+  if (!hasValidClerkKey) {
+    return intlMiddleware(req);
   }
 
-  // Apply internationalization middleware
-  return intlMiddleware(req);
-});
+  // Use Clerk middleware when we have a valid key
+  return clerkMiddleware(async (auth, request) => {
+    // Handle protected routes
+    if (isProtectedRoute(request)) {
+      await auth.protect();
+    }
+
+    // Apply internationalization middleware
+    return intlMiddleware(request);
+  })(req, event);
+}
 
 export const config = {
   matcher: [

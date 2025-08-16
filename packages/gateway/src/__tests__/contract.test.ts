@@ -422,7 +422,7 @@ describe('GraphQL Contract Tests', () => {
     it('should validate mobile app queries', () => {
       const _mobileAppQueries = [
         `
-          query GetTournaments {
+          query GetTournamentsGatewayTest {
             tournaments {
               id
               name
@@ -433,7 +433,7 @@ describe('GraphQL Contract Tests', () => {
           }
         `,
         `
-          query GetTournament($id: ID!) {
+          query GetTournamentGatewayTest($id: ID!) {
             tournament(id: $id) {
               id
               name
@@ -518,7 +518,7 @@ describe('GraphQL Contract Tests', () => {
     it('should validate admin app mutations', () => {
       const _adminAppMutations = [
         `
-          mutation CreateTournament($input: CreateTournamentInput!) {
+          mutation CreateTournamentGatewayTest($input: CreateTournamentInput!) {
             createTournament(input: $input) {
               id
               name

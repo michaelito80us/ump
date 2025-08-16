@@ -9,6 +9,7 @@ declare global {
       toBeInTheDocument(): Assertion;
       toBeVisible(): Assertion;
       toBeNull(): Assertion;
+      toBeDefined(): Assertion;
       toEqual(expected: any): Assertion;
       toBe(expected: any): Assertion;
       toHaveBeenCalled(): Assertion;
@@ -18,6 +19,9 @@ declare global {
       toContain(expected: any): Assertion;
       toHaveLength(expected: number): Assertion;
       toMatchSnapshot(): Assertion;
+      toMatchObject(expected: any): Assertion;
+      toBeGreaterThan(expected: number): Assertion;
+      greaterThan(expected: number): Assertion;
     }
   }
 
@@ -26,8 +30,12 @@ declare global {
       toBeInTheDocument(): R;
       toBeVisible(): R;
       toBeNull(): R;
+      toBeDefined(): R;
       toEqual(expected: any): R;
       toBe(expected: any): R;
+      toMatchObject(expected: any): R;
+      toBeGreaterThan(expected: number): R;
+      greaterThan(expected: number): R;
       toHaveBeenCalled(): R;
       toHaveBeenCalledWith(...args: any[]): R;
       toHaveBeenCalledTimes(expected: number): R;
@@ -37,6 +45,23 @@ declare global {
       toMatchSnapshot(): R;
     }
   }
+
+  interface ExpectStatic {
+    any(constructor: any): any;
+    anything(): any;
+    arrayContaining(array: any[]): any;
+    objectContaining(object: any): any;
+    stringContaining(string: string): any;
+    stringMatching(regexp: string | RegExp): any;
+    not: {
+      arrayContaining(array: any[]): any;
+      objectContaining(object: any): any;
+      stringContaining(string: string): any;
+      stringMatching(regexp: string | RegExp): any;
+    };
+  }
+
+  const expect: ExpectStatic & ((actual: any) => jest.Matchers<any>);
 }
 
 export {};

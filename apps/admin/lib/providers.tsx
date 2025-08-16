@@ -8,9 +8,20 @@ interface ProvidersProps {
 }
 
 export function Providers({ children }: ProvidersProps) {
+  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+  // During build time, if no valid Clerk key is provided, render children directly
+  if (
+    !publishableKey ||
+    publishableKey.includes('placeholder') ||
+    publishableKey.includes('Y2xlcmstdGVzdC1rZXk')
+  ) {
+    return <>{children}</>;
+  }
+
   return (
     <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
+      publishableKey={publishableKey}
       appearance={{
         baseTheme: undefined,
         variables: {

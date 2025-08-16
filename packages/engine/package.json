@@ -15,10 +15,12 @@
   },
   "dependencies": {
     "@ump/core": "workspace:*",
-    "isolated-vm": "^6.0.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "uuid": "^9.0.0"
+  },
+  "optionalDependencies": {
+    "isolated-vm": "^6.0.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.0.0",

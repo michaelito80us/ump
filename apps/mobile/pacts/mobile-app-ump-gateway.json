@@ -9,7 +9,7 @@
       "request": {
         "body": {
           "operationName": "GetMatches",
-          "query": "\n  query GetMatches {\n    matches {\n      id\n      teamA {\n        id\n        name\n      }\n      teamB {\n        id\n        name\n      }\n      scoreA\n      scoreB\n      status\n      startTime\n    }\n  }\n",
+          "query": "\n  query GetMatchesMobileTest {\n    matches {\n      id\n      teamA {\n        id\n        name\n      }\n      teamB {\n        id\n        name\n      }\n      scoreA\n      scoreB\n      status\n      startedAt\n    }\n  }\n",
           "variables": {}
         },
         "headers": {
@@ -91,7 +91,7 @@
       "request": {
         "body": {
           "operationName": "GetTournament",
-          "query": "\n  query GetTournament($id: ID!) {\n    tournament(id: $id) {\n      id\n      name\n      status\n      startDate\n      endDate\n      phases {\n        id\n        name\n        matches {\n          id\n          teamA {\n            id\n            name\n          }\n          teamB {\n            id\n            name\n          }\n          scoreA\n          scoreB\n          status\n          startTime\n        }\n      }\n    }\n  }\n",
+          "query": "\n  query GetTournamentMobileTest($id: ID!) {\n    tournament(id: $id) {\n      id\n      name\n      status\n      startDate\n      endDate\n      phases {\n        id\n        name\n        matches {\n          id\n          teamA {\n            id\n            name\n          }\n          teamB {\n            id\n            name\n          }\n          scoreA\n          scoreB\n          status\n          startedAt\n        }\n      }\n    }\n  }\n",
           "variables": {
             "id": "non-existent"
           }
@@ -149,7 +149,7 @@
       "request": {
         "body": {
           "operationName": "GetTournament",
-          "query": "\n  query GetTournament($id: ID!) {\n    tournament(id: $id) {\n      id\n      name\n      status\n      startDate\n      endDate\n      phases {\n        id\n        name\n        matches {\n          id\n          teamA {\n            id\n            name\n          }\n          teamB {\n            id\n            name\n          }\n          scoreA\n          scoreB\n          status\n          startTime\n        }\n      }\n    }\n  }\n",
+          "query": "\n  query GetTournamentMobileTest($id: ID!) {\n    tournament(id: $id) {\n      id\n      name\n      status\n      startDate\n      endDate\n      phases {\n        id\n        name\n        matches {\n          id\n          teamA {\n            id\n            name\n          }\n          teamB {\n            id\n            name\n          }\n          scoreA\n          scoreB\n          status\n          startedAt\n        }\n      }\n    }\n  }\n",
           "variables": {
             "id": "1"
           }
@@ -272,7 +272,7 @@
       "request": {
         "body": {
           "operationName": "GetTournaments",
-          "query": "\n  query GetTournaments {\n    tournaments {\n      id\n      name\n      status\n      startDate\n      endDate\n    }\n  }\n",
+          "query": "\n  query GetTournamentsMobileTest {\n    tournaments {\n      id\n      name\n      status\n      startDate\n      endDate\n    }\n  }\n",
           "variables": {}
         },
         "headers": {
@@ -334,7 +334,7 @@
       "request": {
         "body": {
           "operationName": "GetTournaments",
-          "query": "\n  query GetTournaments {\n    tournaments {\n      id\n      name\n      status\n      startDate\n      endDate\n    }\n  }\n",
+          "query": "\n  query GetTournamentsMobileTest {\n    tournaments {\n      id\n      name\n      status\n      startDate\n      endDate\n    }\n  }\n",
           "variables": {}
         },
         "headers": {

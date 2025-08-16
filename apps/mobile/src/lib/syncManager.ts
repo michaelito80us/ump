@@ -2,6 +2,7 @@
 
 import { offlineStorage, PendingAction } from './offlineStorage';
 import { requestBackgroundSync } from '../components/ServiceWorkerRegistration';
+import { Tournament, Match } from '../../lib/types';
 
 export interface SyncStatus {
   isOnline: boolean;
@@ -57,7 +58,9 @@ class SyncManager {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.addEventListener('message', (event) => {
         if (event.data.type === 'SYNC_COMPLETED') {
-          this.handleServiceWorkerSyncCompleted(event.data);
+          this.handleServiceWorkerSyncCompleted(
+            event.data as { type: string; [key: string]: unknown }
+          );
         }
       });
     }
@@ -152,25 +155,25 @@ class SyncManager {
             console.warn('Removing action after 5 failed attempts:', action);
           } else {
             await offlineStorage.save('pendingActions', action);
+          }
         }
       }
-    }
 
-    this.lastSyncTime = Date.now();
-    
-    // Notify service worker of sync completion
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({
-        type: 'SYNC_STATUS_UPDATE',
-        data: {
-          syncedCount: result.syncedCount,
-          failedCount: result.failedCount,
-          timestamp: this.lastSyncTime
-        }
-      });
-    }
-    
-    return result;
+      this.lastSyncTime = Date.now();
+
+      // Notify service worker of sync completion
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SYNC_STATUS_UPDATE',
+          data: {
+            syncedCount: result.syncedCount,
+            failedCount: result.failedCount,
+            timestamp: this.lastSyncTime,
+          },
+        });
+      }
+
+      return result;
     } catch (error) {
       console.error('Sync failed:', error);
       return {
@@ -191,14 +194,22 @@ class SyncManager {
 
   private setupServiceWorkerSync(): void {
     // Register for background sync when actions are added
-    if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+    if (
+      'serviceWorker' in navigator &&
+      'sync' in window.ServiceWorkerRegistration.prototype
+    ) {
       console.log('[SyncManager] Service worker background sync available');
     } else {
-      console.log('[SyncManager] Background sync not supported, using fallback');
+      console.log(
+        '[SyncManager] Background sync not supported, using fallback'
+      );
     }
   }
 
-  private handleServiceWorkerSyncCompleted(data: any): void {
+  private handleServiceWorkerSyncCompleted(data: {
+    type: string;
+    [key: string]: unknown;
+  }): void {
     console.log('[SyncManager] Service worker sync completed:', data);
     this.lastSyncTime = Date.now();
     this.notifyListeners();
@@ -273,13 +284,16 @@ class SyncManager {
     }
   }
 
-  private async updateLocalStorage(entity: string, data: any): Promise<void> {
+  private async updateLocalStorage(
+    entity: string,
+    data: Record<string, unknown>
+  ): Promise<void> {
     switch (entity) {
       case 'tournament':
-        await offlineStorage.saveTournament(data);
+        await offlineStorage.saveTournament(data as unknown as Tournament);
         break;
       case 'match':
-        await offlineStorage.saveMatch(data);
+        await offlineStorage.saveMatch(data as unknown as Match);
         break;
       case 'team':
       case 'player':

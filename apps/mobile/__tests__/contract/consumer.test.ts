@@ -7,20 +7,21 @@ import {
 } from '@apollo/client';
 import path from 'path';
 import '@testing-library/jest-dom';
+import fetch from 'node-fetch';
 
 // Store original fetch to restore it
 const originalFetch = global.fetch;
 
 // Polyfill fetch for Node.js environment
 if (!global.fetch) {
-  global.fetch = require('node-fetch');
+  global.fetch = fetch as any;
 }
 
 const { like, eachLike, term } = Matchers;
 
 // GraphQL queries that the mobile app uses
 const GET_TOURNAMENTS = gql`
-  query GetTournaments {
+  query GetTournamentsMobileTest {
     tournaments {
       id
       name
@@ -32,7 +33,7 @@ const GET_TOURNAMENTS = gql`
 `;
 
 const GET_TOURNAMENT = gql`
-  query GetTournament($id: ID!) {
+  query GetTournamentMobileTest($id: ID!) {
     tournament(id: $id) {
       id
       name
@@ -55,7 +56,7 @@ const GET_TOURNAMENT = gql`
           scoreA
           scoreB
           status
-          startTime
+          startedAt
         }
       }
     }
@@ -63,7 +64,7 @@ const GET_TOURNAMENT = gql`
 `;
 
 const GET_MATCHES = gql`
-  query GetMatches {
+  query GetMatchesMobileTest {
     matches {
       id
       teamA {
@@ -77,7 +78,7 @@ const GET_MATCHES = gql`
       scoreA
       scoreB
       status
-      startTime
+      startedAt
     }
   }
 `;
@@ -92,11 +93,11 @@ describe('Mobile App Consumer Contract Tests', () => {
     logLevel: 'info',
   });
 
-  let apolloClient: ApolloClient<any>;
+  let apolloClient: ApolloClient<object>;
 
   beforeAll(async () => {
     // Restore real fetch for Pact to work
-    global.fetch = require('node-fetch');
+    global.fetch = fetch as any;
 
     await provider.setup();
 

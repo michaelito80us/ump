@@ -8,7 +8,7 @@ import { useMatchDiff } from './useMatchDiff';
 
 // GraphQL subscription for match updates
 const MATCH_UPDATED_SUBSCRIPTION = gql`
-  subscription MatchUpdated($tournamentId: ID!) {
+  subscription MatchUpdatedMobile($tournamentId: ID!) {
     matchUpdated(tournamentId: $tournamentId) {
       id
       phaseId
@@ -23,7 +23,7 @@ const MATCH_UPDATED_SUBSCRIPTION = gql`
       scoreA
       scoreB
       status
-      scheduledTime
+      scheduledAt
       venue
       updatedAt
     }

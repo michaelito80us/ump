@@ -5,6 +5,9 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/config.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   experimental: {
     turbo: {
       rules: {

@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.11.11",
-    "@clerk/nextjs": "^6.28.1",
+    "@clerk/nextjs": "^6.31.1",
     "@fullcalendar/core": "^6.1.19",
     "@fullcalendar/daygrid": "^6.1.19",
     "@fullcalendar/interaction": "^6.1.19",

@@ -6,7 +6,7 @@ import { gql } from '@apollo/client';
 
 // GraphQL subscription for leaderboard updates
 const LEADERBOARD_UPDATED_SUBSCRIPTION = gql`
-  subscription LeaderboardUpdated($tournamentId: ID!) {
+  subscription LeaderboardUpdatedMobile($tournamentId: ID!) {
     leaderboardUpdated(tournamentId: $tournamentId) {
       teamId
       position
@@ -17,8 +17,6 @@ const LEADERBOARD_UPDATED_SUBSCRIPTION = gql`
       goalsFor
       goalsAgainst
       goalDifference
-      played
-      updatedAt
     }
   }
 `;
