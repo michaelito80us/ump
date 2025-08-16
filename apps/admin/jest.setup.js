@@ -65,3 +65,13 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: jest.fn(),
   })),
 });
+
+// Mock Clerk server imports to avoid ES module issues
+jest.mock('@clerk/nextjs/server', () => ({
+  auth: jest.fn(),
+  currentUser: jest.fn(),
+  User: jest.fn(),
+}));
+
+// Note: Jest's built-in matchers (expect.any, expect.objectContaining, etc.)
+// are automatically available and should not be overridden

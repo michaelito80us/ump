@@ -1,9 +1,9 @@
-const js = require('@eslint/js');
-const tseslint = require('@typescript-eslint/eslint-plugin');
-const tsparser = require('@typescript-eslint/parser');
-const cypress = require('eslint-plugin-cypress');
+import js from '@eslint/js';
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tsparser from '@typescript-eslint/parser';
+import cypress from 'eslint-plugin-cypress';
 
-module.exports = [
+const config = [
   js.configs.recommended,
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
@@ -47,9 +47,18 @@ module.exports = [
         HTMLButtonElement: 'readonly',
         HTMLDivElement: 'readonly',
         HTMLParagraphElement: 'readonly',
+        CloseEvent: 'readonly',
+        MessageEvent: 'readonly',
+        Navigator: 'readonly',
+        ServiceWorkerRegistration: 'readonly',
+        MessageChannel: 'readonly',
         HTMLHeadingElement: 'readonly',
         HTMLInputElement: 'readonly',
         HTMLFormElement: 'readonly',
+        IDBDatabase: 'readonly',
+        IDBVersionChangeEvent: 'readonly',
+        IDBOpenDBRequest: 'readonly',
+        EventListenerOrEventListenerObject: 'readonly',
       },
     },
     plugins: {
@@ -90,6 +99,38 @@ module.exports = [
         require: 'readonly',
         exports: 'readonly',
         global: 'readonly',
+        window: 'readonly',
+        document: 'readonly',
+        navigator: 'readonly',
+        localStorage: 'readonly',
+        sessionStorage: 'readonly',
+        React: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        NodeJS: 'readonly',
+        fetch: 'readonly',
+        Request: 'readonly',
+        Response: 'readonly',
+        RequestInit: 'readonly',
+        Headers: 'readonly',
+        HTMLElement: 'readonly',
+        HTMLButtonElement: 'readonly',
+        HTMLDivElement: 'readonly',
+        HTMLParagraphElement: 'readonly',
+        CloseEvent: 'readonly',
+        MessageEvent: 'readonly',
+        Navigator: 'readonly',
+        ServiceWorkerRegistration: 'readonly',
+        MessageChannel: 'readonly',
+        HTMLHeadingElement: 'readonly',
+        HTMLInputElement: 'readonly',
+        HTMLFormElement: 'readonly',
+        IDBDatabase: 'readonly',
+        IDBVersionChangeEvent: 'readonly',
+        IDBOpenDBRequest: 'readonly',
+        EventListenerOrEventListenerObject: 'readonly',
       },
     },
     rules: {
@@ -141,6 +182,9 @@ module.exports = [
       'out/**/*',
       'build/**/*',
       'dist/**/*',
+      'lib/types.d.ts',
     ],
   },
 ];
+
+export default config;

@@ -14,7 +14,7 @@ export default async function HomePage({ params }: PageProps) {
   const messages = await getMessages({ locale });
 
   // Debug: Check what messages are being loaded
-  const commonMessages = messages?.common as any;
+  const commonMessages = messages?.common as Record<string, unknown>;
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
@@ -71,10 +71,12 @@ export default async function HomePage({ params }: PageProps) {
           <h3 className="font-semibold text-yellow-800">Debug Info:</h3>
           <p className="text-sm">Locale: {locale}</p>
           <p className="text-sm">
-            Welcome translation: {commonMessages?.welcome || 'NOT FOUND'}
+            Welcome translation:{' '}
+            {String(commonMessages?.welcome || 'NOT FOUND')}
           </p>
           <p className="text-sm">
-            App name translation: {commonMessages?.appName || 'NOT FOUND'}
+            App name translation:{' '}
+            {String(commonMessages?.appName || 'NOT FOUND')}
           </p>
           <p className="text-sm">Messages loaded: {messages ? 'YES' : 'NO'}</p>
           <p className="text-sm">t('welcome'): {t('welcome')}</p>

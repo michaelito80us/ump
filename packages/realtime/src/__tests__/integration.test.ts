@@ -65,6 +65,24 @@ describe('Integration Tests', () => {
 
       ws.on('message', (data: Buffer) => {
         const message = JSON.parse(data.toString());
+        console.log(
+          'Client received message:',
+          JSON.stringify(message, null, 2)
+        );
+
+        if (message.type === 'WELCOME') {
+          // Send authentication
+          const authMessage = {
+            id: 'auth-integration',
+            type: 'AUTH',
+            timestamp: new Date(),
+            data: {
+              token: validToken,
+            },
+          };
+          console.log('Sending auth message');
+          ws.send(JSON.stringify(authMessage));
+        }
 
         if (
           message.type === 'ACK' &&
@@ -78,6 +96,7 @@ describe('Integration Tests', () => {
               timestamp: new Date(),
               data: { channels: ['tournament:test-tournament'] },
             };
+            console.log('Sending subscribe message');
             ws.send(JSON.stringify(subscribeMessage));
           } else {
             reject(new Error('Authentication failed'));
@@ -89,25 +108,32 @@ describe('Integration Tests', () => {
           message.data.messageId === 'sub-integration'
         ) {
           if (message.data.success) {
-            // Publish an event to the channel
-            const testEvent: SystemAnnouncementEvent = {
-              id: 'integration-event-1',
-              type: 'SYSTEM_ANNOUNCEMENT',
-              timestamp: new Date(),
-              tournamentId: 'test-tournament',
-              data: {
-                message: 'Integration Test Tournament Started',
-                level: 'info',
-              },
-            };
+            console.log('Subscription ACK received, publishing event...');
+            // Add a small delay to ensure subscription is fully established
+            setTimeout(async () => {
+              // Publish an event to the channel
+              const testEvent: SystemAnnouncementEvent = {
+                id: 'integration-event-1',
+                type: 'SYSTEM_ANNOUNCEMENT',
+                timestamp: new Date(),
+                tournamentId: 'test-tournament',
+                data: {
+                  message: 'Integration Test Tournament Started',
+                  level: 'info',
+                },
+              };
 
-            pubsub.publish('tournament:test-tournament', testEvent);
+              console.log('About to publish event:', testEvent);
+              await pubsub.publish('tournament:test-tournament', testEvent);
+              console.log('Event published successfully');
+            }, 50);
           } else {
             reject(new Error('Subscription failed'));
           }
         }
 
         if (message.type === 'EVENT') {
+          console.log('Received EVENT message!');
           expect(message.data.channel).toBe('tournament:test-tournament');
           expect(message.data.event.type).toBe('SYSTEM_ANNOUNCEMENT');
           if (message.data.event.type === 'SYSTEM_ANNOUNCEMENT') {

@@ -1,0 +1,20 @@
+{{- if .Values.mobile.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ump.fullname" . }}-mobile
+  labels:
+    {{- include "ump.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mobile
+spec:
+  type: {{ .Values.mobile.service.type }}
+  ports:
+    - port: {{ .Values.mobile.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "ump.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: mobile
+{{- end }}

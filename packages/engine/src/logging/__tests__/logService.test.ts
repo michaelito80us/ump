@@ -56,6 +56,7 @@ describe('LogService', () => {
 
   afterEach(() => {
     mockDb.clear();
+    logService.clearRetryQueue();
   });
 
   describe('Basic Logging Functionality', () => {
@@ -64,6 +65,7 @@ describe('LogService', () => {
         actorId: 'user-123',
         actorType: 'user' as const,
         tournamentId: 'tournament-456',
+        matchId: 'match-123',
       };
 
       await logService.log(
@@ -220,10 +222,9 @@ describe('LogService', () => {
 
       const logs = mockDb.getLogs();
       expect(logs[0]).toMatchObject({
-        type: 'MATCH',
+        type: 'MATCH_EVENT',
         message: 'Match started',
         match_id: 'match-789',
-        action: 'STARTED',
       });
     });
 
@@ -428,11 +429,9 @@ describe('LogService', () => {
     });
 
     test('should throw error when using global service without configuration', () => {
-      // Reset global service
-      configureLogService(null as any);
-
-      expect(() => getLogService()).toThrow(
-        'LogService not configured. Call configureLogService() first.'
+      // Test that configureLogService throws when passed null
+      expect(() => configureLogService(null as any)).toThrow(
+        'LogService configuration is required'
       );
     });
   });

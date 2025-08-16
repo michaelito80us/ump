@@ -3,49 +3,9 @@
 /// <reference types="@testing-library/jest-dom" />
 
 // Override Cypress Chai types with Jest types
-declare global {
-  namespace Chai {
-    interface Assertion {
-      toBeInTheDocument(): Assertion;
-      toBeVisible(): Assertion;
-      toBeNull(): Assertion;
-      toBeDefined(): Assertion;
-      toEqual(expected: any): Assertion;
-      toBe(expected: any): Assertion;
-      toHaveBeenCalled(): Assertion;
-      toHaveBeenCalledWith(...args: any[]): Assertion;
-      toHaveBeenCalledTimes(expected: number): Assertion;
-      toThrow(expected?: any): Assertion;
-      toContain(expected: any): Assertion;
-      toHaveLength(expected: number): Assertion;
-      toMatchSnapshot(): Assertion;
-      toMatchObject(expected: any): Assertion;
-      toBeGreaterThan(expected: number): Assertion;
-      greaterThan(expected: number): Assertion;
-    }
-  }
+import '@testing-library/jest-dom';
 
-  namespace jest {
-    interface Matchers<R> {
-      toBeInTheDocument(): R;
-      toBeVisible(): R;
-      toBeNull(): R;
-      toBeDefined(): R;
-      toEqual(expected: any): R;
-      toBe(expected: any): R;
-      toMatchObject(expected: any): R;
-      toBeGreaterThan(expected: number): R;
-      greaterThan(expected: number): R;
-      toHaveBeenCalled(): R;
-      toHaveBeenCalledWith(...args: any[]): R;
-      toHaveBeenCalledTimes(expected: number): R;
-      toThrow(expected?: any): R;
-      toContain(expected: any): R;
-      toHaveLength(expected: number): R;
-      toMatchSnapshot(): R;
-    }
-  }
-
+declare module '@jest/expect' {
   interface ExpectStatic {
     any(constructor: any): any;
     anything(): any;
@@ -60,8 +20,66 @@ declare global {
       stringMatching(regexp: string | RegExp): any;
     };
   }
+}
 
-  const expect: ExpectStatic & ((actual: any) => jest.Matchers<any>);
+declare global {
+  namespace Chai {
+    interface Assertion {
+      toBeInTheDocument(): Assertion;
+      toBeVisible(): Assertion;
+      toBeNull(): Assertion;
+      toBeDefined(): Assertion;
+      toBeUndefined(): Assertion;
+      toBeTruthy(): Assertion;
+      toBeFalsy(): Assertion;
+      toEqual(expected: any): Assertion;
+      toBe(expected: any): Assertion;
+      toHaveBeenCalled(): Assertion;
+      toHaveBeenCalledWith(...args: any[]): Assertion;
+      toHaveBeenCalledTimes(expected: number): Assertion;
+      toMatchObject(expected: any): Assertion;
+      toBeGreaterThan(expected: number): Assertion;
+      toStrictEqual(expected: any): Assertion;
+      toBeInstanceOf(expected: any): Assertion;
+      toHaveProperty(property: string, value?: any): Assertion;
+      toBeGreaterThanOrEqual(expected: number): Assertion;
+      toBeLessThan(expected: number): Assertion;
+      toBeLessThanOrEqual(expected: number): Assertion;
+      toThrow(expected?: any): Assertion;
+      toContain(expected: any): Assertion;
+      toHaveLength(expected: number): Assertion;
+      toMatchSnapshot(): Assertion;
+    }
+  }
+
+  namespace jest {
+    interface Matchers<R> {
+      toBeInTheDocument(): R;
+      toBeVisible(): R;
+      toBeNull(): R;
+      toBeDefined(): R;
+      toBeUndefined(): R;
+      toBeTruthy(): R;
+      toBeFalsy(): R;
+      toEqual(expected: any): R;
+      toBe(expected: any): R;
+      toHaveBeenCalled(): R;
+      toHaveBeenCalledWith(...args: any[]): R;
+      toHaveBeenCalledTimes(expected: number): R;
+      toMatchObject(expected: any): R;
+      toBeGreaterThan(expected: number): R;
+      toStrictEqual(expected: any): R;
+      toBeInstanceOf(expected: any): R;
+      toHaveProperty(property: string, value?: any): R;
+      toBeGreaterThanOrEqual(expected: number): R;
+      toBeLessThan(expected: number): R;
+      toBeLessThanOrEqual(expected: number): R;
+      toThrow(expected?: any): R;
+      toContain(expected: any): R;
+      toHaveLength(expected: number): R;
+      toMatchSnapshot(): R;
+    }
+  }
 }
 
 export {};

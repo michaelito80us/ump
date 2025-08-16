@@ -49,6 +49,7 @@ export interface ConsentCheckboxProps
   required?: boolean;
   onConsentChange?: (consented: boolean) => void;
   labelVariant?: VariantProps<typeof consentLabelVariants>['variant'];
+  error?: string;
   'data-testid'?: string;
 }
 
@@ -66,6 +67,7 @@ const ConsentCheckbox = React.forwardRef<
       required = false,
       onConsentChange,
       labelVariant = 'default',
+      error,
       'data-testid': testId,
       onChange,
       checked: controlledChecked,
@@ -78,6 +80,7 @@ const ConsentCheckbox = React.forwardRef<
     );
     const checkboxId = React.useId();
     const descriptionId = React.useId();
+    const errorId = React.useId();
 
     // Use controlled value if provided, otherwise use internal state
     const isChecked =
@@ -104,8 +107,13 @@ const ConsentCheckbox = React.forwardRef<
           className={cn(consentCheckboxVariants({ variant, size, className }))}
           checked={isChecked}
           onChange={handleChange}
-          aria-describedby={description ? descriptionId : undefined}
+          aria-describedby={
+            [description && descriptionId, error && errorId]
+              .filter(Boolean)
+              .join(' ') || undefined
+          }
           aria-required={required}
+          aria-invalid={error ? 'true' : undefined}
           {...props}
         />
         <div className="grid gap-1.5 leading-none">
@@ -126,6 +134,14 @@ const ConsentCheckbox = React.forwardRef<
               className="text-xs text-muted-foreground leading-relaxed"
             >
               {description}
+            </p>
+          )}
+          {error && (
+            <p
+              id={errorId}
+              className="text-xs text-destructive leading-relaxed"
+            >
+              {error}
             </p>
           )}
         </div>

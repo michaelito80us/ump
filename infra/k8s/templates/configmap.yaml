@@ -1,0 +1,36 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ump.fullname" . }}-config
+  labels:
+    {{- include "ump.labels" . | nindent 4 }}
+data:
+  # Database configuration
+  POSTGRES_DB: {{ .Values.postgresql.auth.database | quote }}
+  POSTGRES_USER: {{ .Values.postgresql.auth.username | quote }}
+  
+  # Redis configuration
+  REDIS_HOST: {{ include "ump.fullname" . }}-redis-master
+  REDIS_PORT: "6379"
+  
+  # Backend configuration
+  BACKEND_PORT: {{ .Values.backend.env.PORT | quote }}
+  NODE_ENV: {{ .Values.backend.env.NODE_ENV | quote }}
+  GRAPHQL_INTROSPECTION: {{ .Values.backend.env.GRAPHQL_INTROSPECTION | quote }}
+  GRAPHQL_PLAYGROUND: {{ .Values.backend.env.GRAPHQL_PLAYGROUND | quote }}
+  LOG_LEVEL: {{ .Values.backend.env.LOG_LEVEL | quote }}
+  
+  # Gateway configuration
+  GATEWAY_PORT: {{ .Values.gateway.env.PORT | quote }}
+  GATEWAY_NODE_ENV: {{ .Values.gateway.env.NODE_ENV | quote }}
+  GATEWAY_GRAPHQL_INTROSPECTION: {{ .Values.gateway.env.GRAPHQL_INTROSPECTION | quote }}
+  GATEWAY_LOG_LEVEL: {{ .Values.gateway.env.LOG_LEVEL | quote }}
+  
+  # Service URLs
+  CORE_SUBGRAPH_URL: "http://{{ include "ump.fullname" . }}-backend:{{ .Values.backend.service.port }}/graphql"
+  GRAPHQL_URL: "http://{{ include "ump.fullname" . }}-gateway:{{ .Values.gateway.service.port }}/graphql"
+  WS_URL: "ws://{{ include "ump.fullname" . }}-gateway:{{ .Values.gateway.service.port }}/graphql"
+  
+  # CORS configuration
+  CORS_ORIGINS: "http://{{ include "ump.fullname" . }}-admin:{{ .Values.admin.service.port }},http://{{ include "ump.fullname" . }}-mobile:{{ .Values.mobile.service.port }}"

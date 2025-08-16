@@ -1,5 +1,4 @@
 /* eslint-env browser, jest */
-/* eslint-disable no-undef */
 import { render, screen, waitFor } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import { gql, useSubscription } from '@apollo/client';
@@ -47,20 +46,18 @@ class MockWebSocket {
     }
   }
 
-  addEventListener(
-    type: string,
-    _listener: EventListenerOrEventListenerObject
-  ) {
-    if (type === 'open') this.onopen = _listener as (event: Event) => void;
+  addEventListener(type: string, listener: EventListenerOrEventListenerObject) {
+    if (type === 'open') this.onopen = listener as (event: Event) => void;
     if (type === 'close')
-      this.onclose = _listener as (event: CloseEvent) => void;
+      this.onclose = listener as (event: CloseEvent) => void;
     if (type === 'message')
-      this.onmessage = _listener as (event: MessageEvent) => void;
-    if (type === 'error') this.onerror = _listener as (event: Event) => void;
+      this.onmessage = listener as (event: MessageEvent) => void;
+    if (type === 'error') this.onerror = listener as (event: Event) => void;
   }
 
   removeEventListener(
     type: string,
+
     _listener: EventListenerOrEventListenerObject
   ) {
     if (type === 'open') this.onopen = null;

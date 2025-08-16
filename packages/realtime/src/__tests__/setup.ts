@@ -12,22 +12,31 @@ jest.mock('ioredis', () => {
 });
 
 // Global test setup
-beforeAll(() => {
-  // Suppress console logs during tests unless debugging
-  if (!process.env.DEBUG_TESTS) {
-    console.log = jest.fn();
-    console.error = jest.fn();
-    console.warn = jest.fn();
-  }
+beforeAll(async () => {
+  // Temporarily enable debug logs to troubleshoot Redis issues
+  // if (!process.env.DEBUG_TESTS) {
+  //   console.log = jest.fn();
+  //   console.error = jest.fn();
+  //   console.warn = jest.fn();
+  // }
 });
 
-beforeEach(() => {
-  // Clear mock Redis instances before each test
-  MockRedis.clearInstances();
+beforeEach(async () => {
+  // Reset mock Redis instances before each test but keep existing connections
+  MockRedis.resetInstances();
+  // Small delay to ensure cleanup is complete
+  await new Promise((resolve) => setTimeout(resolve, 10));
 });
 
-afterEach(() => {
-  // Clean up after each test
+afterEach(async () => {
+  // Reset instances instead of clearing to maintain connections
+  MockRedis.resetInstances();
+  // Small delay to ensure cleanup is complete
+  await new Promise((resolve) => setTimeout(resolve, 10));
+});
+
+afterAll(async () => {
+  // Only clear instances after all tests are done
   MockRedis.clearInstances();
 });
 

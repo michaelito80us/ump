@@ -54,11 +54,7 @@ class MockPrismaClient {
       action: _params[26],
       reason: _params[27],
     };
-    console.log('Storing logData:', {
-      id: logData.id,
-      type: logData.type,
-      message: logData.message,
-    });
+
     this.logs.push(logData);
     return { count: 1 };
   }
@@ -75,25 +71,20 @@ class MockPrismaClient {
       return [{ '?column?': 1 }];
     }
 
-    if (queryStr.includes('COUNT(*)')) {
-      return [{ count: this.logs.length }];
-    }
-
     if (queryStr.includes('GROUP BY type')) {
-      console.log(
-        'GROUP BY query - logs:',
-        this.logs.map((l) => ({ id: l.id, type: l.type }))
-      );
       const typeCounts: Record<string, number> = {};
       this.logs.forEach((log) => {
         const logType = log.type || 'undefined';
         typeCounts[logType] = (typeCounts[logType] || 0) + 1;
       });
-      console.log('typeCounts:', typeCounts);
       return Object.entries(typeCounts).map(([type, count]) => ({
         type,
         count,
       }));
+    }
+
+    if (queryStr.includes('COUNT(*)')) {
+      return [{ count: this.logs.length }];
     }
 
     if (queryStr.includes('INTERVAL')) {
@@ -264,7 +255,6 @@ describe('PrismaAuditLogDatabase', () => {
 
   describe('getStats', () => {
     beforeEach(async () => {
-      console.log('getStats beforeEach: inserting test data');
       // Insert some test data
       const logs = [
         {
@@ -299,9 +289,7 @@ describe('PrismaAuditLogDatabase', () => {
     });
 
     test('should return correct statistics', async () => {
-      console.log('Test: calling getStats');
       const stats = await database.getStats();
-      console.log('Test: received stats:', stats);
 
       expect(stats).toEqual({
         totalLogs: 3,

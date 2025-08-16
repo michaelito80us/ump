@@ -1,6 +1,15 @@
 /* eslint-env jest, node, browser */
 import '@testing-library/jest-dom';
 
+// Extend expect with Jest utilities
+if (typeof expect !== 'undefined') {
+  expect.any = expect.any || jest.fn();
+  expect.objectContaining = expect.objectContaining || jest.fn();
+  expect.arrayContaining = expect.arrayContaining || jest.fn();
+  expect.stringContaining = expect.stringContaining || jest.fn();
+  expect.stringMatching = expect.stringMatching || jest.fn();
+}
+
 // Mock Next.js router
 jest.mock('next/router', () => ({
   useRouter() {

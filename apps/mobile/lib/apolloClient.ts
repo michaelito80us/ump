@@ -15,6 +15,7 @@ import {
   createHttpLink,
   split,
   from,
+  NormalizedCacheObject,
 } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
@@ -151,7 +152,7 @@ export function createApolloClient() {
 }
 
 // Singleton Apollo Client instance
-let apolloClient: ApolloClient<any> | null = null;
+let apolloClient: ApolloClient<NormalizedCacheObject> | null = null;
 
 export function getApolloClient() {
   if (!apolloClient) {
@@ -163,7 +164,8 @@ export function getApolloClient() {
 // Hook to get Apollo Client with auth context
 export function useApolloClient() {
   const { getToken } = useAuth();
-  const [client, setClient] = React.useState<ApolloClient<any> | null>(null);
+  const [client, setClient] =
+    React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
 
   React.useEffect(() => {
     // Only initialize client on the client side

@@ -41,15 +41,21 @@ describe('Clerk Authentication Integration - Admin', () => {
     expect(ClerkAuthProvider.extractTokenFromHeader('Basic token')).toBeNull();
   });
 
-  it('should create user context from Clerk user', () => {
-    const _mockClerkUser = {
+  it('should create user context from Clerk user', async () => {
+    // Mock the currentUser function to return our test user
+    const mockCurrentUser = jest.fn().mockResolvedValue({
       id: 'clerk_123',
       emailAddresses: [{ emailAddress: 'user@example.com' }],
       firstName: 'John',
       lastName: 'Doe',
-    };
+    });
 
-    const userContext = ClerkAuthProvider.getUserContext();
+    // Mock the ClerkAuthProvider.getCurrentUser method
+    jest
+      .spyOn(ClerkAuthProvider, 'getCurrentUser')
+      .mockImplementation(mockCurrentUser);
+
+    const userContext = await ClerkAuthProvider.getUserContext();
 
     expect(userContext).toEqual({
       id: 'clerk_123',

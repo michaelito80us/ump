@@ -36,12 +36,32 @@ export default function OfflinePage() {
         <div className="mb-6">
           <div className="w-16 h-16 mx-auto bg-gray-200 rounded-full flex items-center justify-center">
             {isOnline ? (
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+              <svg
+                className="w-8 h-8 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"
+                />
               </svg>
             ) : (
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-12.728 12.728m0 0L12 12m-6.364 6.364L12 12m6.364-6.364L12 12" />
+              <svg
+                className="w-8 h-8 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M18.364 5.636l-12.728 12.728m0 0L12 12m-6.364 6.364L12 12m6.364-6.364L12 12"
+                />
               </svg>
             )}
           </div>
@@ -49,25 +69,26 @@ export default function OfflinePage() {
 
         {/* Status Message */}
         <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          {isOnline ? 'Back Online!' : 'You\'re Offline'}
+          {isOnline ? 'Back Online!' : "You're Offline"}
         </h1>
-        
+
         <p className="text-gray-600 mb-6">
-          {isOnline 
+          {isOnline
             ? 'Your connection has been restored. You can now access all features.'
-            : 'No internet connection detected. Some features may be limited, but you can still view cached tournaments and matches.'
-          }
+            : 'No internet connection detected. Some features may be limited, but you can still view cached tournaments and matches.'}
         </p>
 
         {/* Connection Status */}
-        <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mb-6 ${
-          isOnline 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-red-100 text-red-800'
-        }`}>
-          <div className={`w-2 h-2 rounded-full mr-2 ${
-            isOnline ? 'bg-green-400' : 'bg-red-400'
-          }`} />
+        <div
+          className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mb-6 ${
+            isOnline ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+          }`}
+        >
+          <div
+            className={`w-2 h-2 rounded-full mr-2 ${
+              isOnline ? 'bg-green-400' : 'bg-red-400'
+            }`}
+          />
           {isOnline ? 'Connected' : 'Disconnected'}
         </div>
 
@@ -89,7 +110,7 @@ export default function OfflinePage() {
               Waiting for Connection...
             </button>
           )}
-          
+
           <Link
             href="/"
             className="block w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
@@ -101,7 +122,9 @@ export default function OfflinePage() {
         {/* Offline Features */}
         {!isOnline && (
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h3 className="font-semibold text-blue-900 mb-2">Available Offline:</h3>
+            <h3 className="font-semibold text-blue-900 mb-2">
+              Available Offline:
+            </h3>
             <ul className="text-sm text-blue-800 space-y-1">
               <li>• View cached tournaments</li>
               <li>• Browse saved matches</li>

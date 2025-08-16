@@ -20,7 +20,7 @@ export interface PendingAction {
   id: string;
   type: 'CREATE' | 'UPDATE' | 'DELETE';
   entity: 'tournament' | 'match' | 'team' | 'player';
-  data: any;
+  data: unknown;
   timestamp: number;
   retryCount: number;
 }
@@ -33,7 +33,7 @@ export interface SyncQueueItem {
 }
 
 class OfflineStorageManager {
-  private db: any = null;
+  private db: IDBDatabase | null = null;
 
   async init(): Promise<void> {
     if (typeof window === 'undefined' || !('indexedDB' in window)) {
@@ -49,8 +49,8 @@ class OfflineStorageManager {
         resolve();
       };
 
-      request.onupgradeneeded = (event: any) => {
-        const db = event.target.result;
+      request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
+        const db = (event.target as IDBOpenDBRequest).result;
 
         // Create object stores
         if (!db.objectStoreNames.contains(STORES.TOURNAMENTS)) {
@@ -116,7 +116,7 @@ class OfflineStorageManager {
     }
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction([storeName], 'readwrite');
+      const transaction = this.db!.transaction([storeName], 'readwrite');
       const store = transaction.objectStore(storeName);
       const request = store.put(data);
 
@@ -133,7 +133,7 @@ class OfflineStorageManager {
     }
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction([storeName], 'readonly');
+      const transaction = this.db!.transaction([storeName], 'readonly');
       const store = transaction.objectStore(storeName);
       const request = store.get(id);
 
@@ -150,7 +150,7 @@ class OfflineStorageManager {
     }
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction([storeName], 'readonly');
+      const transaction = this.db!.transaction([storeName], 'readonly');
       const store = transaction.objectStore(storeName);
       const request = store.getAll();
 
@@ -167,7 +167,7 @@ class OfflineStorageManager {
     }
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction([storeName], 'readwrite');
+      const transaction = this.db!.transaction([storeName], 'readwrite');
       const store = transaction.objectStore(storeName);
       const request = store.delete(id);
 
@@ -204,7 +204,7 @@ class OfflineStorageManager {
     }
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction([STORES.MATCHES], 'readonly');
+      const transaction = this.db!.transaction([STORES.MATCHES], 'readonly');
       const store = transaction.objectStore(STORES.MATCHES);
       const index = store.index('tournamentId');
       const request = index.getAll(tournamentId);

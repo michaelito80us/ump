@@ -38,7 +38,6 @@ export class RedisPubSub {
 
     this.publisher = new Redis(redisOptions);
     this.subscriber = new Redis(redisOptions);
-
     this.setupSubscriber();
   }
 
@@ -62,6 +61,30 @@ export class RedisPubSub {
         console.error('Error parsing Redis message:', error);
       }
     });
+
+    this.subscriber.on(
+      'pmessage',
+      (pattern: string, channel: string, message: string) => {
+        try {
+          const event: RealtimeEvent = JSON.parse(message);
+          const cleanChannel = this.removeKeyPrefix(channel);
+
+          // Find handlers for this pattern
+          const handlers = this.patternHandlers.get(pattern);
+          if (handlers) {
+            handlers.forEach((handler) => {
+              try {
+                handler(cleanChannel, event);
+              } catch (error: unknown) {
+                console.error('Error in pattern handler:', error);
+              }
+            });
+          }
+        } catch (error: unknown) {
+          console.error('Error parsing pattern message:', error);
+        }
+      }
+    );
 
     this.subscriber.on('error', (error: Error) => {
       console.error('Redis subscriber error:', error);
@@ -153,20 +176,19 @@ export class RedisPubSub {
     try {
       const prefixedPattern = this.addKeyPrefix(pattern);
 
-      this.subscriber.on(
-        'pmessage',
-        (pattern: string, channel: string, message: string) => {
-          try {
-            const event: RealtimeEvent = JSON.parse(message);
-            const cleanChannel = this.removeKeyPrefix(channel);
-            handler(cleanChannel, event);
-          } catch (error: unknown) {
-            console.error('Error parsing pattern message:', error);
-          }
-        }
-      );
+      // Store the handler for this pattern
+      if (!this.patternHandlers.has(prefixedPattern)) {
+        this.patternHandlers.set(prefixedPattern, new Set());
+      }
+      this.patternHandlers.get(prefixedPattern)!.add(handler);
 
+      console.log(
+        `RedisPubSub calling psubscribe with pattern: ${prefixedPattern}`
+      );
       await this.subscriber.psubscribe(prefixedPattern);
+      console.log(
+        `RedisPubSub psubscribe completed for pattern: ${prefixedPattern}`
+      );
     } catch (error: unknown) {
       console.error('Error pattern subscribing:', error);
       throw error;

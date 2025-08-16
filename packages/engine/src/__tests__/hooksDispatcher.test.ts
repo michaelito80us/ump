@@ -277,22 +277,18 @@ describe('HooksDispatcher', () => {
 
   describe('Chain Execution for beforePhaseGenerate', () => {
     it('should chain multiple beforePhaseGenerate hooks', async () => {
-      const hook1 = jest
-        .fn()
-        .mockImplementation((phase: Phase) =>
-          Promise.resolve({
-            ...phase,
-            phaseName: phase.phaseName + ' - Modified by Plugin 1',
-          })
-        );
-      const hook2 = jest
-        .fn()
-        .mockImplementation((phase: Phase) =>
-          Promise.resolve({
-            ...phase,
-            settings: { ...phase.settings, modified: true },
-          })
-        );
+      const hook1 = jest.fn().mockImplementation((phase: Phase) =>
+        Promise.resolve({
+          ...phase,
+          phaseName: phase.phaseName + ' - Modified by Plugin 1',
+        })
+      );
+      const hook2 = jest.fn().mockImplementation((phase: Phase) =>
+        Promise.resolve({
+          ...phase,
+          settings: { ...phase.settings, modified: true },
+        })
+      );
 
       dispatcher.registerHook('beforePhaseGenerate', 'plugin-1', hook1, 1);
       dispatcher.registerHook('beforePhaseGenerate', 'plugin-2', hook2, 2);

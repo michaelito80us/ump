@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 
-/* eslint-disable no-undef */
 // TypeScript type definitions for Service Worker API
 declare global {
   interface ServiceWorkerRegistration {
@@ -211,7 +210,7 @@ export function requestBackgroundSync(tag: string = 'background-sync') {
 }
 
 // Send message to service worker
-export function sendMessageToServiceWorker(message: any) {
+export function sendMessageToServiceWorker(message: Record<string, unknown>) {
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage(message);
   }

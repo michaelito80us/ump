@@ -251,9 +251,17 @@ export class RealtimeWebSocketServer {
   }
 
   private handlePubSubMessage(channel: string, event: RealtimeEvent): void {
+    console.log(`PubSub message received - channel: ${channel}, event:`, event);
+    console.log(`Active connections: ${this.connections.size}`);
+
     // Broadcast to all subscribers
     for (const [connectionId, connection] of this.connections) {
+      console.log(
+        `Checking connection ${connectionId}, subscriptions:`,
+        Array.from(connection.info.subscriptions)
+      );
       if (connection.info.subscriptions.has(channel)) {
+        console.log(`Sending event to connection ${connectionId}`);
         this.sendEvent(connectionId, channel, event);
       }
     }

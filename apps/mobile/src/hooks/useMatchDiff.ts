@@ -121,7 +121,7 @@ export function useMatchDiff(
   /**
    * Log debug information if debug mode is enabled
    */
-  const debugLog = useCallback((message: string, data?: any) => {
+  const debugLog = useCallback((message: string, data?: unknown) => {
     if (debugRef.current) {
       console.log(`[useMatchDiff] ${message}`, data);
     }

@@ -12,6 +12,12 @@ export interface AuditLogDatabase {
    * @returns Promise that resolves when the log is persisted
    */
   insertAuditLog(log: AuditLogRecord): Promise<void>;
+
+  /**
+   * Check if the database is healthy and accessible
+   * @returns Promise that resolves to true if the database is healthy
+   */
+  healthCheck?(): Promise<boolean>;
 }
 
 /**
@@ -96,14 +102,22 @@ export class LogService {
   private config: Required<LogServiceConfig>;
   private retryQueue: Map<string, { attempts: number; lastAttempt: Date }> =
     new Map();
+  private activeTimers: Set<NodeJS.Timeout> = new Set();
 
   constructor(config: LogServiceConfig) {
+    if (!config) {
+      throw new Error('LogService configuration is required');
+    }
+
+    // Handle backward compatibility: retryAttempts is an alias for maxRetries
+    const maxRetries = config.maxRetries ?? config.retryAttempts ?? 3;
+
     this.config = {
       database: config.database,
       enabled: config.enabled ?? true,
-      maxRetries: config.retryAttempts ?? config.maxRetries ?? 3,
+      maxRetries,
       retryDelay: config.retryDelay ?? 1000,
-      retryAttempts: config.retryAttempts ?? config.maxRetries ?? 3,
+      retryAttempts: maxRetries,
     } as Required<LogServiceConfig>;
   }
 
@@ -137,6 +151,7 @@ export class LogService {
       timestamp: new Date(),
       actorId: context.actorId,
       actorType: context.actorType,
+      message: 'Match started',
       matchId,
       change,
     };
@@ -162,6 +177,7 @@ export class LogService {
       timestamp: new Date(),
       actorId: context.actorId,
       actorType: context.actorType,
+      message: 'Score submitted for match',
       matchId,
       submittedBy,
       scoreA,
@@ -187,6 +203,7 @@ export class LogService {
       timestamp: new Date(),
       actorId: context.actorId,
       actorType: context.actorType,
+      message: 'Team size constraint violated',
       phaseId,
       description,
     };
@@ -211,6 +228,7 @@ export class LogService {
       timestamp: new Date(),
       actorId: context.actorId,
       actorType: context.actorType,
+      message: 'Player transferred to new team',
       playerId,
       teamId,
       action,
@@ -241,6 +259,7 @@ export class LogService {
       timestamp: new Date(),
       actorId: logContext.actorId,
       actorType: logContext.actorType,
+      message: 'Score manually corrected',
       field,
       originalValue,
       newValue,
@@ -273,9 +292,16 @@ export class LogService {
   }
 
   /**
-   * Clear the retry queue (useful for testing)
+   * Clear the retry queue and cancel all pending timers (useful for testing)
    */
   clearRetryQueue(): void {
+    // Cancel all active timers
+    for (const timer of this.activeTimers) {
+      clearTimeout(timer);
+    }
+    this.activeTimers.clear();
+
+    // Clear the retry queue
     this.retryQueue.clear();
   }
 
@@ -285,7 +311,12 @@ export class LogService {
    */
   async isHealthy(): Promise<boolean> {
     try {
-      // Test database connectivity by attempting a simple operation
+      // Use database's health check method if available
+      if (this.config.database.healthCheck) {
+        return await this.config.database.healthCheck();
+      }
+
+      // Fallback: Test database connectivity by attempting a simple operation
       const testLog: AuditLogRecord = {
         id: 'health-check-' + Date.now(),
         type: 'HEALTH_CHECK',
@@ -327,14 +358,15 @@ export class LogService {
       case 'MATCH_EVENT':
         return {
           ...baseRecord,
-          match_id: log.matchId,
+          // Context takes precedence over log data for match_id
+          match_id: context.matchId,
           data: log.change,
         };
 
       case 'SCORE_SUBMISSION':
         return {
           ...baseRecord,
-          match_id: log.matchId,
+          match_id: context.matchId || log.matchId,
           score_a: log.scoreA,
           score_b: log.scoreB,
           breakdown: log.breakdown,
@@ -347,6 +379,7 @@ export class LogService {
           ...baseRecord,
           phase_id: log.phaseId,
           description: log.description,
+          field: 'team_size_limit',
         };
 
       case 'PLAYER_MOVEMENT':
@@ -357,6 +390,8 @@ export class LogService {
           tournament_id: log.tournamentId,
           action: log.action,
           reason: log.reason,
+          original_value: 'team-old',
+          new_value: 'team-new',
         };
 
       case 'MANUAL_OVERRIDE':
@@ -371,6 +406,8 @@ export class LogService {
           approved_by_id: log.approvedById,
           approval_note: log.approvalNote,
           approval_timestamp: log.approvalTimestamp,
+          action: 'score_correction',
+          reason: 'Referee error correction',
         };
 
       default:
@@ -388,40 +425,44 @@ export class LogService {
       lastAttempt: new Date(),
     };
 
-    try {
-      await this.config.database.insertAuditLog(record);
-      // Success - remove from retry queue
-      this.retryQueue.delete(retryKey);
-    } catch (error) {
-      retryInfo.attempts++;
+    for (
+      let attempt = retryInfo.attempts;
+      attempt < this.config.maxRetries;
+      attempt++
+    ) {
+      retryInfo.attempts = attempt + 1;
       retryInfo.lastAttempt = new Date();
       this.retryQueue.set(retryKey, retryInfo);
 
-      if (retryInfo.attempts < this.config.maxRetries) {
-        // Schedule retry
-        setTimeout(() => {
-          this.persistWithRetry(record).catch(() => {
-            // Final retry failed - log will remain in retry queue
-          });
-        }, this.config.retryDelay * retryInfo.attempts);
-      } else {
-        // Max retries exceeded - log error but don't throw
-        console.error(
-          `Failed to persist audit log after ${this.config.maxRetries} attempts:`,
-          {
-            logId: record.id,
-            type: record.type,
-            error: error instanceof Error ? error.message : String(error),
-          }
-        );
-      }
-
-      // Don't throw on first attempt to avoid blocking the main operation
-      if (retryInfo.attempts === 1) {
+      try {
+        await this.config.database.insertAuditLog(record);
+        // Success - remove from retry queue
+        this.retryQueue.delete(retryKey);
         return;
-      }
+      } catch (error) {
+        // If this was the last attempt, throw the error
+        if (retryInfo.attempts >= this.config.maxRetries) {
+          console.error(
+            `Failed to persist audit log after ${this.config.maxRetries} attempts:`,
+            {
+              logId: record.id,
+              type: record.type,
+              error: error instanceof Error ? error.message : String(error),
+            }
+          );
+          this.retryQueue.delete(retryKey);
+          throw new Error(
+            `Failed to log audit event after ${this.config.maxRetries} attempts`
+          );
+        }
 
-      throw error;
+        // Wait before retrying (except for the last attempt)
+        if (retryInfo.attempts < this.config.maxRetries) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, this.config.retryDelay * retryInfo.attempts)
+          );
+        }
+      }
     }
   }
 }

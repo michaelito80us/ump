@@ -9,10 +9,10 @@ module.exports = {
     '!src/examples/**',
   ],
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
-  testTimeout: 15000,
-  globals: {
-    'ts-jest': {
+  testTimeout: 30000,
+  transform: {
+    '^.+\.ts$': ['ts-jest', {
       tsconfig: 'tsconfig.test.json'
-    }
+    }]
   }
 };

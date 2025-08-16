@@ -95,7 +95,7 @@
       "request": {
         "body": {
           "operationName": "GetTournamentDetails",
-          "query": "\n  query GetTournamentDetails($id: ID!) {\n    tournament(id: $id) {\n      id\n      name\n      status\n      startDate\n      endDate\n      phases {\n        id\n        name\n        matches {\n          id\n          teamA {\n            id\n            name\n          }\n          teamB {\n            id\n            name\n          }\n          scoreA\n          scoreB\n          status\n          startTime\n          venue\n        }\n      }\n      settings {\n        maxTeams\n        registrationDeadline\n        allowLateRegistration\n      }\n    }\n  }\n",
+          "query": "\n  query GetTournamentDetails($id: ID!) {\n    tournament(id: $id) {\n      id\n      name\n      status\n      startDate\n      endDate\n      phases {\n        id\n        name\n        matches {\n          id\n          teamA {\n            id\n            name\n          }\n          teamB {\n            id\n            name\n          }\n          scoreA\n          scoreB\n          status\n          startedAt\n          venue\n        }\n      }\n      settings\n    }\n  }\n",
           "variables": {
             "id": "1"
           }
@@ -243,7 +243,7 @@
       "request": {
         "body": {
           "operationName": "CreateTournament",
-          "query": "\n  mutation CreateTournament($input: CreateTournamentInput!) {\n    createTournament(input: $input) {\n      id\n      name\n      status\n      startDate\n      endDate\n    }\n  }\n",
+          "query": "\n  mutation CreateTournamentAdminTest($input: CreateTournamentInput!) {\n    createTournament(input: $input) {\n      id\n      name\n      status\n      startDate\n      endDate\n    }\n  }\n",
           "variables": {
             "input": {
               "endDate": "2025-04-03",
@@ -315,7 +315,7 @@
       "request": {
         "body": {
           "operationName": "CreateTournament",
-          "query": "\n  mutation CreateTournament($input: CreateTournamentInput!) {\n    createTournament(input: $input) {\n      id\n      name\n      status\n      startDate\n      endDate\n    }\n  }\n",
+          "query": "\n  mutation CreateTournamentAdminTest($input: CreateTournamentInput!) {\n    createTournament(input: $input) {\n      id\n      name\n      status\n      startDate\n      endDate\n    }\n  }\n",
           "variables": {
             "input": {
               "endDate": "2025-04-03",

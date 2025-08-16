@@ -66,6 +66,17 @@ module.exports = [
         NodeList: 'readonly',
         Element: 'readonly',
         DocumentFragment: 'readonly',
+        // Browser APIs
+        CloseEvent: 'readonly',
+        MessageEvent: 'readonly',
+        Navigator: 'readonly',
+        ServiceWorkerRegistration: 'readonly',
+        MessageChannel: 'readonly',
+        // IndexedDB
+        IDBDatabase: 'readonly',
+        IDBVersionChangeEvent: 'readonly',
+        IDBOpenDBRequest: 'readonly',
+        EventListenerOrEventListenerObject: 'readonly',
       },
     },
     plugins: {
@@ -132,6 +143,7 @@ module.exports = [
       '*.config.js',
       '.turbo/',
       'coverage/',
+      'infra/k8s/',
     ],
   },
 ];

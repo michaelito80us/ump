@@ -8,7 +8,7 @@ export interface Match {
   id: string;
   scoreA: number;
   scoreB: number;
-  breakdown?: any;
+  breakdown?: Record<string, unknown>;
   scheduledTime?: string;
   venue?: string;
   status: MatchStatus;
@@ -51,7 +51,7 @@ export interface Tournament {
   name: string;
   sport: string;
   status: 'NOT_STARTED' | 'LIVE' | 'COMPLETED';
-  config: any;
+  config: Record<string, unknown>;
   isLocked: boolean;
   createdAt: string;
   updatedAt: string;
@@ -64,7 +64,7 @@ export interface Phase {
   id: string;
   pluginId: string;
   phaseName: string;
-  settings: any;
+  settings: Record<string, unknown>;
   tournamentId: string;
   tournament: Tournament;
   matches: Match[];
