@@ -20,6 +20,13 @@ import {
   SECURITY_CONFIGS,
   validateSecurityConfig,
 } from './middleware/securityHeaders';
+import {
+  metricsMiddleware,
+  metricsHandler,
+  recordGraphQLOperation,
+  incrementActiveConnections,
+  decrementActiveConnections,
+} from './middleware/metrics';
 import { ClerkAuthProvider } from '@ump/core';
 import { PluginSchemaLoader } from './services/pluginSchemaLoader';
 import {
@@ -95,6 +102,12 @@ async function startServer() {
   app.use(additionalSecurityHeaders);
   app.use(cspReportHandler);
 
+  // Metrics collection middleware (before other routes)
+  app.use(metricsMiddleware);
+
+  // Metrics endpoint for Prometheus scraping
+  app.get('/metrics', metricsHandler);
+
   logger.info('Security headers configured', {
     environment: NODE_ENV,
     csp: securityConfig.enableCSP,
@@ -104,10 +117,40 @@ async function startServer() {
   // Create gateway
   const gateway = await createGateway();
 
+  // Create metrics plugin for GraphQL operations
+  const metricsPlugin = {
+    async requestDidStart() {
+      return {
+        async didResolveOperation(requestContext: any) {
+          const startTime = Date.now();
+          requestContext.request.http.startTime = startTime;
+        },
+        async willSendResponse(requestContext: any) {
+          const startTime = requestContext.request.http?.startTime;
+          if (startTime) {
+            const duration = (Date.now() - startTime) / 1000;
+            const operationName = requestContext.request.operationName;
+            const operationType =
+              requestContext.operation?.operation || 'unknown';
+            const success =
+              !requestContext.errors || requestContext.errors.length === 0;
+
+            recordGraphQLOperation(
+              operationName,
+              operationType,
+              duration,
+              success
+            );
+          }
+        },
+      };
+    },
+  };
+
   // Create Apollo Server with Federation Gateway
   const server = new ApolloServer<Context>({
     gateway,
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer }), metricsPlugin],
     introspection: process.env.GRAPHQL_INTROSPECTION === 'true',
     includeStacktraceInErrorResponses: NODE_ENV === 'development',
     // Apply custom error formatting
@@ -254,6 +297,14 @@ async function startServer() {
     }
   });
 
+  // Track active connections for metrics
+  httpServer.on('connection', (socket) => {
+    incrementActiveConnections();
+    socket.on('close', () => {
+      decrementActiveConnections();
+    });
+  });
+
   // Start HTTP server
   await new Promise<void>((resolve) =>
     httpServer.listen({ port: PORT }, resolve)
@@ -262,6 +313,7 @@ async function startServer() {
   logger.info(`🚀 Gateway ready at http://localhost:${PORT}/graphql`);
   logger.info(`📊 Health check available at http://localhost:${PORT}/health`);
   logger.info(`🔗 Subgraphs info at http://localhost:${PORT}/subgraphs`);
+  logger.info(`📈 Metrics available at http://localhost:${PORT}/metrics`);
 
   if (NODE_ENV === 'development') {
     logger.info(

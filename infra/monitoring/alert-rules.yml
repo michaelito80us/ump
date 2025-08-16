@@ -1,0 +1,65 @@
+groups:
+  - name: ump-api-alerts
+    rules:
+      # High error rate alert - fires when 5xx errors > 1% over 5 minutes
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[5m])) by (job)
+            /
+            sum(rate(http_requests_total[5m])) by (job)
+          ) * 100 > 1
+        for: 5m
+        labels:
+          severity: critical
+          service: '{{ $labels.job }}'
+        annotations:
+          summary: 'High error rate detected on {{ $labels.job }}'
+          description: 'Error rate is {{ $value }}% for {{ $labels.job }} over the last 5 minutes'
+
+      # High response time alert
+      - alert: HighResponseTime
+        expr: |
+          histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, job)) > 2
+        for: 2m
+        labels:
+          severity: warning
+          service: '{{ $labels.job }}'
+        annotations:
+          summary: 'High response time on {{ $labels.job }}'
+          description: '95th percentile response time is {{ $value }}s for {{ $labels.job }}'
+
+      # Service down alert
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: '{{ $labels.job }}'
+        annotations:
+          summary: 'Service {{ $labels.job }} is down'
+          description: '{{ $labels.job }} has been down for more than 1 minute'
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: |
+          (process_resident_memory_bytes / 1024 / 1024) > 512
+        for: 5m
+        labels:
+          severity: warning
+          service: '{{ $labels.job }}'
+        annotations:
+          summary: 'High memory usage on {{ $labels.job }}'
+          description: 'Memory usage is {{ $value }}MB for {{ $labels.job }}'
+
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: |
+          rate(process_cpu_seconds_total[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: '{{ $labels.job }}'
+        annotations:
+          summary: 'High CPU usage on {{ $labels.job }}'
+          description: 'CPU usage is {{ $value }}% for {{ $labels.job }}'
