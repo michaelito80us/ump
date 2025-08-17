@@ -46,40 +46,5 @@
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.0.0"
-  },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/__tests__/setup.ts"
-    ],
-    "roots": [
-      "<rootDir>/src"
-    ],
-    "testMatch": [
-      "**/__tests__/**/*.test.ts"
-    ],
-    "transform": {
-      "^.+\\.ts$": [
-        "ts-jest",
-        {
-          "useESM": false,
-          "tsconfig": {
-            "types": [
-              "jest",
-              "node"
-            ]
-          }
-        }
-      ]
-    },
-    "moduleNameMapper": {
-      "^@ump/core$": "<rootDir>/../core/src/index.ts"
-    },
-    "collectCoverageFrom": [
-      "src/**/*.ts",
-      "!src/**/*.d.ts",
-      "!src/__tests__/**"
-    ]
   }
 }

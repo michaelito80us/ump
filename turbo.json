@@ -20,6 +20,14 @@
     "test": {
       "outputs": ["coverage/**"]
     },
+    "test:coverage": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
+    },
+    "test:coverage:ci": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
