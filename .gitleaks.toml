@@ -1,0 +1,78 @@
+# Gitleaks configuration for secret scanning
+
+title = "Gitleaks Config for UMP"
+
+[extend]
+# Use the default gitleaks rules as a base
+path = "https://raw.githubusercontent.com/gitleaks/gitleaks/master/config/gitleaks.toml"
+
+# Custom rules for common secrets in our codebase
+[[rules]]
+id = "clerk-secret-key"
+description = "Clerk Secret Key"
+regex = '''sk_test_[a-zA-Z0-9]{48}|sk_live_[a-zA-Z0-9]{48}'''
+tags = ["key", "clerk"]
+
+[[rules]]
+id = "clerk-publishable-key"
+description = "Clerk Publishable Key"
+regex = '''pk_test_[a-zA-Z0-9]{48}|pk_live_[a-zA-Z0-9]{48}'''
+tags = ["key", "clerk"]
+
+[[rules]]
+id = "database-url"
+description = "Database URL with credentials"
+regex = '''postgres://[a-zA-Z0-9_]+:[a-zA-Z0-9_@#$%^&*()+=\-\[\]{}|;:,.<>?/~`!]+@[a-zA-Z0-9.-]+:[0-9]+/[a-zA-Z0-9_]+'''
+tags = ["database", "credentials"]
+
+[[rules]]
+id = "redis-url"
+description = "Redis URL with credentials"
+regex = '''redis://[a-zA-Z0-9_]*:[a-zA-Z0-9_@#$%^&*()+=\-\[\]{}|;:,.<>?/~`!]*@[a-zA-Z0-9.-]+:[0-9]+'''
+tags = ["redis", "credentials"]
+
+[[rules]]
+id = "jwt-secret"
+description = "JWT Secret"
+regex = '''jwt[_-]?secret["']?\s*[:=]\s*["']?[a-zA-Z0-9+/]{32,}[="']?'''
+tags = ["jwt", "secret"]
+
+# Allowlist for test files and examples
+[allowlist]
+paths = [
+  ".env.example",
+  "**/*.test.ts",
+  "**/*.test.tsx",
+  "**/*.spec.ts",
+  "**/*.spec.tsx",
+  "**/test/**",
+  "**/tests/**",
+  "**/__tests__/**",
+  "**/mocks/**",
+  "**/__mocks__/**",
+  "**/fixtures/**",
+  "docs/**",
+  "README.md",
+  "**/README.md"
+]
+
+# Allowlist for specific test secrets
+regexes = [
+  '''test[_-]?key[_-]?[0-9a-f]{8,}''',
+  '''mock[_-]?secret[_-]?[0-9a-f]{8,}''',
+  '''dummy[_-]?token[_-]?[0-9a-f]{8,}''',
+  '''example[_-]?api[_-]?key''',
+  '''placeholder[_-]?secret'''
+]
+
+# Stop words to reduce false positives
+stopwords = [
+  "example",
+  "test",
+  "mock",
+  "dummy",
+  "placeholder",
+  "sample",
+  "demo",
+  "fake"
+]

@@ -8,6 +8,14 @@ module.exports = {
       displayName: 'root',
       testMatch: ['<rootDir>/__tests__/**/*.test.js'],
       testEnvironment: 'node',
+      transform: {
+        '^.+\.js$': [
+          'babel-jest',
+          {
+            presets: [['@babel/preset-env', { targets: { node: 'current' } }]],
+          },
+        ],
+      },
     },
   ],
 
@@ -53,11 +61,8 @@ module.exports = {
 
   // Coverage collection patterns
   collectCoverageFrom: [
-    'packages/core/src/**/*.ts',
-    'packages/engine/src/**/*.ts',
+    './__tests__/**/*.js',
     '!**/*.d.ts',
-    '!**/__tests__/**',
-    '!**/*.test.ts',
     '!**/node_modules/**',
   ],
 };

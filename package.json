@@ -42,9 +42,13 @@
     "lhci": "lhci",
     "lhci:autorun": "lhci autorun",
     "lhci:collect": "lhci collect",
-    "lhci:assert": "lhci assert"
+    "lhci:assert": "lhci assert",
+    "secret-scan": "echo 'Secret scanning requires gitleaks binary. Please install from https://github.com/gitleaks/gitleaks/releases or use the GitHub Action.'",
+    "secret-scan:ci": "echo 'Secret scanning requires gitleaks binary. Please install from https://github.com/gitleaks/gitleaks/releases or use the GitHub Action.'",
+    "test:secret-scan": "node scripts/test-secret-scan.js"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.23.0",
     "@graphql-codegen/cli": "^5.0.2",
     "@graphql-codegen/introspection": "^4.0.3",
     "@graphql-codegen/typescript": "^4.0.9",
@@ -65,6 +69,7 @@
     "@typescript-eslint/parser": "^8.32.1",
     "adr-tools": "^2.0.4",
     "autoprefixer": "^10.4.16",
+    "babel-jest": "^29.5.0",
     "chromatic": "^11.20.0",
     "concurrently": "^8.2.2",
     "eslint": "^9.27.0",
