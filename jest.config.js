@@ -1,7 +1,15 @@
 /** @type {import('jest').Config} */
 module.exports = {
   // Root configuration for workspace-wide Jest settings
-  projects: ['<rootDir>/packages/core', '<rootDir>/packages/engine'],
+  projects: [
+    '<rootDir>/packages/core',
+    '<rootDir>/packages/engine',
+    {
+      displayName: 'root',
+      testMatch: ['<rootDir>/__tests__/**/*.test.js'],
+      testEnvironment: 'node',
+    },
+  ],
 
   // Global coverage settings
   collectCoverage: true,

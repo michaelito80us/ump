@@ -38,7 +38,11 @@
     "codegen:watch": "graphql-codegen --config codegen.yml --watch",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "chromatic": "chromatic --exit-zero-on-changes"
+    "chromatic": "chromatic --exit-zero-on-changes",
+    "lhci": "lhci",
+    "lhci:autorun": "lhci autorun",
+    "lhci:collect": "lhci collect",
+    "lhci:assert": "lhci assert"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.2",
@@ -46,6 +50,7 @@
     "@graphql-codegen/typescript": "^4.0.9",
     "@graphql-codegen/typescript-operations": "^4.2.3",
     "@graphql-codegen/typescript-react-query": "^6.1.0",
+    "@lhci/cli": "^0.15.1",
     "@storybook/addon-essentials": "^8.4.7",
     "@storybook/addon-interactions": "^8.4.7",
     "@storybook/addon-links": "^8.4.7",
