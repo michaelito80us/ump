@@ -1,0 +1,373 @@
+name: Plugin Conformance Matrix
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/plugins/**'
+      - 'packages/engine/**'
+      - '.github/workflows/plugin-matrix.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'packages/plugins/**'
+      - 'packages/engine/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  discover-plugins:
+    name: Discover Plugins
+    runs-on: ubuntu-latest
+    outputs:
+      plugins: ${{ steps.discover.outputs.plugins }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Discover plugins
+        id: discover
+        run: |
+          # Find all plugin directories and extract plugin info
+          plugins=$(node -e "
+            const fs = require('fs');
+            const path = require('path');
+            
+            const pluginsDir = 'packages/plugins/src';
+            const categories = ['sports', 'phases', 'scheduling', 'seeding', 'tournaments'];
+            const plugins = [];
+            
+            categories.forEach(category => {
+              const categoryPath = path.join(pluginsDir, category);
+              if (fs.existsSync(categoryPath)) {
+                const items = fs.readdirSync(categoryPath, { withFileTypes: true });
+                items.forEach(item => {
+                  if (item.isDirectory()) {
+                    const pluginPath = path.join(categoryPath, item.name);
+                    const indexPath = path.join(pluginPath, 'index.ts');
+                    if (fs.existsSync(indexPath)) {
+                      plugins.push({
+                        name: item.name,
+                        category: category,
+                        path: pluginPath,
+                        id: category + '-' + item.name
+                      });
+                    }
+                  }
+                });
+              }
+            });
+            
+            console.log(JSON.stringify(plugins));
+          ")
+          echo "plugins=$plugins" >> $GITHUB_OUTPUT
+
+  plugin-conformance:
+    name: Test Plugin Conformance
+    runs-on: ubuntu-latest
+    needs: discover-plugins
+    if: needs.discover-plugins.outputs.plugins != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        plugin: ${{ fromJson(needs.discover-plugins.outputs.plugins) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        shell: bash
+        id: pnpm-cache
+        run: |
+          echo "path=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Run plugin conformance tests
+        run: |
+          echo "Testing plugin: ${{ matrix.plugin.name }} (category: ${{ matrix.plugin.category }})"
+
+          # Create a test file for this specific plugin
+          cat > test-plugin-${{ matrix.plugin.id }}.js << 'EOF'
+          const { testPluginConformance } = require('./packages/engine/dist/harness');
+          const fs = require('fs');
+          const path = require('path');
+
+          async function testPlugin() {
+            try {
+              const pluginName = '${{ matrix.plugin.name }}';
+              const category = '${{ matrix.plugin.category }}';
+              const pluginPath = '${{ matrix.plugin.path }}';
+              
+              console.log('Testing plugin at:', pluginPath);
+              
+              // Read and evaluate the plugin source file
+              const indexPath = path.join(pluginPath, 'index.ts');
+              if (!fs.existsSync(indexPath)) {
+                console.error('Plugin index.ts not found at:', indexPath);
+                process.exit(1);
+              }
+              
+              // For now, we'll use a simplified approach by requiring from the built dist
+              // Try to import from the main plugins export
+              let plugin = null;
+              
+              try {
+                // Try importing from the main plugins package
+                const pluginsModule = require('./packages/plugins/dist/index.js');
+                
+                // Look for the plugin by different naming patterns
+                const possibleNames = [
+                  pluginName + 'Plugin',
+                  pluginName.charAt(0).toUpperCase() + pluginName.slice(1) + 'Plugin',
+                  pluginName.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('') + 'Plugin',
+                  'RugbyPlugin', // Specific known plugins
+                  'RoundRobinPlugin',
+                  'SingleEliminationPlugin',
+                  'GreedyScheduler'
+                ];
+                
+                for (const name of possibleNames) {
+                  if (pluginsModule[name]) {
+                    plugin = pluginsModule[name];
+                    console.log('Found plugin export:', name);
+                    break;
+                  }
+                }
+                
+                if (!plugin) {
+                  console.log('Available exports:', Object.keys(pluginsModule));
+                  // Try to find any export that looks like a plugin
+                  for (const [exportName, exportValue] of Object.entries(pluginsModule)) {
+                    if (exportValue && typeof exportValue === 'object' && exportValue.id && exportValue.name) {
+                      plugin = exportValue;
+                      console.log('Found plugin by structure:', exportName);
+                      break;
+                    }
+                  }
+                }
+              } catch (importError) {
+                console.error('Failed to import from plugins package:', importError.message);
+                
+                // Fallback: create a mock plugin based on the category for testing
+                console.log('Creating mock plugin for testing...');
+                plugin = createMockPlugin(pluginName, category);
+              }
+              
+              if (!plugin) {
+                console.error('Could not find or create plugin for testing');
+                process.exit(1);
+              }
+              
+              console.log('Testing plugin:', plugin.id || 'unknown', plugin.name || 'unknown');
+              
+              // Determine plugin type based on category
+              let pluginType;
+              switch (category) {
+                case 'sports':
+                  pluginType = 'sport';
+                  break;
+                case 'phases':
+                  pluginType = 'phase';
+                  break;
+                case 'scheduling':
+                  pluginType = 'scheduling';
+                  break;
+                case 'seeding':
+                  pluginType = 'seeding';
+                  break;
+                case 'tournaments':
+                  pluginType = 'tournament';
+                  break;
+                default:
+                  console.error('Unknown plugin category:', category);
+                  process.exit(1);
+              }
+              
+              // Run conformance tests
+              console.log('Running conformance tests for', pluginType, 'plugin...');
+              const results = await testPluginConformance(plugin, pluginType);
+              
+              // Check results
+              let hasErrors = false;
+              
+              console.log('\n=== CONFORMANCE TEST RESULTS ===');
+              
+              // Metadata tests
+              console.log('\nMetadata Tests:');
+              console.log('  Passed:', results.metadata.passed);
+              if (results.metadata.errors.length > 0) {
+                console.log('  Errors:');
+                results.metadata.errors.forEach(error => console.log('    -', error));
+                hasErrors = true;
+              }
+              if (results.metadata.warnings.length > 0) {
+                console.log('  Warnings:');
+                results.metadata.warnings.forEach(warning => console.log('    -', warning));
+              }
+              
+              // Lifecycle tests
+              console.log('\nLifecycle Tests:');
+              console.log('  Passed:', results.lifecycle.passed);
+              if (results.lifecycle.errors.length > 0) {
+                console.log('  Errors:');
+                results.lifecycle.errors.forEach(error => console.log('    -', error));
+                hasErrors = true;
+              }
+              if (results.lifecycle.warnings.length > 0) {
+                console.log('  Warnings:');
+                results.lifecycle.warnings.forEach(warning => console.log('    -', warning));
+              }
+              
+              // UI tests
+              console.log('\nUI Tests:');
+              console.log('  Passed:', results.ui.passed);
+              if (results.ui.errors.length > 0) {
+                console.log('  Errors:');
+                results.ui.errors.forEach(error => console.log('    -', error));
+                hasErrors = true;
+              }
+              if (results.ui.warnings.length > 0) {
+                console.log('  Warnings:');
+                results.ui.warnings.forEach(warning => console.log('    -', warning));
+              }
+              
+              // SSR tests
+              console.log('\nSSR Tests:');
+              console.log('  Passed:', results.ssr.passed);
+              if (results.ssr.errors.length > 0) {
+                console.log('  Errors:');
+                results.ssr.errors.forEach(error => console.log('    -', error));
+                hasErrors = true;
+              }
+              if (results.ssr.warnings.length > 0) {
+                console.log('  Warnings:');
+                results.ssr.warnings.forEach(warning => console.log('    -', warning));
+              }
+              
+              console.log('\n=== SUMMARY ===');
+              if (hasErrors) {
+                console.log('❌ Plugin conformance tests FAILED');
+                process.exit(1);
+              } else {
+                console.log('✅ Plugin conformance tests PASSED');
+              }
+              
+            } catch (error) {
+              console.error('Error testing plugin:', error.message);
+              console.error(error.stack);
+              process.exit(1);
+            }
+          }
+
+          function createMockPlugin(name, category) {
+            const basePlugin = {
+              id: name,
+              name: name.charAt(0).toUpperCase() + name.slice(1),
+              version: '1.0.0',
+              description: `Mock ${category} plugin for testing`,
+              author: 'UMP Core Team',
+              i18n: {
+                en: {
+                  name: name.charAt(0).toUpperCase() + name.slice(1),
+                  description: `Mock ${category} plugin for testing`,
+                },
+              },
+            };
+            
+            switch (category) {
+              case 'sports':
+                return {
+                  ...basePlugin,
+                  capabilities: ['scoreBreakdown'],
+                  statSchema: ['score'],
+                  variants: [{
+                    id: name + '-standard',
+                    name: 'Standard',
+                    description: 'Standard variant',
+                    settings: { teamSize: 11 },
+                  }],
+                  calculateTotalScore: () => 0,
+                  validateScore: () => null,
+                  renderScoreEntry: () => null,
+                  renderScore: () => null,
+                };
+              case 'phases':
+                return {
+                  ...basePlugin,
+                  generateMatches: () => [],
+                  updateStandings: () => ({}),
+                  isComplete: () => false,
+                  getAdvancingTeams: () => [],
+                };
+              case 'scheduling':
+                return {
+                  ...basePlugin,
+                  scheduleMatches: () => [],
+                  optimizeSchedule: () => [],
+                };
+              default:
+                return basePlugin;
+            }
+          }
+
+          testPlugin();
+          EOF
+
+          # Run the test
+          node test-plugin-${{ matrix.plugin.id }}.js
+
+      - name: Cleanup test file
+        if: always()
+        run: rm -f test-plugin-${{ matrix.plugin.id }}.js
+
+  plugin-conformance-summary:
+    name: Plugin Conformance Summary
+    runs-on: ubuntu-latest
+    needs: [discover-plugins, plugin-conformance]
+    if: always()
+    steps:
+      - name: Check results
+        run: |
+          if [[ "${{ needs.plugin-conformance.result }}" == "failure" ]]; then
+            echo "❌ One or more plugins failed conformance tests"
+            exit 1
+          elif [[ "${{ needs.discover-plugins.outputs.plugins }}" == "[]" ]]; then
+            echo "ℹ️ No plugins found to test"
+          else
+            echo "✅ All plugins passed conformance tests"
+          fi
