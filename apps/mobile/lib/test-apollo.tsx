@@ -3,8 +3,8 @@
 
 import React from 'react';
 import { useQuery, gql } from '@apollo/client';
-import { useUser } from '@clerk/nextjs';
 import { Providers } from './providers';
+import { useSafeClerk } from './hooks/useSafeClerk';
 
 // Simple test query - replace with actual schema when available
 const TEST_QUERY = gql`
@@ -14,7 +14,7 @@ const TEST_QUERY = gql`
 `;
 
 function ApolloTestComponentInner() {
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded, isClerkAvailable, authStatus } = useSafeClerk();
   const { data, loading, error } = useQuery(TEST_QUERY, {
     errorPolicy: 'all',
   });
@@ -28,11 +28,19 @@ function ApolloTestComponentInner() {
 
       <div className="space-y-2">
         <div data-testid="auth-status">
-          <strong>Auth Status:</strong>{' '}
+          <strong>Auth Status:</strong> {authStatus}
+        </div>
+
+        <div data-testid="clerk-info">
+          <strong>Clerk Available:</strong> {isClerkAvailable ? 'Yes' : 'No'}
+        </div>
+
+        <div data-testid="user-info">
+          <strong>User:</strong>{' '}
           {isLoaded
             ? user
-              ? 'Authenticated'
-              : 'Not authenticated'
+              ? `Logged in (${user.id})`
+              : 'Not logged in'
             : 'Loading...'}
         </div>
 
@@ -42,13 +50,13 @@ function ApolloTestComponentInner() {
         </div>
 
         {error && (
-          <div className="text-red-600" data-testid="graphql-error">
+          <div className="text-red-800" data-testid="graphql-error">
             <strong>Error:</strong> {error.message}
           </div>
         )}
 
         {data && (
-          <div className="text-green-600" data-testid="graphql-success">
+          <div className="text-green-800" data-testid="graphql-success">
             <strong>Success:</strong> GraphQL client connected (typename:{' '}
             {data.__typename})
           </div>

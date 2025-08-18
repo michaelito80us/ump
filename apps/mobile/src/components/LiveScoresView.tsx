@@ -227,7 +227,7 @@ export function LiveScoresView({
                 <span className="text-sm font-medium text-red-800">
                   {t('live')}
                 </span>
-                <span className="text-sm text-red-600">
+                <span className="text-sm text-red-800">
                   {getMatchDuration(match.scheduledTime || '')}
                 </span>
               </div>

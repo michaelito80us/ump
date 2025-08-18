@@ -86,12 +86,12 @@ export default async function HomePage({ params }: PageProps) {
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-green-50 p-3 rounded">
             <h3 className="font-semibold text-green-800">{t('success')}</h3>
-            <p className="text-sm text-green-600">{t('save')}</p>
+            <p className="text-sm text-green-800">{t('save')}</p>
           </div>
 
           <div className="bg-red-50 p-3 rounded">
             <h3 className="font-semibold text-red-800">{t('error')}</h3>
-            <p className="text-sm text-red-600">{t('cancel')}</p>
+            <p className="text-sm text-red-800">{t('cancel')}</p>
           </div>
         </div>
 

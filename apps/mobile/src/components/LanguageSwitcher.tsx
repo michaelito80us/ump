@@ -32,7 +32,7 @@ export function LanguageSwitcher() {
         onClick={() => switchLanguage('en')}
         className={`px-3 py-1 rounded ${
           locale === 'en'
-            ? 'bg-blue-500 text-white'
+            ? 'bg-blue-700 text-white'
             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
         }`}
       >
@@ -43,7 +43,7 @@ export function LanguageSwitcher() {
         onClick={() => switchLanguage('es')}
         className={`px-3 py-1 rounded ${
           locale === 'es'
-            ? 'bg-blue-500 text-white'
+            ? 'bg-blue-700 text-white'
             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
         }`}
       >

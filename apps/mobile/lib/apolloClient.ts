@@ -22,6 +22,7 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { createClient } from 'graphql-ws';
 import { useAuth } from '@clerk/nextjs';
+import { useSafeClerk } from './hooks/useSafeClerk';
 
 // Client-side token management utilities
 const ClerkClientUtils = {
@@ -163,9 +164,20 @@ export function getApolloClient() {
 
 // Hook to get Apollo Client with auth context
 export function useApolloClient() {
-  const { getToken } = useAuth();
+  const { isClerkAvailable } = useSafeClerk();
   const [client, setClient] =
     React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
+
+  // Only use Clerk's useAuth if Clerk is available
+  let getToken: (() => Promise<string | null>) | null = null;
+  if (isClerkAvailable) {
+    try {
+      const auth = useAuth();
+      getToken = auth.getToken;
+    } catch (error) {
+      console.warn('Failed to get Clerk auth:', error);
+    }
+  }
 
   React.useEffect(() => {
     // Only initialize client on the client side
@@ -174,11 +186,21 @@ export function useApolloClient() {
       setClient(apolloClientInstance);
 
       // Update the global token reference for WebSocket connections
-      getToken().then((token) => {
-        ClerkClientUtils.setTokenInWindow(token);
-      });
+      if (getToken) {
+        getToken()
+          .then((token) => {
+            ClerkClientUtils.setTokenInWindow(token);
+          })
+          .catch((error) => {
+            console.warn('Failed to get token:', error);
+            ClerkClientUtils.setTokenInWindow(null);
+          });
+      } else {
+        // No Clerk available, clear any existing token
+        ClerkClientUtils.setTokenInWindow(null);
+      }
     }
-  }, [getToken]);
+  }, [getToken, isClerkAvailable]);
 
   // Return a minimal client for SSR that won't cause hydration issues
   if (typeof window === 'undefined' || !client) {

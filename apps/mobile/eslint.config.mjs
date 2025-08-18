@@ -4,6 +4,9 @@ import tsparser from '@typescript-eslint/parser';
 import cypress from 'eslint-plugin-cypress';
 
 const config = [
+  {
+    ignores: ['public/sw.js', 'public/workbox-*.js', 'jest.config.js', 'postcss.config.js'],
+  },
   js.configs.recommended,
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
@@ -69,6 +72,28 @@ const config = [
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-explicit-any': 'off',
       ...tseslint.configs.recommended.rules,
+    },
+  },
+  {
+    files: ['**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+        global: 'readonly',
+      },
+    },
+    rules: {
+      'no-unused-vars': 'warn',
+      'no-undef': 'error',
     },
   },
   {

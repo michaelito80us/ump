@@ -2,9 +2,10 @@ import '../globals.css';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { PWAInstaller } from '../../src/components/PWAInstaller';
-import { OfflineIndicator } from '../../src/components/OfflineIndicator';
-import { ServiceWorkerRegistration } from '../../src/components/ServiceWorkerRegistration';
+// Temporarily disabled PWA component imports to debug webpack errors
+// import { PWAInstaller } from '../../src/components/PWAInstaller';
+// import { OfflineIndicator } from '../../src/components/OfflineIndicator';
+// import { ServiceWorkerRegistration } from '../../src/components/ServiceWorkerRegistration';
 
 const locales = ['en', 'es'];
 
@@ -48,7 +49,7 @@ export default async function Layout({ children, params }: LayoutProps) {
         {/* Viewport */}
         <meta
           name="viewport"
-          content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover"
+          content="initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover"
         />
 
         {/* Apple Touch Icons */}
@@ -88,21 +89,19 @@ export default async function Layout({ children, params }: LayoutProps) {
           content="black-translucent"
         />
 
-        {/* Prevent zoom on input focus (iOS) */}
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"
-        />
+        {/* Allow zoom for accessibility */}
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
         <NextIntlClientProvider messages={messages}>
-          <ServiceWorkerRegistration />
-          <OfflineIndicator />
+          {/* Temporarily disabled PWA components to debug webpack errors */}
+          {/* <ServiceWorkerRegistration /> */}
+          {/* <OfflineIndicator /> */}
           <div>
             <p>Locale: {locale}</p>
             {children}
           </div>
-          <PWAInstaller />
+          {/* <PWAInstaller /> */}
         </NextIntlClientProvider>
       </body>
     </html>

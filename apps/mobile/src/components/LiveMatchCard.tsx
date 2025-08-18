@@ -291,7 +291,7 @@ export function LiveMatchCard({
             <div>Connection: {connectionStatus}</div>
             <div>Active Animations: {scoreAnimations.length}</div>
             {error && (
-              <div className="text-red-600">Error: {error.message}</div>
+              <div className="text-red-800">Error: {error.message}</div>
             )}
           </div>
         </div>

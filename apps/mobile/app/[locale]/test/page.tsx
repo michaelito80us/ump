@@ -44,11 +44,11 @@ export default async function TestPage({ params }: PageProps) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div className="bg-white p-3 rounded border">
             <strong className="text-gray-700">{tCommon('success')}:</strong>
-            <p className="text-green-600">{tCommon('save')}</p>
+            <p className="text-green-800">{tCommon('save')}</p>
           </div>
           <div className="bg-white p-3 rounded border">
             <strong className="text-gray-700">{tCommon('error')}:</strong>
-            <p className="text-red-600">{tCommon('cancel')}</p>
+            <p className="text-red-800">{tCommon('cancel')}</p>
           </div>
           <div className="bg-white p-3 rounded border">
             <strong className="text-gray-700">Action:</strong>

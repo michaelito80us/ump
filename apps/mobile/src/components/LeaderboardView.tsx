@@ -217,8 +217,8 @@ export function LeaderboardView({
   };
 
   const getGoalDifferenceColor = (diff: number) => {
-    if (diff > 0) return 'text-green-600';
-    if (diff < 0) return 'text-red-600';
+    if (diff > 0) return 'text-green-800';
+    if (diff < 0) return 'text-red-800';
     return 'text-gray-600';
   };
 

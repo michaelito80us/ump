@@ -265,7 +265,7 @@ class OfflineStorageManager {
 // Singleton instance
 export const offlineStorage = new OfflineStorageManager();
 
-// Initialize on import
-if (typeof window !== 'undefined') {
-  offlineStorage.init().catch(console.error);
-}
+// Initialize on import - temporarily disabled to debug runtime errors
+// if (typeof window !== 'undefined') {
+//   offlineStorage.init().catch(console.error);
+// }

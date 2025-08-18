@@ -1,6 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import createIntlMiddleware from 'next-intl/middleware';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextFetchEvent } from 'next/server';
 
 // Create the intl middleware
 const intlMiddleware = createIntlMiddleware({
@@ -16,16 +16,6 @@ const isProtectedRoute = createRouteMatcher([
   '/(en|es)/admin(.*)',
 ]);
 
-// Define public routes that should skip auth
-// const _isPublicRoute = createRouteMatcher([
-//   '/',
-//   '/(en|es)',
-//   '/(en|es)/sign-in(.*)',
-//   '/(en|es)/sign-up(.*)',
-//   '/(en|es)/test-graphql(.*)',
-//   '/(en|es)/test-ui(.*)',
-// ]);
-
 // Check if we have a valid Clerk key
 const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 const hasValidClerkKey =
@@ -33,7 +23,7 @@ const hasValidClerkKey =
   !publishableKey.includes('placeholder') &&
   !publishableKey.includes('Y2xlcmstdGVzdC1rZXk');
 
-export default function middleware(req: NextRequest, event: any) {
+export default function middleware(req: NextRequest, event: NextFetchEvent) {
   // If no valid Clerk key, just apply intl middleware
   if (!hasValidClerkKey) {
     return intlMiddleware(req);
@@ -62,10 +52,10 @@ export const config = {
 
     // Enable redirects that add missing locales
     // (e.g. `/pathnames` -> `/en/pathnames`)
-    '/((?!_next|_vercel|.*\\..*).*)',
+    '/((?!_next|_vercel|.*\\..*).*)/',
 
     // Skip Next.js internals and all static files, unless found in search params
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    '/((?!_next|manifest\\.json|sw\\.js|workbox-[^/]*\\.js|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
 
     // Always run for API routes
     '/(api|trpc)(.*)',
