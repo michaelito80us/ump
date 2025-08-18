@@ -37,3 +37,25 @@ export * from './logging';
 
 // Privacy exports
 export * from './privacy';
+
+// Remote bundle fetching
+export {
+  RemoteBundleFetcher,
+  fetchRemoteBundle,
+  type RemoteBundleConfig,
+  type BundleResult,
+} from './remote/fetchRemoteBundle';
+
+// Updated error exports
+export {
+  PluginRegistryError,
+  PluginValidationError,
+  PluginNotFoundError,
+  DuplicatePluginError,
+  VersionConflictError,
+  PluginExecutionError,
+  RemoteBundleError,
+  BundleVerificationError,
+  BundleDownloadError,
+  BundleCacheError,
+} from './errors';

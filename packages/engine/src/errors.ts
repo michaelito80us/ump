@@ -56,3 +56,41 @@ export class PluginExecutionError extends TournamentError {
     this.context = context;
   }
 }
+
+// Remote bundle error types
+export class RemoteBundleError extends TournamentError {
+  constructor(message: string, code: string = 'REMOTE_BUNDLE_ERROR') {
+    super(message, code);
+    this.name = 'RemoteBundleError';
+  }
+}
+
+export class BundleVerificationError extends RemoteBundleError {
+  constructor(expectedHash: string, actualHash: string) {
+    super(
+      `Bundle verification failed: expected ${expectedHash}, got ${actualHash}`,
+      'BUNDLE_VERIFICATION_FAILED'
+    );
+    this.name = 'BundleVerificationError';
+  }
+}
+
+export class BundleDownloadError extends RemoteBundleError {
+  constructor(url: string, cause?: Error) {
+    super(
+      `Failed to download bundle from ${url}: ${cause?.message || 'Unknown error'}`,
+      'BUNDLE_DOWNLOAD_FAILED'
+    );
+    this.name = 'BundleDownloadError';
+    if (cause) {
+      this.stack = cause.stack;
+    }
+  }
+}
+
+export class BundleCacheError extends RemoteBundleError {
+  constructor(message: string) {
+    super(message, 'BUNDLE_CACHE_ERROR');
+    this.name = 'BundleCacheError';
+  }
+}

@@ -20,6 +20,11 @@ describe('TelemetryService', () => {
       setStatus: jest.fn(),
       recordException: jest.fn(),
       end: jest.fn(),
+      spanContext: jest.fn().mockReturnValue({
+        spanId: 'mock-span-id-123',
+        traceId: 'mock-trace-id-456',
+        traceFlags: 1,
+      }),
     };
 
     // Mock tracer
