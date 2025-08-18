@@ -1,8 +1,16 @@
 // Jest setup file
+const { configureLogService } = require('@ump/engine');
 
 // Set test environment variables
 process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL = 'file:./prisma/test.db';
+
+// Configure LogService for tests
+configureLogService({
+  level: 'error', // Minimize log output during tests
+  format: 'simple',
+  outputs: [],
+});
 
 // Mock console methods to reduce noise in tests
 global.console = {

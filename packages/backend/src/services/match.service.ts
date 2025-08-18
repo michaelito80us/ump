@@ -1,7 +1,13 @@
-import { Match, Prisma } from '@prisma/client';
+import { Match, Prisma, PrismaClient } from '@prisma/client';
 import { BaseService, PaginatedResult, ListOptions } from './base.service';
 import { ValidationError } from '@ump/core';
 import { auditLogger, AuditContext } from './auditLogIntegration';
+import {
+  DedupeScoreGuard,
+  DuplicateScoreSubmissionError,
+  createDedupeGuard,
+  type DedupeDatabase,
+} from '@ump/engine';
 
 export interface CreateMatchInput {
   phaseId: string;
@@ -33,7 +39,79 @@ export interface MatchWithRelations extends Match {
   scoreAudits?: any[];
 }
 
+/**
+ * Database adapter for the deduplication guard
+ */
+class MatchDedupeDatabase implements DedupeDatabase {
+  constructor(private db: PrismaClient) {}
+
+  async checkRecentSubmission(
+    matchId: string,
+    submittedBy: string,
+    intervalMs: number
+  ): Promise<boolean> {
+    const cutoffTime = new Date(Date.now() - intervalMs);
+
+    const recentSubmission = await this.db.matchScoreAudit.findFirst({
+      where: {
+        matchId,
+        submittedBy,
+        submittedAt: {
+          gte: cutoffTime,
+        },
+      },
+    });
+
+    return recentSubmission !== null;
+  }
+
+  async createScoreAudit(data: {
+    matchId: string;
+    submittedBy: string;
+    scoreA: number;
+    scoreB: number;
+    breakdown?: any;
+    source: string;
+  }): Promise<void> {
+    await this.db.matchScoreAudit.create({
+      data: {
+        matchId: data.matchId,
+        submittedBy: data.submittedBy,
+        scoreA: data.scoreA,
+        scoreB: data.scoreB,
+        breakdown: JSON.stringify(data.breakdown || {}),
+        source: data.source,
+      },
+    });
+  }
+}
+
 export class MatchService extends BaseService {
+  private dedupeGuard: DedupeScoreGuard;
+
+  constructor() {
+    super();
+    const dedupeDb = new MatchDedupeDatabase(this.db);
+    this.dedupeGuard = createDedupeGuard(dedupeDb, {
+      timeWindowMs: 2000, // 2 seconds as specified in T-16.1
+      enabled: true,
+    });
+  }
+
+  /**
+   * Clean up resources when service is destroyed
+   */
+  destroy(): void {
+    this.dedupeGuard.destroy();
+  }
+
+  /**
+   * Clear the deduplication guard cache
+   * Useful for testing or manual cache reset
+   */
+  clearDedupeCache(): void {
+    this.dedupeGuard.clearCache();
+  }
   /**
    * Create a new match
    */
@@ -474,6 +552,16 @@ export class MatchService extends BaseService {
     submittedBy?: string
   ): Promise<Match> {
     try {
+      // Guard against duplicate submissions if submittedBy is provided
+      if (submittedBy) {
+        await this.dedupeGuard.guardSubmission(id, submittedBy, {
+          scoreA,
+          scoreB,
+          breakdown,
+          source: 'manual',
+        });
+      }
+
       return await this.db.$transaction(async (tx) => {
         // Update the match
         const match = await tx.match.update({
@@ -485,26 +573,26 @@ export class MatchService extends BaseService {
           },
         });
 
-        // Create score audit entry if submittedBy is provided
-        if (submittedBy) {
-          await tx.matchScoreAudit.create({
-            data: {
-              matchId: id,
-              submittedBy: submittedBy,
-              breakdown: this.safeJsonStringify(breakdown || {}),
-              scoreA,
-              scoreB,
-              source: 'manual',
-            },
-          });
-        }
-
         return {
           ...match,
           breakdown: this.safeJsonParse(match.breakdown || '{}'),
         };
       });
     } catch (error: any) {
+      // Handle duplicate submission errors with specific HTTP status
+      if (error instanceof DuplicateScoreSubmissionError) {
+        const conflictError = new ValidationError(
+          error.message,
+          'DUPLICATE_SCORE_SUBMISSION',
+          { matchId: id, submittedBy }
+        );
+        // Add HTTP status code for GraphQL error handling
+        (conflictError as any).extensions = {
+          code: 'DUPLICATE_SCORE_SUBMISSION',
+          http: { status: 409 },
+        };
+        throw conflictError;
+      }
       this.handlePrismaError(error, 'MatchService.updateScore');
     }
   }

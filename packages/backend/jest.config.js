@@ -23,6 +23,10 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@ump/core$': '<rootDir>/../core/src/index.ts',
+    '^@ump/core/(.*)$': '<rootDir>/../core/src/$1',
+    '^@ump/engine$': '<rootDir>/../engine/src/index.ts',
+    '^@ump/engine/(.*)$': '<rootDir>/../engine/src/$1',
   },
   testTimeout: 30000,
 };

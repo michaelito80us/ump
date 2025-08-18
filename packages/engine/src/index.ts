@@ -38,6 +38,9 @@ export * from './logging';
 // Privacy exports
 export * from './privacy';
 
+// Guards exports
+export * from './guards/dedupeScore';
+
 // Remote bundle fetching
 export {
   RemoteBundleFetcher,

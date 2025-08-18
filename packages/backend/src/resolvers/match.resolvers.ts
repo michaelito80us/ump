@@ -1,5 +1,6 @@
 import { db } from '../services/database';
 import { GraphQLError } from 'graphql';
+import { ValidationError } from '@ump/core';
 
 export const matchResolvers = {
   Query: {
@@ -94,35 +95,47 @@ export const matchResolvers = {
         throw new GraphQLError('Not authorized to update this match score');
       }
 
-      // Create score audit record
-      await db.matchScoreAudit.create({
-        data: {
-          matchId: id,
-          submittedBy: context.user.id,
-          breakdown: input.breakdown || {},
-          scoreA: input.scoreA,
-          scoreB: input.scoreB,
-          source: 'MANUAL',
-        },
-      });
+      try {
+        // Update match score using service (includes deduplication guard)
+        const { matchService } = await import('../services');
+        const updatedMatch = await matchService.updateScore(
+          id,
+          input.scoreA,
+          input.scoreB,
+          input.breakdown,
+          context.user.id
+        );
 
-      // Update match using service with audit context
-      const { matchService } = await import('../services');
-      return await matchService.update(
-        id,
-        {
-          scoreA: input.scoreA,
-          scoreB: input.scoreB,
-          breakdown: input.breakdown,
-          status: input.status || 'NEEDS_APPROVAL', // Require approval for score changes
-        },
-        {
-          actorId: context.user.id,
-          actorType: 'user',
-          tournamentId: match.phase.tournament.id,
-          source: 'graphql_score_update',
+        // Update other match properties if needed
+        if (input.status) {
+          return await matchService.update(
+            id,
+            { status: input.status },
+            {
+              actorId: context.user.id,
+              actorType: 'user',
+              tournamentId: match.phase.tournament.id,
+              source: 'graphql_score_update',
+            }
+          );
         }
-      );
+
+        return updatedMatch;
+      } catch (error: any) {
+        // Handle duplicate submission errors with proper HTTP status
+        if (
+          error instanceof ValidationError &&
+          error.code === 'DUPLICATE_SCORE_SUBMISSION'
+        ) {
+          throw new GraphQLError(error.message, {
+            extensions: {
+              code: 'DUPLICATE_SCORE_SUBMISSION',
+              http: { status: 409 },
+            },
+          });
+        }
+        throw error;
+      }
     },
 
     approveMatch: async (_: any, { id }: { id: string }, context: any) => {
