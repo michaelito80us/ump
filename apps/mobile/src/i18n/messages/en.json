@@ -1,126 +1,4 @@
 {
-  "status": {
-    "live": "Live",
-    "final": "Final",
-    "pending": "Pending",
-    "scheduled": "Scheduled",
-    "LIVE": "Live",
-    "FINAL": "Final",
-    "PENDING": "Pending",
-    "SCHEDULED": "Scheduled"
-  },
-  "match": {
-    "status": {
-      "live": "Live",
-      "final": "Final",
-      "pending": "Pending",
-      "scheduled": "Scheduled",
-      "LIVE": "Live",
-      "FINAL": "Final",
-      "PENDING": "Pending",
-      "SCHEDULED": "Scheduled"
-    }
-  },
-  "common": {
-    "welcome": "Welcome",
-    "appName": "UMP Tournament Manager",
-    "appDescription": "Unified Management Platform for Tournament Management",
-    "graphqlSetupComplete": "GraphQL Client Setup Complete",
-    "apolloClientIntegration": "Apollo Client with Clerk Auth Integration",
-    "success": "Success",
-    "error": "Error",
-    "save": "Save",
-    "cancel": "Cancel",
-    "loading": "Loading",
-    "search": "Search",
-    "filter": "Filter",
-    "refresh": "Refresh",
-    "delete": "Delete",
-    "edit": "Edit",
-    "create": "Create",
-    "back": "Back",
-    "next": "Next",
-    "previous": "Previous",
-    "submit": "Submit",
-    "close": "Close",
-    "confirm": "Confirm",
-    "sort": "Sort"
-  },
-  "schedule": {
-    "mySchedule": "My Schedule",
-    "upcomingMatches": "Your upcoming matches and events",
-    "noMatches": "No upcoming matches",
-    "nextMatch": "Next Match",
-    "today": "Today",
-    "tomorrow": "Tomorrow",
-    "thisWeek": "This Week",
-    "matchTime": "Match Time",
-    "venue": "Venue",
-    "opponent": "vs {opponent}",
-    "status": {
-      "pending": "Scheduled",
-      "live": "Live Now",
-      "final": "Completed",
-      "needs_approval": "Pending Approval"
-    }
-  },
-  "live": {
-    "liveScores": "Live Scores",
-    "currentMatches": "Matches happening right now",
-    "live": "LIVE",
-    "noLiveMatches": "No live matches",
-    "checkBackLater": "Check back when matches are in progress",
-    "viewDetails": "View Details",
-    "followMatch": "Follow Match",
-    "scores": "Scores",
-    "matchTime": "Match Time",
-    "venue": "Venue"
-  },
-  "standings": {
-    "standings": "Standings",
-    "currentRankings": "Current tournament rankings",
-    "leaderboard": "Leaderboard",
-    "rank": "Rank",
-    "team": "Team",
-    "played": "Played",
-    "wins": "Wins",
-    "draws": "Draws",
-    "losses": "Losses",
-    "goalDiff": "Goal Diff",
-    "points": "Points",
-    "lastUpdated": "Last updated"
-  },
-  "test": {
-    "title": "Test Page Works!",
-    "description": "This is a simple static route test.",
-    "i18nIntegration": "This page is now properly integrated with the i18n layout structure.",
-    "layoutFixed": "Layout Fixed!",
-    "layoutDescription": "This page now has access to the root layout and supports internationalization.",
-    "currentLocale": "Current Language",
-    "backToHome": "Back to Home"
-  },
-  "navigation": {
-    "home": "Home",
-    "schedule": "Schedule",
-    "live": "Live Scores",
-    "standings": "Standings",
-    "teams": "Teams",
-    "profile": "Profile",
-    "settings": "Settings",
-    "tournaments": "Tournaments",
-    "players": "Players"
-  },
-  "tournament": {
-    "title": "Tournament",
-    "name": "Tournament Name",
-    "status": "Status",
-    "startDate": "Start Date",
-    "endDate": "End Date",
-    "venue": "Venue",
-    "participants": "Participants",
-    "matches": "Matches",
-    "phases": "Phases"
-  },
   "match": {
     "title": "Match",
     "vs": "vs",
@@ -128,43 +6,19 @@
     "time": "Time",
     "venue": "Venue",
     "status": {
-      "scheduled": "Scheduled",
       "live": "Live",
+      "final": "Final",
+      "pending": "Pending",
+      "scheduled": "Scheduled",
       "completed": "Completed",
       "cancelled": "Cancelled",
-      "postponed": "Postponed"
+      "postponed": "Postponed",
+      "LIVE": "Live",
+      "FINAL": "Final",
+      "PENDING": "Pending",
+      "SCHEDULED": "Scheduled"
     },
     "startMatch": "Start Match",
     "endMatch": "End Match"
-  },
-  "team": {
-    "title": "Team",
-    "name": "Team Name",
-    "players": "Players",
-    "coach": "Coach",
-    "stats": "Statistics"
-  },
-  "player": {
-    "title": "Player",
-    "name": "Player Name",
-    "position": "Position",
-    "number": "Number",
-    "stats": "Statistics"
-  },
-  "auth": {
-    "signIn": "Sign In",
-    "signOut": "Sign Out",
-    "signUp": "Sign Up",
-    "email": "Email",
-    "password": "Password",
-    "forgotPassword": "Forgot Password?",
-    "rememberMe": "Remember Me"
-  },
-  "errors": {
-    "generic": "Something went wrong. Please try again.",
-    "network": "Network error. Please check your connection.",
-    "unauthorized": "You are not authorized to perform this action.",
-    "notFound": "The requested resource was not found.",
-    "validation": "Please check your input and try again."
   }
 }

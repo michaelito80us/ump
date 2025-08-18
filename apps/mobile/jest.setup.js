@@ -1,5 +1,6 @@
 /* eslint-env jest, node, browser */
 import '@testing-library/jest-dom';
+import { toHaveNoViolations } from 'jest-axe';
 
 // Extend expect with Jest utilities
 if (typeof expect !== 'undefined') {
@@ -8,6 +9,8 @@ if (typeof expect !== 'undefined') {
   expect.arrayContaining = expect.arrayContaining || jest.fn();
   expect.stringContaining = expect.stringContaining || jest.fn();
   expect.stringMatching = expect.stringMatching || jest.fn();
+  // Add extend method for jest-axe
+  expect.extend = expect.extend || jest.fn();
 }
 
 // Mock Next.js router
@@ -87,8 +90,8 @@ global.EventListener = global.EventListener || function () {};
 global.Blob =
   global.Blob ||
   class Blob {
-    constructor(_parts = [], options = {}) {
-      this.size = 0;
+    constructor(parts = [], options = {}) {
+      this.size = parts.reduce((total, part) => total + (part.length || 0), 0);
       this.type = options.type || '';
     }
   };
@@ -136,4 +139,13 @@ if (typeof globalThis !== 'undefined') {
 }
 if (typeof window !== 'undefined') {
   window.fetch = mockFetch;
+}
+
+// Add jest-axe setup at the end of the file
+try {
+  if (expect && expect.extend) {
+    expect.extend(toHaveNoViolations);
+  }
+} catch {
+  // jest-axe not available, skip extension
 }

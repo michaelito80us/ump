@@ -5,7 +5,7 @@ import cypress from 'eslint-plugin-cypress';
 
 const config = [
   {
-    ignores: ['public/sw.js', 'public/workbox-*.js', 'jest.config.js', 'postcss.config.js'],
+    ignores: ['public/sw.js', 'public/workbox-*.js', 'jest.config.js', 'postcss.config.js', '__mocks__/**/*'],
   },
   js.configs.recommended,
   {

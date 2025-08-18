@@ -100,5 +100,31 @@
     "unauthorized": "No tienes autorización para realizar esta acción.",
     "notFound": "El recurso solicitado no fue encontrado.",
     "validation": "Por favor, verifica tu entrada e inténtalo de nuevo."
+  },
+  "marketplace": {
+    "title": "Mercado de Plugins",
+    "description": "Descubre e instala plugins para extender las capacidades de gestión de torneos",
+    "loading": "Cargando plugins...",
+    "install": "Instalar",
+    "installing": "Instalando...",
+    "installSuccess": "Se instaló exitosamente {pluginName}",
+    "installError": "Error al instalar {pluginName}",
+    "author": "Autor",
+    "version": "Versión",
+    "languages": "Idiomas",
+    "capabilities": "Capacidades",
+    "noDescription": "Sin descripción disponible",
+    "searchPlaceholder": "Buscar plugins...",
+    "allCategories": "Todas las Categorías",
+    "category": {
+      "sports": "Deportes",
+      "phases": "Fases",
+      "seeding": "Siembra",
+      "scheduling": "Programación",
+      "tournaments": "Torneos"
+    },
+    "noPluginsFound": "No se encontraron plugins",
+    "refresh": "Actualizar",
+    "pluginCount": "Mostrando {count} de {total} plugins"
   }
 }

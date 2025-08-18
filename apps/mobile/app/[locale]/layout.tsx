@@ -97,10 +97,7 @@ export default async function Layout({ children, params }: LayoutProps) {
           {/* Temporarily disabled PWA components to debug webpack errors */}
           {/* <ServiceWorkerRegistration /> */}
           {/* <OfflineIndicator /> */}
-          <div>
-            <p>Locale: {locale}</p>
-            {children}
-          </div>
+          <div>{children}</div>
           {/* <PWAInstaller /> */}
         </NextIntlClientProvider>
       </body>

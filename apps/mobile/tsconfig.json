@@ -28,7 +28,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "cypress/**/*.ts",
-    "eslint.config.js"
+    "eslint.config.js",
+    "jest.setup.js"
   ],
   "exclude": ["node_modules"]
 }

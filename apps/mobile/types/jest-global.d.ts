@@ -1,9 +1,9 @@
 // Jest global types to override Cypress conflicts
 /// <reference types="jest" />
-/// <reference types="@testing-library/jest-dom" />
 
 // Override Cypress Chai types with Jest types
 import '@testing-library/jest-dom';
+import 'jest-axe';
 
 declare module '@jest/expect' {
   interface ExpectStatic {
@@ -13,6 +13,7 @@ declare module '@jest/expect' {
     objectContaining(object: any): any;
     stringContaining(string: string): any;
     stringMatching(regexp: string | RegExp): any;
+    extend(matchers: any): void;
     not: {
       arrayContaining(array: any[]): any;
       objectContaining(object: any): any;
@@ -49,6 +50,11 @@ declare global {
       toContain(expected: any): Assertion;
       toHaveLength(expected: number): Assertion;
       toMatchSnapshot(): Assertion;
+      // jest-axe matchers
+      toHaveNoViolations(): Assertion;
+      // @testing-library/jest-dom matchers
+      toHaveTextContent(text?: string | RegExp): Assertion;
+      toHaveAttribute(attr: string, value?: string): Assertion;
     }
   }
 
@@ -78,6 +84,11 @@ declare global {
       toContain(expected: any): R;
       toHaveLength(expected: number): R;
       toMatchSnapshot(): R;
+      // jest-axe matchers
+      toHaveNoViolations(): R;
+      // @testing-library/jest-dom matchers
+      toHaveTextContent(text?: string | RegExp): R;
+      toHaveAttribute(attr: string, value?: string): R;
     }
   }
 }
