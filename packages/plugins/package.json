@@ -63,11 +63,6 @@
         }
       ]
     },
-    "moduleNameMapper": {
-      "^@ump/core$": "<rootDir>/../core/src/index.ts",
-      "^@ump/engine$": "<rootDir>/../engine/src/index.ts",
-      "^@ump/engine/harness$": "<rootDir>/../engine/src/harness/index.ts"
-    },
     "collectCoverageFrom": [
       "src/**/*.ts",
       "src/**/*.tsx",
@@ -79,6 +74,7 @@
     ],
     "moduleNameMapper": {
       "^@ump/core$": "<rootDir>/../core/src/index.ts",
+      "^@ump/core/utils/date$": "<rootDir>/../core/src/utils/date.ts",
       "^@ump/engine$": "<rootDir>/../engine/src/index.ts",
       "^@ump/engine/harness$": "<rootDir>/../engine/src/harness/index.ts",
       "^@clerk/nextjs/server$": "<rootDir>/src/__tests__/__mocks__/@clerk/nextjs/server.js",
