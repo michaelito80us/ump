@@ -25,6 +25,8 @@ export interface AuditLogDatabase {
  * Maps to the audit_logs table schema
  */
 export interface AuditLogRecord {
+  /** Unique identifier for the log entry */
+
   id: string;
   type: string;
   timestamp: Date;
@@ -53,6 +55,10 @@ export interface AuditLogRecord {
   description?: string;
   action?: string;
   reason?: string;
+  /** Organization context for the log entry */
+  organization_id?: string;
+  /** Role being modified in role-based operations */
+  role?: string;
 }
 
 /**
@@ -89,6 +95,8 @@ export interface LogContext {
   teamId?: string;
   /** Optional player context */
   playerId?: string;
+  /** Optional organization context */
+  organizationId?: string;
 }
 
 /**
@@ -203,9 +211,42 @@ export class LogService {
       timestamp: new Date(),
       actorId: context.actorId,
       actorType: context.actorType,
-      message: 'Team size constraint violated',
+      message: description,
       phaseId,
       description,
+    };
+
+    await this.log(log, context);
+  }
+
+  /**
+   * Log a role revocation attempt
+   */
+  async logRoleRevocation(
+    organizationId: string,
+    role: string,
+    targetUserId: string,
+    success: boolean,
+    context: LogContext,
+    reason?: string
+  ): Promise<void> {
+    const log: AuditLog = {
+      id: uuidv4(),
+      type: 'MANUAL_OVERRIDE',
+      timestamp: new Date(),
+      actorId: context.actorId,
+      actorType: context.actorType,
+      message: success
+        ? `Successfully revoked role ${role}`
+        : `Failed to revoke role ${role}`,
+      field: 'user_role',
+      originalValue: role,
+      newValue: null,
+      affectedEntity: 'TOURNAMENT',
+      entityId: targetUserId,
+      context: success
+        ? `Successfully revoked ${role} role from user ${targetUserId}`
+        : `Failed to revoke ${role} role from user ${targetUserId}: ${reason || 'Unknown reason'}`,
     };
 
     await this.log(log, context);

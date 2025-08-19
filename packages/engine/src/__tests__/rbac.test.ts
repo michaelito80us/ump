@@ -12,11 +12,73 @@ import {
   validatePluginSystemRole,
   type UserRole,
   type RBACContext,
+  type Role,
 } from '../rbac';
+import { countOrgOwners } from '../rbac/requireRole';
 import { PluginExecutionError } from '../errors';
 import { PluginExecutionContext } from '../sandbox/types';
 
 describe('RBAC Middleware', () => {
+  describe('OrgOwner Role Revocation', () => {
+    const orgScope = { organizationId: 'org-1' };
+
+    const mockUserRoles = [
+      { role: 'OrgOwner' as Role, scope: orgScope, userId: 'user-1' },
+      { role: 'OrgOwner' as Role, scope: orgScope, userId: 'user-2' },
+      { role: 'OrgAdmin' as Role, scope: orgScope, userId: 'user-3' },
+    ];
+
+    it('should count OrgOwners correctly', () => {
+      expect(countOrgOwners(mockUserRoles, orgScope)).toBe(2);
+      expect(countOrgOwners(mockUserRoles, { organizationId: 'org-2' })).toBe(
+        0
+      );
+    });
+
+    it('should allow OrgOwner revocation when multiple OrgOwners exist', async () => {
+      await expect(
+        validateUserRoles(mockUserRoles, ['OrgOwner'], {
+          scope: orgScope,
+          isRoleRevocation: true,
+        })
+      ).resolves.not.toThrow();
+    });
+
+    it('should prevent removing the last OrgOwner', async () => {
+      const singleOwnerRoles = [
+        { role: 'OrgOwner' as Role, scope: orgScope, userId: 'user-1' },
+        { role: 'OrgAdmin' as Role, scope: orgScope, userId: 'user-3' },
+      ];
+
+      await expect(
+        validateUserRoles(singleOwnerRoles, ['OrgOwner'], {
+          scope: orgScope,
+          isRoleRevocation: true,
+        })
+      ).rejects.toThrow('Cannot remove the last OrgOwner');
+    });
+
+    it('should handle role revocation with correct error details', async () => {
+      const singleOwnerRoles = [
+        { role: 'OrgOwner' as Role, scope: orgScope, userId: 'user-1' },
+      ];
+
+      try {
+        await validateUserRoles(singleOwnerRoles, ['OrgOwner'], {
+          scope: orgScope,
+          isRoleRevocation: true,
+        });
+        expect(true).toBe(false); // Should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(PluginExecutionError);
+        expect((error as PluginExecutionError).code).toBe(
+          'RBAC_LAST_ORGOWNER_REMOVAL'
+        );
+        expect((error as PluginExecutionError).context.scope).toEqual(orgScope);
+      }
+    });
+  });
+
   // Mock plugin execution context
   const mockPluginContext: PluginExecutionContext = {
     pluginId: 'test-plugin',
@@ -52,21 +114,21 @@ describe('RBAC Middleware', () => {
   };
 
   describe('validateUserRoles', () => {
-    it('should validate single role successfully', () => {
-      const result = validateUserRoles(mockUserRoles, 'TournamentAdmin');
+    it('should validate single role successfully', async () => {
+      const result = await validateUserRoles(mockUserRoles, 'TournamentAdmin');
       expect(result).toBe(true);
     });
 
-    it('should validate multiple roles with ANY logic', () => {
-      const result = validateUserRoles(mockUserRoles, [
+    it('should validate multiple roles with ANY logic', async () => {
+      const result = await validateUserRoles(mockUserRoles, [
         'TournamentAdmin',
         'Referee',
       ]);
       expect(result).toBe(true);
     });
 
-    it('should validate multiple roles with ALL logic', () => {
-      const result = validateUserRoles(
+    it('should validate multiple roles with ALL logic', async () => {
+      const result = await validateUserRoles(
         mockUserRoles,
         ['TournamentAdmin', 'TeamManager'],
         { requireAll: true }
@@ -74,13 +136,13 @@ describe('RBAC Middleware', () => {
       expect(result).toBe(true);
     });
 
-    it('should fail validation when user lacks required role', () => {
-      const result = validateUserRoles(mockUserRoles, 'Referee');
+    it('should fail validation when user lacks required role', async () => {
+      const result = await validateUserRoles(mockUserRoles, 'Referee');
       expect(result).toBe(false);
     });
 
-    it('should fail ALL validation when user lacks one required role', () => {
-      const result = validateUserRoles(
+    it('should fail ALL validation when user lacks one required role', async () => {
+      const result = await validateUserRoles(
         mockUserRoles,
         ['TournamentAdmin', 'Referee'],
         { requireAll: true }
@@ -88,29 +150,29 @@ describe('RBAC Middleware', () => {
       expect(result).toBe(false);
     });
 
-    it('should validate roles within specific scope', () => {
-      const result = validateUserRoles(mockUserRoles, 'TournamentAdmin', {
+    it('should validate roles within specific scope', async () => {
+      const result = await validateUserRoles(mockUserRoles, 'TournamentAdmin', {
         scope: { tournamentId: 'tournament-1' },
       });
       expect(result).toBe(true);
     });
 
-    it('should fail validation when role exists but scope does not match', () => {
-      const result = validateUserRoles(mockUserRoles, 'TournamentAdmin', {
+    it('should fail validation when role exists but scope does not match', async () => {
+      const result = await validateUserRoles(mockUserRoles, 'TournamentAdmin', {
         scope: { tournamentId: 'tournament-2' },
       });
       expect(result).toBe(false);
     });
 
-    it('should validate organization scope correctly', () => {
-      const result = validateUserRoles(mockUserRoles, 'OrgAdmin', {
+    it('should validate organization scope correctly', async () => {
+      const result = await validateUserRoles(mockUserRoles, 'OrgAdmin', {
         scope: { organizationId: 'org-1' },
       });
       expect(result).toBe(true);
     });
 
-    it('should validate team scope correctly', () => {
-      const result = validateUserRoles(mockUserRoles, 'TeamManager', {
+    it('should validate team scope correctly', async () => {
+      const result = await validateUserRoles(mockUserRoles, 'TeamManager', {
         scope: { teamId: 'team-1' },
       });
       expect(result).toBe(true);
@@ -118,21 +180,21 @@ describe('RBAC Middleware', () => {
   });
 
   describe('hasAnyRole', () => {
-    it('should return true when user has any of the specified roles', () => {
-      const result = hasAnyRole(mockRBACContext, [
+    it('should return true when user has any of the specified roles', async () => {
+      const result = await hasAnyRole(mockRBACContext, [
         'Referee',
         'TournamentAdmin',
       ]);
       expect(result).toBe(true);
     });
 
-    it('should return false when user has none of the specified roles', () => {
-      const result = hasAnyRole(mockRBACContext, ['Referee', 'Player']);
+    it('should return false when user has none of the specified roles', async () => {
+      const result = await hasAnyRole(mockRBACContext, ['Referee', 'Player']);
       expect(result).toBe(false);
     });
 
-    it('should work with scope validation', () => {
-      const result = hasAnyRole(mockRBACContext, 'TournamentAdmin', {
+    it('should work with scope validation', async () => {
+      const result = await hasAnyRole(mockRBACContext, 'TournamentAdmin', {
         tournamentId: 'tournament-1',
       });
       expect(result).toBe(true);
@@ -140,16 +202,16 @@ describe('RBAC Middleware', () => {
   });
 
   describe('hasAllRoles', () => {
-    it('should return true when user has all specified roles', () => {
-      const result = hasAllRoles(mockRBACContext, [
+    it('should return true when user has all specified roles', async () => {
+      const result = await hasAllRoles(mockRBACContext, [
         'TournamentAdmin',
         'TeamManager',
       ]);
       expect(result).toBe(true);
     });
 
-    it('should return false when user lacks one of the specified roles', () => {
-      const result = hasAllRoles(mockRBACContext, [
+    it('should return false when user lacks one of the specified roles', async () => {
+      const result = await hasAllRoles(mockRBACContext, [
         'TournamentAdmin',
         'Referee',
       ]);
@@ -172,7 +234,7 @@ describe('RBAC Middleware', () => {
   });
 
   describe('validatePluginSystemRole', () => {
-    it('should pass validation when context has PluginSystem role', () => {
+    it('should pass validation when context has PluginSystem role', async () => {
       const pluginSystemContext: RBACContext = {
         ...mockPluginContext,
         userId: 'system',
@@ -185,46 +247,48 @@ describe('RBAC Middleware', () => {
         ],
       };
 
-      expect(() => validatePluginSystemRole(pluginSystemContext)).not.toThrow();
+      await expect(
+        validatePluginSystemRole(pluginSystemContext)
+      ).resolves.not.toThrow();
     });
 
-    it('should throw error when context lacks PluginSystem role', () => {
-      expect(() => validatePluginSystemRole(mockRBACContext)).toThrow(
+    it('should throw error when context lacks PluginSystem role', async () => {
+      await expect(validatePluginSystemRole(mockRBACContext)).rejects.toThrow(
         PluginExecutionError
       );
     });
   });
 
   describe('requireRole function', () => {
-    it('should allow access when user has required role', () => {
-      expect(() =>
+    it('should allow access when user has required role', async () => {
+      await expect(
         requireRole(mockRBACContext, 'TournamentAdmin')
-      ).not.toThrow();
+      ).resolves.not.toThrow();
     });
 
-    it('should allow access when user has any of the required roles', () => {
-      expect(() =>
+    it('should allow access when user has any of the required roles', async () => {
+      await expect(
         requireRole(mockRBACContext, ['Referee', 'TournamentAdmin'])
-      ).not.toThrow();
+      ).resolves.not.toThrow();
     });
 
-    it('should allow access when user has required role in correct scope', () => {
-      expect(() =>
+    it('should allow access when user has required role in correct scope', async () => {
+      await expect(
         requireRole(mockRBACContext, 'TournamentAdmin', {
           scope: { tournamentId: 'tournament-1' },
         })
-      ).not.toThrow();
+      ).resolves.not.toThrow();
     });
 
-    it('should allow access when user has all required roles', () => {
-      expect(() =>
+    it('should allow access when user has all required roles', async () => {
+      await expect(
         requireRole(mockRBACContext, ['TournamentAdmin', 'TeamManager'], {
           requireAll: true,
         })
-      ).not.toThrow();
+      ).resolves.not.toThrow();
     });
 
-    it('should throw error when user lacks required role', () => {
+    it('should throw error when user lacks required role', async () => {
       const contextWithoutAdmin: RBACContext = {
         ...mockPluginContext,
         userId: 'user-2',
@@ -237,24 +301,24 @@ describe('RBAC Middleware', () => {
         ],
       };
 
-      expect(() => requireRole(contextWithoutAdmin, 'TournamentAdmin')).toThrow(
-        PluginExecutionError
-      );
+      await expect(
+        requireRole(contextWithoutAdmin, 'TournamentAdmin')
+      ).rejects.toThrow(PluginExecutionError);
     });
 
-    it('should throw error when context has no user roles', () => {
+    it('should throw error when context has no user roles', async () => {
       const contextWithoutRoles: RBACContext = {
         ...mockPluginContext,
         userId: 'user-3',
         userRoles: [],
       };
 
-      expect(() => requireRole(contextWithoutRoles, 'TournamentAdmin')).toThrow(
-        PluginExecutionError
-      );
+      await expect(
+        requireRole(contextWithoutRoles, 'TournamentAdmin')
+      ).rejects.toThrow(PluginExecutionError);
     });
 
-    it('should throw error when user has role but wrong scope', () => {
+    it('should throw error when user has role but wrong scope', async () => {
       const contextWithWrongScope: RBACContext = {
         ...mockPluginContext,
         userId: 'user-4',
@@ -267,14 +331,14 @@ describe('RBAC Middleware', () => {
         ],
       };
 
-      expect(() =>
+      await expect(
         requireRole(contextWithWrongScope, 'TournamentAdmin', {
           scope: { tournamentId: 'tournament-1' },
         })
-      ).toThrow(PluginExecutionError);
+      ).rejects.toThrow(PluginExecutionError);
     });
 
-    it('should throw error when user lacks one of multiple required roles', () => {
+    it('should throw error when user lacks one of multiple required roles', async () => {
       const contextWithPartialRoles: RBACContext = {
         ...mockPluginContext,
         userId: 'user-5',
@@ -287,16 +351,16 @@ describe('RBAC Middleware', () => {
         ],
       };
 
-      expect(() =>
+      await expect(
         requireRole(
           contextWithPartialRoles,
           ['TournamentAdmin', 'TeamManager'],
           { requireAll: true }
         )
-      ).toThrow(PluginExecutionError);
+      ).rejects.toThrow(PluginExecutionError);
     });
 
-    it('should include proper error context in thrown errors', () => {
+    it('should include proper error context in thrown errors', async () => {
       const contextWithoutRoles: RBACContext = {
         ...mockPluginContext,
         userId: 'user-6',
@@ -304,8 +368,8 @@ describe('RBAC Middleware', () => {
       };
 
       try {
-        requireRole(contextWithoutRoles, 'TournamentAdmin');
-        throw new Error('Expected PluginExecutionError to be thrown');
+        await requireRole(contextWithoutRoles, 'TournamentAdmin');
+        expect(true).toBe(false); // Should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(PluginExecutionError);
         expect((error as PluginExecutionError).code).toBe('RBAC_NO_ROLES');
@@ -318,7 +382,7 @@ describe('RBAC Middleware', () => {
       }
     });
 
-    it('should throw error with proper context for insufficient permissions', () => {
+    it('should throw error with proper context for insufficient permissions', async () => {
       const contextWithWrongRole: RBACContext = {
         ...mockPluginContext,
         userId: 'user-7',
@@ -332,8 +396,8 @@ describe('RBAC Middleware', () => {
       };
 
       try {
-        requireRole(contextWithWrongRole, 'TournamentAdmin');
-        throw new Error('Expected PluginExecutionError to be thrown');
+        await requireRole(contextWithWrongRole, 'TournamentAdmin');
+        expect(true).toBe(false); // Should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(PluginExecutionError);
         expect((error as PluginExecutionError).code).toBe(
@@ -354,17 +418,17 @@ describe('RBAC Middleware', () => {
   });
 
   describe('Role hierarchy and edge cases', () => {
-    it('should handle empty user roles array', () => {
-      const result = validateUserRoles([], 'TournamentAdmin');
+    it('should handle empty user roles array', async () => {
+      const result = await validateUserRoles([], 'TournamentAdmin');
       expect(result).toBe(false);
     });
 
-    it('should handle empty required roles array', () => {
-      const result = validateUserRoles(mockUserRoles, []);
+    it('should handle empty required roles array', async () => {
+      const result = await validateUserRoles(mockUserRoles, []);
       expect(result).toBe(true); // No roles required, so validation passes
     });
 
-    it('should handle complex scope matching', () => {
+    it('should handle complex scope matching', async () => {
       const complexUserRoles: UserRole[] = [
         {
           role: 'TournamentAdmin',
@@ -377,20 +441,28 @@ describe('RBAC Middleware', () => {
       ];
 
       // Should match when all scope criteria are met
-      const result1 = validateUserRoles(complexUserRoles, 'TournamentAdmin', {
-        scope: { organizationId: 'org-1', tournamentId: 'tournament-1' },
-      });
+      const result1 = await validateUserRoles(
+        complexUserRoles,
+        'TournamentAdmin',
+        {
+          scope: { organizationId: 'org-1', tournamentId: 'tournament-1' },
+        }
+      );
       expect(result1).toBe(true);
 
       // Should not match when one scope criterion fails
-      const result2 = validateUserRoles(complexUserRoles, 'TournamentAdmin', {
-        scope: { organizationId: 'org-2', tournamentId: 'tournament-1' },
-      });
+      const result2 = await validateUserRoles(
+        complexUserRoles,
+        'TournamentAdmin',
+        {
+          scope: { organizationId: 'org-2', tournamentId: 'tournament-1' },
+        }
+      );
       expect(result2).toBe(false);
     });
 
-    it('should handle partial scope matching', () => {
-      const result = validateUserRoles(
+    it('should handle partial scope matching', async () => {
+      const result = await validateUserRoles(
         mockUserRoles,
         'TournamentAdmin',
         { scope: { tournamentId: 'tournament-1' } } // Only checking tournament, not org

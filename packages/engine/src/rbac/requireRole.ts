@@ -5,6 +5,7 @@
 
 import { PluginExecutionError } from '../errors';
 import { PluginExecutionContext } from '../sandbox/types';
+import { getLogService } from '../logging';
 
 // Role definitions from unified spec
 export type Role =
@@ -43,16 +44,93 @@ export interface RBACContext extends PluginExecutionContext {
 export interface RoleValidationOptions {
   requireAll?: boolean; // If true, user must have ALL specified roles (default: false - ANY)
   scope?: RoleScope; // Scope to validate against
+  isRoleRevocation?: boolean; // If true, validates role removal instead of role requirement
+  userId?: string; // User ID for logging purposes
+}
+
+/**
+ * Counts the number of OrgOwners in a given set of user roles
+ */
+export function countOrgOwners(
+  userRoles: UserRole[],
+  scope?: RoleScope
+): number {
+  return userRoles.filter((ur) => {
+    if (ur.role !== 'OrgOwner') return false;
+    if (!scope) return true;
+
+    // Check organization scope
+    if (
+      scope.organizationId &&
+      ur.scope.organizationId !== scope.organizationId
+    ) {
+      return false;
+    }
+    return true;
+  }).length;
 }
 
 /**
  * Validates if a user has the required role(s) within the specified scope
  */
-export function validateUserRoles(
+export async function validateUserRoles(
   userRoles: UserRole[],
   requiredRoles: Role | Role[],
   options: RoleValidationOptions = {}
-): boolean {
+): Promise<boolean> {
+  // Handle role revocation validation
+  if (
+    options.isRoleRevocation &&
+    Array.isArray(requiredRoles) &&
+    requiredRoles.includes('OrgOwner') &&
+    options.scope
+  ) {
+    // Check if removing this role would leave zero OrgOwners
+    const remainingOrgOwners = countOrgOwners(userRoles, options.scope);
+    if (remainingOrgOwners <= 1) {
+      const error = new PluginExecutionError(
+        'Cannot remove the last OrgOwner. A hand-off to another OrgOwner is required.',
+        'RBAC_LAST_ORGOWNER_REMOVAL',
+        { scope: options.scope }
+      );
+
+      // Log the failed revocation attempt
+      if (options.userId && options.scope.organizationId) {
+        const logService = getLogService();
+        await logService.logRoleRevocation(
+          options.scope.organizationId,
+          'OrgOwner',
+          options.userId,
+          false,
+          {
+            actorId: options.userId,
+            actorType: 'user',
+            organizationId: options.scope.organizationId,
+          },
+          'Attempted to remove last OrgOwner'
+        );
+      }
+
+      throw error;
+    }
+
+    // Log successful revocation
+    if (options.userId && options.scope.organizationId) {
+      const logService = getLogService();
+      await logService.logRoleRevocation(
+        options.scope.organizationId,
+        'OrgOwner',
+        options.userId,
+        true,
+        {
+          actorId: options.userId,
+          actorType: 'user',
+          organizationId: options.scope.organizationId,
+        },
+        undefined
+      );
+    }
+  }
   const roles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
   const { requireAll = false, scope } = options;
 
@@ -105,12 +183,12 @@ export function validateUserRoles(
 /**
  * Checks if user has any of the specified roles in the given context
  */
-export function hasAnyRole(
+export async function hasAnyRole(
   context: RBACContext,
   roles: Role | Role[],
   scope?: RoleScope
-): boolean {
-  return validateUserRoles(context.userRoles, roles, {
+): Promise<boolean> {
+  return await validateUserRoles(context.userRoles, roles, {
     requireAll: false,
     scope,
   });
@@ -119,12 +197,12 @@ export function hasAnyRole(
 /**
  * Checks if user has all of the specified roles in the given context
  */
-export function hasAllRoles(
+export async function hasAllRoles(
   context: RBACContext,
   roles: Role | Role[],
   scope?: RoleScope
-): boolean {
-  return validateUserRoles(context.userRoles, roles, {
+): Promise<boolean> {
+  return await validateUserRoles(context.userRoles, roles, {
     requireAll: true,
     scope,
   });
@@ -145,7 +223,7 @@ export function RequiresRole(
   ) {
     const originalMethod = descriptor.value;
 
-    descriptor.value = function (
+    descriptor.value = async function (
       this: any,
       context: RBACContext,
       ...args: any[]
@@ -160,7 +238,7 @@ export function RequiresRole(
       }
 
       // Validate user has required roles
-      if (!validateUserRoles(context.userRoles, roles, options)) {
+      if (!(await validateUserRoles(context.userRoles, roles, options))) {
         const roleNames = Array.isArray(roles) ? roles.join(', ') : roles;
         throw new PluginExecutionError(
           `Insufficient permissions. Required role(s): ${roleNames}`,
@@ -187,11 +265,11 @@ export function RequiresRole(
  * Alternative function-based approach for role validation
  * Can be used when decorators are not suitable
  */
-export function requireRole(
+export async function requireRole(
   context: RBACContext,
   roles: Role | Role[],
   options: RoleValidationOptions = {}
-): void {
+): Promise<void> {
   // Validate that context has user roles
   if (!context.userRoles || context.userRoles.length === 0) {
     throw new PluginExecutionError(
@@ -202,7 +280,7 @@ export function requireRole(
   }
 
   // Validate user has required roles
-  if (!validateUserRoles(context.userRoles, roles, options)) {
+  if (!(await validateUserRoles(context.userRoles, roles, options))) {
     const roleNames = Array.isArray(roles) ? roles.join(', ') : roles;
     throw new PluginExecutionError(
       `Insufficient permissions. Required role(s): ${roleNames}`,
@@ -253,9 +331,11 @@ export async function loadUserRoles(
 /**
  * Validates plugin system permissions for sandboxed execution
  */
-export function validatePluginSystemRole(context: RBACContext): void {
+export async function validatePluginSystemRole(
+  context: RBACContext
+): Promise<void> {
   // Plugin system should have PluginSystem role when executing in sandbox
-  if (!hasAnyRole(context, 'PluginSystem')) {
+  if (!(await hasAnyRole(context, 'PluginSystem'))) {
     throw new PluginExecutionError(
       'Plugin execution requires PluginSystem role',
       'RBAC_PLUGIN_SYSTEM_REQUIRED',
