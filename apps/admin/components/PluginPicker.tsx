@@ -147,13 +147,14 @@ export const pluginRegistry = {
       id: 'day_bucket',
       name: 'Day Bucket Scheduler',
       version: '1.0.0',
-      description: 'Balance matches by day then apply greedy algorithm',
+      description:
+        'Groups matches by day then applies greedy scheduling within each day',
       author: 'UMP Core Team',
       supportedLanguages: ['en', 'es'],
       capabilities: ['matches:unlimited'],
       i18n: {
         en: { name: 'Day Bucket Scheduler' },
-        es: { name: 'Programador por Días' },
+        es: { name: 'Programador de Cubetas por Día' },
       } as Record<string, Record<string, string>>,
     },
   ],

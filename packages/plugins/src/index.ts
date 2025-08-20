@@ -25,3 +25,6 @@ export { GreedyScheduler } from './scheduling/greedy';
 
 // Export ILP Scheduler Plugin (T-9.2)
 export { ILPScheduler } from './scheduling/ilp_v1';
+
+// Export Day Bucket Scheduler Plugin (T-9.3)
+export { DayBucketScheduler } from './scheduling/dayBucket';
