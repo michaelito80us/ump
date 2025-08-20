@@ -2,10 +2,9 @@ import '../globals.css';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-// Temporarily disabled PWA component imports to debug webpack errors
-// import { PWAInstaller } from '../../src/components/PWAInstaller';
-// import { OfflineIndicator } from '../../src/components/OfflineIndicator';
-// import { ServiceWorkerRegistration } from '../../src/components/ServiceWorkerRegistration';
+import { PWAInstaller } from '../../src/components/PWAInstaller';
+import { OfflineIndicator } from '../../src/components/OfflineIndicator';
+import { ServiceWorkerRegistration } from '../../src/components/ServiceWorkerRegistration';
 
 const locales = ['en', 'es'];
 
@@ -94,11 +93,10 @@ export default async function Layout({ children, params }: LayoutProps) {
       </head>
       <body>
         <NextIntlClientProvider messages={messages}>
-          {/* Temporarily disabled PWA components to debug webpack errors */}
-          {/* <ServiceWorkerRegistration /> */}
-          {/* <OfflineIndicator /> */}
+          <ServiceWorkerRegistration />
+          <OfflineIndicator />
           <div>{children}</div>
-          {/* <PWAInstaller /> */}
+          <PWAInstaller />
         </NextIntlClientProvider>
       </body>
     </html>

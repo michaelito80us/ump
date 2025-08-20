@@ -1,0 +1,115 @@
+{
+  "matches": [
+    {
+      "id": "match-1",
+      "tournamentId": "test-tournament-123",
+      "homeTeam": {
+        "id": "team-1",
+        "name": "Thunder Bolts",
+        "score": 0
+      },
+      "awayTeam": {
+        "id": "team-2",
+        "name": "Fire Dragons",
+        "score": 0
+      },
+      "status": "PENDING",
+      "scheduledTime": "2024-07-15T10:00:00Z",
+      "venue": "Court A",
+      "round": "Semifinal",
+      "duration": 40
+    },
+    {
+      "id": "match-2",
+      "tournamentId": "test-tournament-123",
+      "homeTeam": {
+        "id": "team-3",
+        "name": "Fire Dragons",
+        "score": 45
+      },
+      "awayTeam": {
+        "id": "team-4",
+        "name": "Ice Wolves",
+        "score": 42
+      },
+      "status": "LIVE",
+      "scheduledTime": "2024-07-15T14:00:00Z",
+      "startTime": "2024-07-15T14:05:00Z",
+      "venue": "Court B",
+      "round": "Semifinal",
+      "duration": 40,
+      "timeRemaining": "12:30",
+      "quarter": 3
+    },
+    {
+      "id": "match-3",
+      "tournamentId": "test-tournament-123",
+      "homeTeam": {
+        "id": "team-1",
+        "name": "Thunder Bolts",
+        "score": 78
+      },
+      "awayTeam": {
+        "id": "team-3",
+        "name": "Fire Dragons",
+        "score": 72
+      },
+      "status": "COMPLETED",
+      "scheduledTime": "2024-07-16T18:00:00Z",
+      "startTime": "2024-07-16T18:05:00Z",
+      "endTime": "2024-07-16T19:45:00Z",
+      "venue": "Main Court",
+      "round": "Final",
+      "duration": 40,
+      "winner": "team-1"
+    }
+  ],
+  "liveUpdates": [
+    {
+      "matchId": "match-2",
+      "timestamp": "2024-07-15T14:25:00Z",
+      "type": "SCORE_UPDATE",
+      "data": {
+        "homeScore": 47,
+        "awayScore": 44,
+        "timeRemaining": "10:15",
+        "quarter": 3
+      }
+    },
+    {
+      "matchId": "match-2",
+      "timestamp": "2024-07-15T14:27:00Z",
+      "type": "SCORE_UPDATE",
+      "data": {
+        "homeScore": 49,
+        "awayScore": 46,
+        "timeRemaining": "08:45",
+        "quarter": 3
+      }
+    }
+  ],
+  "statistics": {
+    "match-3": {
+      "team-1": {
+        "fieldGoals": "32/58",
+        "threePointers": "8/19",
+        "freeThrows": "6/8",
+        "rebounds": 42,
+        "assists": 18,
+        "steals": 7,
+        "blocks": 4,
+        "turnovers": 12
+      },
+      "team-3": {
+        "fieldGoals": "28/55",
+        "threePointers": "6/17",
+        "freeThrows": "10/14",
+        "rebounds": 38,
+        "assists": 15,
+        "steals": 5,
+        "blocks": 6,
+        "turnovers": 15
+      }
+    }
+  }
+}

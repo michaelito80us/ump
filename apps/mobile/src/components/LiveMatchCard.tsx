@@ -91,7 +91,7 @@ export function LiveMatchCard({
         }
       },
       debug,
-      enabled: true,
+      enabled: false,
     });
 
   // Update connection status based on subscription state

@@ -38,6 +38,7 @@ export function OfflineIndicator() {
 
   return (
     <div
+      data-testid="offline-indicator"
       className={`fixed top-0 left-0 right-0 z-50 p-2 text-center text-sm font-medium ${
         isOnline ? 'bg-green-600 text-white' : 'bg-orange-600 text-white'
       }`}

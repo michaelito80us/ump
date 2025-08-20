@@ -109,6 +109,18 @@ export function useMatchSubscription(
     enabled = true,
   } = options;
 
+  // Return early if disabled to prevent GraphQL subscription
+  if (!enabled) {
+    return {
+      match: null,
+      loading: false,
+      error: null,
+      hasUpdated: false,
+      updateCount: 0,
+      refetch: () => {},
+    };
+  }
+
   // Use match diff hook for efficient updates
   const { match, hasUpdated, updateCount, updateMatch, resetMatch } =
     useMatchDiff(null, {

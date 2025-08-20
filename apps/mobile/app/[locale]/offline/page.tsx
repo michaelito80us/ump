@@ -80,6 +80,7 @@ export default function OfflinePage() {
 
         {/* Connection Status */}
         <div
+          data-testid="offline-indicator"
           className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mb-6 ${
             isOnline ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
           }`}

@@ -2,7 +2,22 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "isolatedModules": false,
-    "types": ["cypress", "node"]
+    "types": ["cypress", "node"],
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true
   },
-  "include": ["**/*.ts"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "../tests/e2e/**/*.ts",
+    "../tests/e2e/**/*.tsx"
+  ],
+  "exclude": [
+    "../node_modules",
+    "../__tests__",
+    "../jest.config.js"
+  ]
 }

@@ -169,7 +169,7 @@ const config = [
     },
   },
   {
-    files: ['cypress/**/*.{js,ts}'],
+    files: ['cypress/**/*.{js,ts}', 'tests/e2e/**/*.{js,ts}'],
     languageOptions: {
       parser: tsparser,
       globals: {
@@ -188,6 +188,8 @@ const config = [
         window: 'readonly',
         document: 'readonly',
         console: 'readonly',
+        JQuery: 'readonly',
+        $: 'readonly',
       },
     },
     plugins: {

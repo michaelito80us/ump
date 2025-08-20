@@ -113,6 +113,19 @@ export function useLeaderboardSubscription(
     enabled = true,
   } = options;
 
+  // Return early if disabled to prevent GraphQL subscription
+  if (!enabled) {
+    return {
+      leaderboard: [],
+      loading: false,
+      error: null,
+      hasUpdated: false,
+      updateCount: 0,
+      refetch: () => {},
+      positionChanges: {},
+    };
+  }
+
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [hasUpdated, setHasUpdated] = useState(false);
   const [updateCount, setUpdateCount] = useState(0);

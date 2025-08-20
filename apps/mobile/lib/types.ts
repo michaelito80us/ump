@@ -2,7 +2,7 @@
 // This file avoids importing server-only modules
 
 // Re-export only the types we need for client components
-export type MatchStatus = 'PENDING' | 'LIVE' | 'FINAL' | 'NEEDS_APPROVAL';
+export type MatchStatus = 'PENDING' | 'LIVE' | 'FINAL' | 'NEEDS_APPROVAL' | 'CANCELLED';
 
 export interface Match {
   id: string;

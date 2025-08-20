@@ -1,0 +1,79 @@
+{
+  "matches": [
+    {
+      "id": "match-1",
+      "status": "LIVE",
+      "teamA": {
+        "id": "team-1",
+        "name": "Lakers"
+      },
+      "teamB": {
+        "id": "team-2",
+        "name": "Warriors"
+      },
+      "scoreA": 85,
+      "scoreB": 92,
+      "phase": "semifinals",
+      "startTime": "2024-01-20T19:00:00Z",
+      "venue": "Arena Center"
+    },
+    {
+      "id": "match-2",
+      "status": "LIVE",
+      "teamA": {
+        "id": "team-3",
+        "name": "Celtics"
+      },
+      "teamB": {
+        "id": "team-4",
+        "name": "Heat"
+      },
+      "scoreA": 78,
+      "scoreB": 81,
+      "phase": "semifinals",
+      "startTime": "2024-01-20T21:00:00Z",
+      "venue": "Sports Complex"
+    },
+    {
+      "id": "match-3",
+      "status": "SCHEDULED",
+      "teamA": {
+        "id": "team-5",
+        "name": "Bulls"
+      },
+      "teamB": {
+        "id": "team-6",
+        "name": "Knicks"
+      },
+      "scoreA": 0,
+      "scoreB": 0,
+      "phase": "finals",
+      "startTime": "2024-01-21T20:00:00Z",
+      "venue": "Championship Arena"
+    },
+    {
+      "id": "match-4",
+      "status": "FINAL",
+      "teamA": {
+        "id": "team-7",
+        "name": "Nets"
+      },
+      "teamB": {
+        "id": "team-8",
+        "name": "76ers"
+      },
+      "scoreA": 105,
+      "scoreB": 98,
+      "phase": "quarterfinals",
+      "startTime": "2024-01-19T19:00:00Z",
+      "venue": "Downtown Arena"
+    }
+  ],
+  "tournament": {
+    "id": "tournament-1",
+    "name": "Summer Basketball Championship",
+    "status": "ACTIVE",
+    "startDate": "2024-01-19T00:00:00Z",
+    "endDate": "2024-01-21T23:59:59Z"
+  }
+}

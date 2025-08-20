@@ -2,16 +2,8 @@
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
 
-// Extend expect with Jest utilities
-if (typeof expect !== 'undefined') {
-  expect.any = expect.any || jest.fn();
-  expect.objectContaining = expect.objectContaining || jest.fn();
-  expect.arrayContaining = expect.arrayContaining || jest.fn();
-  expect.stringContaining = expect.stringContaining || jest.fn();
-  expect.stringMatching = expect.stringMatching || jest.fn();
-  // Add extend method for jest-axe
-  expect.extend = expect.extend || jest.fn();
-}
+// Extend expect with jest-axe
+expect.extend(toHaveNoViolations);
 
 // Mock Next.js router
 jest.mock('next/router', () => ({
@@ -85,6 +77,42 @@ global.MessageEvent =
   };
 
 global.EventListener = global.EventListener || function () {};
+
+// KeyboardEvent polyfill for Cypress tests
+class KeyboardEventPolyfill extends Event {
+  constructor(type, eventInitDict = {}) {
+    super(type, eventInitDict);
+    this.key = eventInitDict.key || '';
+    this.code = eventInitDict.code || '';
+    this.keyCode = eventInitDict.keyCode || 0;
+    this.which = eventInitDict.which || this.keyCode;
+    this.charCode = eventInitDict.charCode || 0;
+    this.ctrlKey = eventInitDict.ctrlKey || false;
+    this.shiftKey = eventInitDict.shiftKey || false;
+    this.altKey = eventInitDict.altKey || false;
+    this.metaKey = eventInitDict.metaKey || false;
+    this.repeat = eventInitDict.repeat || false;
+    this.location = eventInitDict.location || 0;
+  }
+  
+  static DOM_KEY_LOCATION_STANDARD = 0;
+  static DOM_KEY_LOCATION_LEFT = 1;
+  static DOM_KEY_LOCATION_RIGHT = 2;
+  static DOM_KEY_LOCATION_NUMPAD = 3;
+}
+
+// Always set the polyfill
+global.KeyboardEvent = KeyboardEventPolyfill;
+
+// Ensure KeyboardEvent is available on window object
+if (typeof window !== 'undefined') {
+  window.KeyboardEvent = KeyboardEventPolyfill;
+}
+
+// Also ensure it's available on globalThis
+if (typeof globalThis !== 'undefined') {
+  globalThis.KeyboardEvent = KeyboardEventPolyfill;
+}
 
 // Define global Blob and FormData for fetch mock
 global.Blob =

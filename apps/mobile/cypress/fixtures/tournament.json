@@ -1,0 +1,76 @@
+{
+  "tournament": {
+    "id": "test-tournament-123",
+    "name": "Summer Basketball Championship",
+    "sport": "basketball",
+    "startDate": "2024-07-15",
+    "endDate": "2024-07-20",
+    "description": "Annual summer basketball tournament for local teams",
+    "maxTeams": 8,
+    "minPlayersPerTeam": 5,
+    "maxPlayersPerTeam": 12,
+    "allowSubstitutes": true,
+    "status": "published",
+    "template": "single-elimination",
+    "plugins": {
+      "sport": "basketball",
+      "phase": "elimination",
+      "seeding": "manual",
+      "scheduling": "automatic"
+    },
+    "rules": {
+      "matchDuration": 40,
+      "statTier": "advanced",
+      "tiebreakers": [
+        "head-to-head",
+        "point-differential"
+      ]
+    }
+  },
+  "teams": [
+    {
+      "id": "team-1",
+      "name": "Thunder Bolts",
+      "players": [
+        { "id": "p1", "name": "John Smith", "position": "Guard" },
+        { "id": "p2", "name": "Mike Johnson", "position": "Forward" },
+        { "id": "p3", "name": "David Brown", "position": "Center" },
+        { "id": "p4", "name": "Chris Wilson", "position": "Guard" },
+        { "id": "p5", "name": "Alex Davis", "position": "Forward" }
+      ]
+    },
+    {
+      "id": "team-2",
+      "name": "Fire Dragons",
+      "players": [
+        { "id": "p6", "name": "Sarah Connor", "position": "Guard" },
+        { "id": "p7", "name": "Emma Watson", "position": "Forward" },
+        { "id": "p8", "name": "Lisa Anderson", "position": "Center" },
+        { "id": "p9", "name": "Kate Miller", "position": "Guard" },
+        { "id": "p10", "name": "Amy Taylor", "position": "Forward" }
+      ]
+    },
+    {
+      "id": "team-3",
+      "name": "Fire Dragons",
+      "players": [
+        { "id": "p11", "name": "Tom Harris", "position": "Guard" },
+        { "id": "p12", "name": "Ryan Clark", "position": "Forward" },
+        { "id": "p13", "name": "Kevin Lewis", "position": "Center" },
+        { "id": "p14", "name": "Mark Robinson", "position": "Guard" },
+        { "id": "p15", "name": "Steve Walker", "position": "Forward" }
+      ]
+    },
+    {
+      "id": "team-4",
+      "name": "Ice Wolves",
+      "players": [
+        { "id": "p16", "name": "Jake Martinez", "position": "Guard" },
+        { "id": "p17", "name": "Luke Garcia", "position": "Forward" },
+        { "id": "p18", "name": "Ben Rodriguez", "position": "Center" },
+        { "id": "p19", "name": "Sam Lee", "position": "Guard" },
+        { "id": "p20", "name": "Nick White", "position": "Forward" }
+      ]
+    }
+  ]
+}

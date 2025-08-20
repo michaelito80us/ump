@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { LiveScoresView } from '../../../../src/components/LiveScoresView';
+import { LiveScoresView } from '../../../src/components/LiveScoresView';
 
 // Force dynamic rendering to prevent prerendering issues with Apollo subscriptions
 export const dynamic = 'force-dynamic';

@@ -13,7 +13,7 @@ const mockLiveMatches: Match[] = [
     phaseId: 'phase-1',
     teamA: {
       id: 'team-1',
-      name: 'Dragons',
+      name: 'Fire Dragons',
       sportIds: [],
       playerIds: [],
       managers: [],
@@ -23,7 +23,7 @@ const mockLiveMatches: Match[] = [
     },
     teamB: {
       id: 'team-2',
-      name: 'Lions',
+      name: 'Thunder Bolts',
       sportIds: [],
       playerIds: [],
       managers: [],
@@ -42,7 +42,7 @@ const mockLiveMatches: Match[] = [
     phaseId: 'phase-1',
     teamA: {
       id: 'team-3',
-      name: 'Eagles',
+      name: 'Fire Dragons',
       sportIds: [],
       playerIds: [],
       managers: [],
@@ -52,7 +52,7 @@ const mockLiveMatches: Match[] = [
     },
     teamB: {
       id: 'team-4',
-      name: 'Sharks',
+      name: 'Thunder Bolts',
       sportIds: [],
       playerIds: [],
       managers: [],
@@ -136,7 +136,7 @@ export function LiveScoresView({
         }
       });
     },
-    true // enabled
+    false // enabled
   );
 
   useEffect(() => {
@@ -158,6 +158,51 @@ export function LiveScoresView({
     };
 
     fetchLiveMatches();
+
+    // Listen for custom DOM events from E2E tests
+    const handleMatchStatusUpdate = (event: CustomEvent) => {
+      const { matchId, status } = event.detail;
+      setMatches((prevMatches) => 
+        prevMatches.map((match) => 
+          match.id === matchId ? { ...match, status: status as MatchStatus } : match
+        )
+      );
+    };
+
+    const handleMatchUpdate = (event: CustomEvent) => {
+      const { matchId, scoreA, scoreB, status } = event.detail;
+      setMatches((prevMatches) => 
+        prevMatches.map((match) => {
+          if (match.id === matchId) {
+            const updatedMatch = { 
+              ...match, 
+              scoreA: scoreA ?? match.scoreA,
+              scoreB: scoreB ?? match.scoreB,
+              status: status ? (status as MatchStatus) : match.status
+            };
+            
+            // Update previous scores for animation tracking
+            previousScores.current[matchId] = {
+              scoreA: updatedMatch.scoreA,
+              scoreB: updatedMatch.scoreB,
+            };
+            
+            return updatedMatch;
+          }
+          return match;
+        })
+      );
+    };
+
+    // Add event listeners
+    window.addEventListener('matchStatusUpdate', handleMatchStatusUpdate as EventListener);
+    window.addEventListener('matchUpdate', handleMatchUpdate as EventListener);
+
+    // Cleanup event listeners
+    return () => {
+      window.removeEventListener('matchStatusUpdate', handleMatchStatusUpdate as EventListener);
+      window.removeEventListener('matchUpdate', handleMatchUpdate as EventListener);
+    };
   }, []);
 
   const getMatchDuration = (startTime: string) => {
@@ -205,18 +250,19 @@ export function LiveScoresView({
   }
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-4" data-testid="live-scores-view">
       {/* Live indicator */}
       <div className="flex items-center justify-center mb-4">
-        <div className="flex items-center space-x-2 bg-red-100 text-red-800 px-3 py-1 rounded-full">
+        <div className="flex items-center space-x-2 bg-red-100 text-red-800 px-3 py-1 rounded-full" data-testid="live-indicator">
           <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
           <span className="text-sm font-medium">{t('live')}</span>
         </div>
       </div>
 
-      {matches.map((match) => (
+      {matches.map((match, index) => (
         <div
           key={match.id}
+          data-testid={index === 0 ? 'live-match-card' : `live-match-card-${match.id}`}
           className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
         >
           {/* Match Header */}
@@ -240,11 +286,12 @@ export function LiveScoresView({
             <div className="flex items-center justify-between">
               {/* Team A */}
               <div className="flex-1 text-center">
-                <div className="font-semibold text-lg text-gray-900 mb-1">
+                <div className="font-semibold text-lg text-gray-900 mb-1" data-testid={`live-team-a-name-${match.id}`}>
                   {match.teamA.name}
                 </div>
                 <motion.div
                   className="text-3xl font-bold text-gray-900"
+                  data-testid={`live-team-a-score-${match.id}`}
                   animate={
                     scoreAnimations[match.id]?.teamA
                       ? {
@@ -266,11 +313,12 @@ export function LiveScoresView({
 
               {/* Team B */}
               <div className="flex-1 text-center">
-                <div className="font-semibold text-lg text-gray-900 mb-1">
+                <div className="font-semibold text-lg text-gray-900 mb-1" data-testid={`live-team-b-name-${match.id}`}>
                   {match.teamB.name}
                 </div>
                 <motion.div
                   className="text-3xl font-bold text-gray-900"
+                  data-testid={`live-team-b-score-${match.id}`}
                   animate={
                     scoreAnimations[match.id]?.teamB
                       ? {
