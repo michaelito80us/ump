@@ -22,3 +22,6 @@ export { getHeadToHeadRecord } from './phases/round-robin';
 
 // Export Greedy Scheduler Plugin (T-9.1)
 export { GreedyScheduler } from './scheduling/greedy';
+
+// Export ILP Scheduler Plugin (T-9.2)
+export { ILPScheduler } from './scheduling/ilp_v1';
