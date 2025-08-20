@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Unified tournament management platform with mobile-first PWA and plugin extensibility",
+  "license": "MIT",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -45,7 +46,11 @@
     "lhci:assert": "lhci assert",
     "secret-scan": "echo 'Secret scanning requires gitleaks binary. Please install from https://github.com/gitleaks/gitleaks/releases or use the GitHub Action.'",
     "secret-scan:ci": "echo 'Secret scanning requires gitleaks binary. Please install from https://github.com/gitleaks/gitleaks/releases or use the GitHub Action.'",
-    "test:secret-scan": "node scripts/test-secret-scan.js"
+    "test:secret-scan": "node scripts/test-secret-scan.js",
+    "adr:new": "node scripts/adr-tools.js new",
+    "adr:list": "node scripts/adr-tools.js list",
+    "adr:generate": "node scripts/adr-tools.js generate toc > docs/adr/INDEX.md",
+    "adr:toc": "node scripts/adr-tools.js generate toc"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.23.0",
@@ -79,6 +84,7 @@
     "jest": "^29.5.0",
     "js-yaml": "^4.1.0",
     "lint-staged": "^14.0.1",
+    "markdownlint-cli": "^0.45.0",
     "postcss": "^8.4.32",
     "postcss-nesting": "^13.0.2",
     "prettier": "^3.5.3",
