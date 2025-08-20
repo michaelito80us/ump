@@ -240,6 +240,7 @@ export function TournamentWizard() {
             {isLastStep ? (
               <button
                 type="submit"
+                data-testid="publish-tournament-button"
                 className="px-6 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Publish Tournament
@@ -248,6 +249,7 @@ export function TournamentWizard() {
               <button
                 type="button"
                 onClick={handleNext}
+                data-testid="next-button"
                 className="px-6 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Next
@@ -318,6 +320,7 @@ function BasicsStep({ form }: { form: UseFormReturn<TournamentFormData> }) {
         <input
           {...form.register('name')}
           type="text"
+          data-testid="tournament-name-input"
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="Enter tournament name"
         />
@@ -334,6 +337,7 @@ function BasicsStep({ form }: { form: UseFormReturn<TournamentFormData> }) {
         </label>
         <select
           {...form.register('sport')}
+          data-testid="sport-select"
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="">Select a sport</option>
@@ -356,6 +360,7 @@ function BasicsStep({ form }: { form: UseFormReturn<TournamentFormData> }) {
           <input
             {...form.register('startDate')}
             type="date"
+            data-testid="start-date-input"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           {form.formState.errors.startDate && (
@@ -372,6 +377,7 @@ function BasicsStep({ form }: { form: UseFormReturn<TournamentFormData> }) {
           <input
             {...form.register('endDate')}
             type="date"
+            data-testid="end-date-input"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           {form.formState.errors.endDate && (
@@ -612,6 +618,7 @@ function TeamsStep({ form }: { form: UseFormReturn<TournamentFormData> }) {
               type="number"
               min="2"
               max="128"
+              data-testid="max-teams-input"
               {...register('maxTeams', { valueAsNumber: true })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
@@ -638,6 +645,7 @@ function TeamsStep({ form }: { form: UseFormReturn<TournamentFormData> }) {
               id="minPlayersPerTeam"
               type="number"
               min="1"
+              data-testid="min-players-input"
               {...register('minPlayersPerTeam', { valueAsNumber: true })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
@@ -659,6 +667,7 @@ function TeamsStep({ form }: { form: UseFormReturn<TournamentFormData> }) {
               id="maxPlayersPerTeam"
               type="number"
               min="1"
+              data-testid="max-players-input"
               {...register('maxPlayersPerTeam', { valueAsNumber: true })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
