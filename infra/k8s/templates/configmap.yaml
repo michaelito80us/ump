@@ -16,21 +16,48 @@ data:
   
   # Backend configuration
   BACKEND_PORT: {{ .Values.backend.env.PORT | quote }}
-  NODE_ENV: {{ .Values.backend.env.NODE_ENV | quote }}
-  GRAPHQL_INTROSPECTION: {{ .Values.backend.env.GRAPHQL_INTROSPECTION | quote }}
-  GRAPHQL_PLAYGROUND: {{ .Values.backend.env.GRAPHQL_PLAYGROUND | quote }}
-  LOG_LEVEL: {{ .Values.backend.env.LOG_LEVEL | quote }}
+  NODE_ENV: {{ .Values.global.environment | default "production" | quote }}
+  GRAPHQL_INTROSPECTION: {{ .Values.backend.env.GRAPHQL_INTROSPECTION | default "false" | quote }}
+  GRAPHQL_PLAYGROUND: {{ .Values.backend.env.GRAPHQL_PLAYGROUND | default "false" | quote }}
+  LOG_LEVEL: {{ .Values.backend.env.LOG_LEVEL | default "info" | quote }}
   
   # Gateway configuration
   GATEWAY_PORT: {{ .Values.gateway.env.PORT | quote }}
-  GATEWAY_NODE_ENV: {{ .Values.gateway.env.NODE_ENV | quote }}
-  GATEWAY_GRAPHQL_INTROSPECTION: {{ .Values.gateway.env.GRAPHQL_INTROSPECTION | quote }}
-  GATEWAY_LOG_LEVEL: {{ .Values.gateway.env.LOG_LEVEL | quote }}
+  GATEWAY_NODE_ENV: {{ .Values.global.environment | default "production" | quote }}
+  GATEWAY_GRAPHQL_INTROSPECTION: {{ .Values.gateway.env.GRAPHQL_INTROSPECTION | default "false" | quote }}
+  GATEWAY_LOG_LEVEL: {{ .Values.gateway.env.LOG_LEVEL | default "info" | quote }}
   
   # Service URLs
-  CORE_SUBGRAPH_URL: "http://{{ include "ump.fullname" . }}-backend:{{ .Values.backend.service.port }}/graphql"
-  GRAPHQL_URL: "http://{{ include "ump.fullname" . }}-gateway:{{ .Values.gateway.service.port }}/graphql"
-  WS_URL: "ws://{{ include "ump.fullname" . }}-gateway:{{ .Values.gateway.service.port }}/graphql"
+  CORE_SUBGRAPH_URL: "http://{{ include "ump.fullname" . }}-backend:4000/graphql"
+  GRAPHQL_URL: "{{ .Values.config.graphqlHttpUrl | default (printf "https://%s/graphql" .Values.ingress.host) }}"
+  WS_URL: "{{ .Values.config.graphqlWsUrl | default (printf "wss://%s/graphql" .Values.ingress.host) }}"
   
   # CORS configuration
-  CORS_ORIGINS: "http://{{ include "ump.fullname" . }}-admin:{{ .Values.admin.service.port }},http://{{ include "ump.fullname" . }}-mobile:{{ .Values.mobile.service.port }}"
+  CORS_ORIGINS: "{{ .Values.config.corsOrigins | default (printf "https://%s" .Values.ingress.host) }}"
+  CORS_ORIGIN: "{{ .Values.config.corsOrigin | default (printf "https://%s" .Values.ingress.host) }}"
+  
+  # GraphQL URLs for frontend
+  graphql-http-url: "{{ .Values.config.graphqlHttpUrl | default (printf "https://%s/api/graphql" .Values.ingress.host) }}"
+  graphql-ws-url: "{{ .Values.config.graphqlWsUrl | default (printf "wss://%s/api/graphql" .Values.ingress.host) }}"
+  
+  # Additional production configurations
+  cors-origin: "{{ .Values.config.corsOrigin | default (printf "https://%s" .Values.ingress.host) }}"
+  cors-origins: "{{ .Values.config.corsOrigins | default (printf "https://%s" .Values.ingress.host) }}"
+  core-subgraph-url: "http://{{ include "ump.fullname" . }}-backend:4000/graphql"
+  
+  # Feature Flags
+  enable-analytics: {{ .Values.config.enableAnalytics | default "true" | quote }}
+  enable-monitoring: {{ .Values.config.enableMonitoring | default "true" | quote }}
+  enable-websockets: {{ .Values.config.enableWebsockets | default "true" | quote }}
+  
+  # CDN and Assets
+  cdn-url: {{ .Values.config.cdnUrl | default "" | quote }}
+  assets-url: {{ .Values.config.assetsUrl | default "" | quote }}
+  
+  # Rate Limiting
+  rate-limit-window: {{ .Values.config.rateLimitWindow | default "900000" | quote }}
+  rate-limit-max: {{ .Values.config.rateLimitMax | default "100" | quote }}
+  
+  # Health Check Configuration
+  health-check-timeout: {{ .Values.config.healthCheckTimeout | default "5000" | quote }}
+  health-check-interval: {{ .Values.config.healthCheckInterval | default "30000" | quote }}

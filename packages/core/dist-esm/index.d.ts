@@ -1,13 +1,13 @@
 export * from './types';
 import type { MatchStatus, Tournament, Match } from './types';
 export * as GraphQL from './generated';
+export { ClerkAuthProvider } from './auth/clerkProvider';
 export {
-  ClerkAuthProvider,
   ClerkClientUtils,
   AuthenticationError,
   AuthorizationError,
   type UserContext,
-} from './auth/clerkProvider';
+} from './auth/clerkClient';
 export {
   createPatch,
   applyPatch,

@@ -1,0 +1,419 @@
+groups:
+  # =============================================================================
+  # APPLICATION ALERTS
+  # =============================================================================
+
+  - name: ump-application
+    rules:
+      # High error rate
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{job=~"ump-.*", code=~"5.."}[5m])) by (job)
+            /
+            sum(rate(http_requests_total{job=~"ump-.*"}[5m])) by (job)
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: 'High error rate detected for {{ $labels.job }}'
+          description: 'Error rate is {{ $value | humanizePercentage }} for service {{ $labels.job }}'
+          runbook_url: 'https://docs.ump.com/runbooks/high-error-rate'
+
+      # High response time
+      - alert: HighResponseTime
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(http_request_duration_seconds_bucket{job=~"ump-.*"}[5m])) by (job, le)
+          ) > 2
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: 'High response time for {{ $labels.job }}'
+          description: '95th percentile response time is {{ $value }}s for service {{ $labels.job }}'
+          runbook_url: 'https://docs.ump.com/runbooks/high-response-time'
+
+      # Service down
+      - alert: ServiceDown
+        expr: up{job=~"ump-.*"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: 'Service {{ $labels.job }} is down'
+          description: 'Service {{ $labels.job }} has been down for more than 1 minute'
+          runbook_url: 'https://docs.ump.com/runbooks/service-down'
+
+      # Low availability
+      - alert: LowAvailability
+        expr: |
+          (
+            sum(rate(http_requests_total{job=~"ump-.*", code!~"5.."}[5m])) by (job)
+            /
+            sum(rate(http_requests_total{job=~"ump-.*"}[5m])) by (job)
+          ) < 0.99
+        for: 15m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: 'Low availability for {{ $labels.job }}'
+          description: 'Availability is {{ $value | humanizePercentage }} for service {{ $labels.job }}'
+          runbook_url: 'https://docs.ump.com/runbooks/low-availability'
+
+      # GraphQL errors
+      - alert: HighGraphQLErrorRate
+        expr: |
+          (
+            sum(rate(graphql_request_total{job="ump-gateway", status="error"}[5m]))
+            /
+            sum(rate(graphql_request_total{job="ump-gateway"}[5m]))
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: 'High GraphQL error rate'
+          description: 'GraphQL error rate is {{ $value | humanizePercentage }}'
+          runbook_url: 'https://docs.ump.com/runbooks/graphql-errors'
+
+  # =============================================================================
+  # INFRASTRUCTURE ALERTS
+  # =============================================================================
+
+  - name: infrastructure
+    rules:
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: |
+          (
+            sum(rate(container_cpu_usage_seconds_total{namespace="ump-production", container!="POD", container!=""}[5m])) by (pod)
+            /
+            sum(container_spec_cpu_quota{namespace="ump-production", container!="POD", container!=""}/container_spec_cpu_period{namespace="ump-production", container!="POD", container!=""}) by (pod)
+          ) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: 'High CPU usage for pod {{ $labels.pod }}'
+          description: 'CPU usage is {{ $value | humanizePercentage }} for pod {{ $labels.pod }}'
+          runbook_url: 'https://docs.ump.com/runbooks/high-cpu'
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: |
+          (
+            sum(container_memory_working_set_bytes{namespace="ump-production", container!="POD", container!=""}) by (pod)
+            /
+            sum(container_spec_memory_limit_bytes{namespace="ump-production", container!="POD", container!=""}) by (pod)
+          ) > 0.9
+        for: 10m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: 'High memory usage for pod {{ $labels.pod }}'
+          description: 'Memory usage is {{ $value | humanizePercentage }} for pod {{ $labels.pod }}'
+          runbook_url: 'https://docs.ump.com/runbooks/high-memory'
+
+      # Pod restart rate
+      - alert: HighPodRestartRate
+        expr: |
+          increase(kube_pod_container_status_restarts_total{namespace="ump-production"}[1h]) > 5
+        for: 0m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: 'High pod restart rate for {{ $labels.pod }}'
+          description: 'Pod {{ $labels.pod }} has restarted {{ $value }} times in the last hour'
+          runbook_url: 'https://docs.ump.com/runbooks/pod-restarts'
+
+      # Pod not ready
+      - alert: PodNotReady
+        expr: |
+          kube_pod_status_ready{namespace="ump-production", condition="false"} == 1
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: 'Pod {{ $labels.pod }} is not ready'
+          description: 'Pod {{ $labels.pod }} has been not ready for more than 5 minutes'
+          runbook_url: 'https://docs.ump.com/runbooks/pod-not-ready'
+
+      # Persistent Volume usage
+      - alert: HighPVUsage
+        expr: |
+          (
+            kubelet_volume_stats_used_bytes{namespace="ump-production"}
+            /
+            kubelet_volume_stats_capacity_bytes{namespace="ump-production"}
+          ) > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: 'High PV usage for {{ $labels.persistentvolumeclaim }}'
+          description: 'PV usage is {{ $value | humanizePercentage }} for {{ $labels.persistentvolumeclaim }}'
+          runbook_url: 'https://docs.ump.com/runbooks/high-pv-usage'
+
+  # =============================================================================
+  # DATABASE ALERTS
+  # =============================================================================
+
+  - name: database
+    rules:
+      # PostgreSQL down
+      - alert: PostgreSQLDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: 'PostgreSQL is down'
+          description: 'PostgreSQL database has been down for more than 1 minute'
+          runbook_url: 'https://docs.ump.com/runbooks/postgres-down'
+
+      # High database connections
+      - alert: HighDatabaseConnections
+        expr: |
+          (
+            pg_stat_database_numbackends{datname="ump_prod"}
+            /
+            pg_settings_max_connections
+          ) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: 'High database connections'
+          description: 'Database connection usage is {{ $value | humanizePercentage }}'
+          runbook_url: 'https://docs.ump.com/runbooks/high-db-connections'
+
+      # Slow queries
+      - alert: SlowQueries
+        expr: |
+          rate(pg_stat_database_tup_returned{datname="ump_prod"}[5m]) / rate(pg_stat_database_tup_fetched{datname="ump_prod"}[5m]) < 0.1
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: 'Slow database queries detected'
+          description: 'Query efficiency is {{ $value | humanizePercentage }}'
+          runbook_url: 'https://docs.ump.com/runbooks/slow-queries'
+
+      # Database locks
+      - alert: DatabaseLocks
+        expr: pg_locks_count > 100
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: 'High number of database locks'
+          description: 'There are {{ $value }} database locks'
+          runbook_url: 'https://docs.ump.com/runbooks/database-locks'
+
+      # Redis down
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: 'Redis is down'
+          description: 'Redis cache has been down for more than 1 minute'
+          runbook_url: 'https://docs.ump.com/runbooks/redis-down'
+
+      # High Redis memory usage
+      - alert: HighRedisMemoryUsage
+        expr: |
+          (
+            redis_memory_used_bytes
+            /
+            redis_memory_max_bytes
+          ) > 0.9
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: 'High Redis memory usage'
+          description: 'Redis memory usage is {{ $value | humanizePercentage }}'
+          runbook_url: 'https://docs.ump.com/runbooks/high-redis-memory'
+
+  # =============================================================================
+  # NETWORK ALERTS
+  # =============================================================================
+
+  - name: network
+    rules:
+      # High network traffic
+      - alert: HighNetworkTraffic
+        expr: |
+          (
+            sum(rate(container_network_receive_bytes_total{namespace="ump-production"}[5m])) by (pod)
+            +
+            sum(rate(container_network_transmit_bytes_total{namespace="ump-production"}[5m])) by (pod)
+          ) > 100 * 1024 * 1024  # 100MB/s
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: 'High network traffic for pod {{ $labels.pod }}'
+          description: 'Network traffic is {{ $value | humanize }}B/s for pod {{ $labels.pod }}'
+          runbook_url: 'https://docs.ump.com/runbooks/high-network-traffic'
+
+      # SSL certificate expiry
+      - alert: SSLCertificateExpiry
+        expr: |
+          probe_ssl_earliest_cert_expiry - time() < 86400 * 7  # 7 days
+        for: 0m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: 'SSL certificate expiring soon for {{ $labels.instance }}'
+          description: 'SSL certificate for {{ $labels.instance }} expires in {{ $value | humanizeDuration }}'
+          runbook_url: 'https://docs.ump.com/runbooks/ssl-expiry'
+
+      # Ingress controller errors
+      - alert: IngressControllerErrors
+        expr: |
+          sum(rate(nginx_ingress_controller_requests{status=~"5.."}[5m])) by (ingress)
+          /
+          sum(rate(nginx_ingress_controller_requests[5m])) by (ingress)
+          > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: 'High error rate for ingress {{ $labels.ingress }}'
+          description: 'Error rate is {{ $value | humanizePercentage }} for ingress {{ $labels.ingress }}'
+          runbook_url: 'https://docs.ump.com/runbooks/ingress-errors'
+
+  # =============================================================================
+  # BUSINESS LOGIC ALERTS
+  # =============================================================================
+
+  - name: business-logic
+    rules:
+      # Low user activity
+      - alert: LowUserActivity
+        expr: |
+          sum(rate(http_requests_total{job="ump-gateway", endpoint=~"/api/.*"}[1h])) < 10
+        for: 30m
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: 'Low user activity detected'
+          description: 'API request rate is {{ $value }} requests/second'
+          runbook_url: 'https://docs.ump.com/runbooks/low-user-activity'
+
+      # High authentication failures
+      - alert: HighAuthFailures
+        expr: |
+          (
+            sum(rate(auth_attempts_total{status="failure"}[5m]))
+            /
+            sum(rate(auth_attempts_total[5m]))
+          ) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: 'High authentication failure rate'
+          description: 'Authentication failure rate is {{ $value | humanizePercentage }}'
+          runbook_url: 'https://docs.ump.com/runbooks/auth-failures'
+
+      # Payment processing errors
+      - alert: PaymentProcessingErrors
+        expr: |
+          sum(rate(payment_transactions_total{status="error"}[5m])) > 0
+        for: 1m
+        labels:
+          severity: critical
+          team: finance
+        annotations:
+          summary: 'Payment processing errors detected'
+          description: '{{ $value }} payment errors per second'
+          runbook_url: 'https://docs.ump.com/runbooks/payment-errors'
+
+      # File upload failures
+      - alert: FileUploadFailures
+        expr: |
+          (
+            sum(rate(file_uploads_total{status="failure"}[5m]))
+            /
+            sum(rate(file_uploads_total[5m]))
+          ) > 0.05
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: 'High file upload failure rate'
+          description: 'File upload failure rate is {{ $value | humanizePercentage }}'
+          runbook_url: 'https://docs.ump.com/runbooks/file-upload-failures'
+
+  # =============================================================================
+  # SECURITY ALERTS
+  # =============================================================================
+
+  - name: security
+    rules:
+      # Suspicious activity
+      - alert: SuspiciousActivity
+        expr: |
+          sum(rate(http_requests_total{code="429"}[5m])) by (source_ip) > 10
+        for: 5m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: 'Suspicious activity from {{ $labels.source_ip }}'
+          description: 'Rate limiting triggered {{ $value }} times/second from {{ $labels.source_ip }}'
+          runbook_url: 'https://docs.ump.com/runbooks/suspicious-activity'
+
+      # Failed login attempts
+      - alert: FailedLoginAttempts
+        expr: |
+          sum(rate(auth_login_attempts_total{status="failure"}[5m])) by (source_ip) > 5
+        for: 5m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: 'Multiple failed login attempts from {{ $labels.source_ip }}'
+          description: '{{ $value }} failed login attempts/second from {{ $labels.source_ip }}'
+          runbook_url: 'https://docs.ump.com/runbooks/failed-logins'
+
+      # Unusual API usage
+      - alert: UnusualAPIUsage
+        expr: |
+          sum(rate(http_requests_total{job="ump-gateway"}[5m])) by (source_ip) > 100
+        for: 10m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: 'Unusual API usage from {{ $labels.source_ip }}'
+          description: '{{ $value }} requests/second from {{ $labels.source_ip }}'
+          runbook_url: 'https://docs.ump.com/runbooks/unusual-api-usage'

@@ -10,6 +10,21 @@ import { DateTime, Duration, Interval } from 'luxon';
 export { DateTime };
 /**
  * Creates a DateTime instance in the specified timezone
+ *
+ * @param year - The year (e.g., 2025)
+ * @param month - The month (1-12)
+ * @param day - The day of the month (1-31)
+ * @param hour - The hour (0-23), defaults to 0
+ * @param minute - The minute (0-59), defaults to 0
+ * @param timezone - IANA timezone identifier, defaults to 'UTC'
+ * @returns DateTime instance in the specified timezone
+ * @throws Error if the date parameters are invalid
+ *
+ * @example
+ * ```typescript
+ * const madridTime = createDateTime(2025, 3, 30, 14, 30, 'Europe/Madrid');
+ * console.log(madridTime.toISO()); // 2025-03-30T14:30:00.000+02:00
+ * ```
  */
 export function createDateTime(
   year,
@@ -30,6 +45,19 @@ export function createDateTime(
 }
 /**
  * Detects DST transitions within a given date range
+ *
+ * @param startDate - Start of the date range to check
+ * @param endDate - End of the date range to check
+ * @param timezone - IANA timezone identifier, defaults to 'Europe/Madrid'
+ * @returns Array of DST transitions found in the date range
+ *
+ * @example
+ * ```typescript
+ * const start = DateTime.fromISO('2025-03-01', { zone: 'Europe/Madrid' });
+ * const end = DateTime.fromISO('2025-04-01', { zone: 'Europe/Madrid' });
+ * const transitions = detectDSTTransitions(start, end, 'Europe/Madrid');
+ * // Returns transitions for March 30, 2025 (spring forward)
+ * ```
  */
 export function detectDSTTransitions(
   startDate,
@@ -141,6 +169,32 @@ export function isSlotAffectedByDST(slot, dstBufferMinutes = 60) {
 }
 /**
  * Validates that two time slots don't overlap, accounting for DST
+ *
+ * This function checks if two time slots overlap by comparing their start
+ * and end times in the same timezone. It properly handles DST transitions
+ * to ensure accurate overlap detection even during time changes.
+ *
+ * @param slot1 - First time slot to compare
+ * @param slot2 - Second time slot to compare
+ * @returns true if slots don't overlap, false if they do overlap
+ *
+ * @example
+ * ```typescript
+ * const slot1 = createTimeSlot(
+ *   '2025-03-30T10:00:00.000Z',
+ *   '2025-03-30T12:00:00.000Z',
+ *   'Europe/Madrid'
+ * );
+ *
+ * const slot2 = createTimeSlot(
+ *   '2025-03-30T11:00:00.000Z',
+ *   '2025-03-30T13:00:00.000Z',
+ *   'Europe/Madrid'
+ * );
+ *
+ * const noOverlap = validateSlotsNoOverlap(slot1, slot2);
+ * console.log(noOverlap); // false (slots overlap from 11:00-12:00)
+ * ```
  */
 export function validateSlotsNoOverlap(slot1, slot2) {
   // Convert both slots to the same timezone for comparison
@@ -342,6 +396,31 @@ export function adjustForDSTGap(dateTime) {
 }
 /**
  * Creates a TimeSlot from ISO strings or DateTime objects
+ *
+ * This function creates a timezone-aware time slot that can be used for
+ * scheduling operations. It automatically calculates the duration and
+ * ensures proper timezone handling for DST-aware scheduling.
+ *
+ * @param start - Start time as ISO string or DateTime object
+ * @param end - End time as ISO string or DateTime object
+ * @param timezone - IANA timezone identifier, defaults to 'Europe/Madrid'
+ * @param venue - Optional venue or location identifier
+ * @returns TimeSlot object with DateTime instances and calculated duration
+ *
+ * @example
+ * ```typescript
+ * // Create from ISO strings
+ * const slot1 = createTimeSlot(
+ *   '2025-03-30T10:00:00.000Z',
+ *   '2025-03-30T12:00:00.000Z',
+ *   'Europe/Madrid'
+ * );
+ *
+ * // Create from DateTime objects
+ * const start = DateTime.fromISO('2025-03-30T10:00:00.000Z');
+ * const end = DateTime.fromISO('2025-03-30T12:00:00.000Z');
+ * const slot2 = createTimeSlot(start, end, 'Europe/Madrid', 'Field 1');
+ * ```
  */
 export function createTimeSlot(start, end, timezone = 'Europe/Madrid', venue) {
   const startDateTime =
@@ -543,6 +622,35 @@ export function validateSlotDuringDSTWithTransitions(
 }
 /**
  * Validates that a time slot is safe during DST transitions
+ *
+ * This function checks if a time slot conflicts with DST transitions,
+ * which can cause scheduling issues like overlapping times or missing hours.
+ * It's essential for preventing match scheduling during problematic DST periods.
+ *
+ * @param slot - The time slot to validate
+ * @param timezone - IANA timezone identifier, defaults to 'Europe/Madrid'
+ * @returns Validation result with isValid flag and array of issues
+ *
+ * @example
+ * ```typescript
+ * // Safe slot (outside DST transition)
+ * const safeSlot = createTimeSlot(
+ *   '2025-03-29T10:00:00.000Z',
+ *   '2025-03-29T12:00:00.000Z',
+ *   'Europe/Madrid'
+ * );
+ * const result1 = validateSlotDuringDST(safeSlot, 'Europe/Madrid');
+ * // { isValid: true, issues: [] }
+ *
+ * // Problematic slot (spans DST transition)
+ * const problematicSlot = createTimeSlot(
+ *   '2025-03-30T01:30:00.000Z', // 2:30 AM local
+ *   '2025-03-30T03:30:00.000Z', // 4:30 AM local (after DST jump)
+ *   'Europe/Madrid'
+ * );
+ * const result2 = validateSlotDuringDST(problematicSlot, 'Europe/Madrid');
+ * // { isValid: false, issues: ['Slot spans DST transition...'] }
+ * ```
  */
 export function validateSlotDuringDST(slot, timezone = 'Europe/Madrid') {
   const start = slot.start.setZone(timezone);

@@ -5,13 +5,14 @@ export * from './types';
 import { MATCH_STATUSES, TOURNAMENT_STATUSES, ValidationError } from './types';
 // Export GraphQL generated types and hooks (with namespace to avoid conflicts)
 export * as GraphQL from './generated';
-// Export authentication utilities
+// Export server-side authentication utilities (server-only)
+export { ClerkAuthProvider } from './auth/clerkProvider';
+// Export client-side authentication utilities
 export {
-  ClerkAuthProvider,
   ClerkClientUtils,
   AuthenticationError,
   AuthorizationError,
-} from './auth/clerkProvider';
+} from './auth/clerkClient';
 // Export utilities (excluding MatchPatch to avoid conflict with types.ts)
 export {
   createPatch,

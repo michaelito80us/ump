@@ -1,0 +1,387 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag or branch to deploy'
+        required: false
+        default: 'main'
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/ump
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || 'main' }}
+
+      - name: Generate tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.tag }}" ]; then
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=main-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        shell: bash
+        id: pnpm-cache
+        run: |
+          echo "path=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm type-check
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Build packages
+        run: |
+          pnpm --filter @ump/core build
+          pnpm --filter @ump/engine build
+          pnpm --filter @ump/ui build
+          pnpm --filter @ump/plugins build
+
+  build-docker-images:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        service:
+          - name: mobile
+            context: .
+            dockerfile: apps/mobile/Dockerfile.production
+          - name: admin
+            context: .
+            dockerfile: apps/admin/Dockerfile.production
+          - name: backend
+            context: .
+            dockerfile: packages/backend/Dockerfile.production
+          - name: gateway
+            context: .
+            dockerfile: packages/gateway/Dockerfile.production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || 'main' }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_PREFIX }}-${{ matrix.service.name }}
+          tags: |
+            type=raw,value=${{ needs.build-and-test.outputs.tag }}
+            type=raw,value=staging-latest
+          labels: |
+            org.opencontainers.image.title=UMP ${{ matrix.service.name }} (Staging)
+            org.opencontainers.image.description=Unified Management Platform - ${{ matrix.service.name }} service (Staging)
+            org.opencontainers.image.vendor=${{ github.repository_owner }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.service.context }}
+          file: ${{ matrix.service.dockerfile }}
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_ENV=production
+            NEXT_PUBLIC_GRAPHQL_HTTP_URL=${{ secrets.STAGING_GRAPHQL_HTTP_URL }}
+            NEXT_PUBLIC_GRAPHQL_WS_URL=${{ secrets.STAGING_GRAPHQL_WS_URL }}
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.STAGING_CLERK_PUBLISHABLE_KEY }}
+
+  deploy-to-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build-and-test, build-docker-images]
+    environment: staging
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || 'main' }}
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.STAGING_KUBE_CONFIG }}
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.12.0'
+
+      - name: Deploy to staging
+        run: |
+          TAG=${{ needs.build-and-test.outputs.tag }}
+          NAMESPACE="ump-staging"
+
+          # Create namespace if it doesn't exist
+          kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
+
+          # Deploy application
+          helm upgrade --install ump-staging ./infra/k8s \
+            --namespace $NAMESPACE \
+            --values infra/k8s/values.yaml \
+            --set global.environment=staging \
+            --set image.tag=$TAG \
+            --set replicaCount=1 \
+            --set resources.requests.memory=256Mi \
+            --set resources.requests.cpu=100m \
+            --set resources.limits.memory=512Mi \
+            --set resources.limits.cpu=500m \
+            --wait --timeout=10m
+
+      - name: Verify deployment
+        run: |
+          NAMESPACE="ump-staging"
+
+          # Wait for rollout to complete
+          kubectl rollout status deployment/ump-admin -n $NAMESPACE --timeout=300s
+          kubectl rollout status deployment/ump-mobile -n $NAMESPACE --timeout=300s
+          kubectl rollout status deployment/ump-backend -n $NAMESPACE --timeout=300s
+          kubectl rollout status deployment/ump-gateway -n $NAMESPACE --timeout=300s
+
+          # Check pod health
+          kubectl get pods -n $NAMESPACE
+          kubectl get services -n $NAMESPACE
+
+  run-integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [build-and-test, deploy-to-staging]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || 'main' }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run integration tests
+        env:
+          API_URL: ${{ secrets.STAGING_API_URL }}
+          ADMIN_URL: ${{ secrets.STAGING_ADMIN_URL }}
+          MOBILE_URL: ${{ secrets.STAGING_MOBILE_URL }}
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+        run: |
+          # Wait for services to be ready
+          sleep 30
+
+          # Health checks
+          curl -f $API_URL/health || exit 1
+          curl -f $ADMIN_URL/api/health || exit 1
+          curl -f $MOBILE_URL/api/health || exit 1
+
+          # Run integration tests
+          pnpm test:integration
+
+      - name: Run E2E tests
+        env:
+          ADMIN_URL: ${{ secrets.STAGING_ADMIN_URL }}
+          MOBILE_URL: ${{ secrets.STAGING_MOBILE_URL }}
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+        run: |
+          # Run Cypress E2E tests
+          pnpm --filter @ump/admin cypress:run --config baseUrl=$ADMIN_URL
+          pnpm --filter @ump/mobile cypress:run --config baseUrl=$MOBILE_URL
+
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: [build-and-test, deploy-to-staging]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || 'main' }}
+
+      - name: Setup k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Run performance tests
+        env:
+          API_URL: ${{ secrets.STAGING_API_URL }}
+        run: |
+          cd tests/perf
+          k6 run --env API_URL=$API_URL k6-load.js
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: [build-and-test, build-docker-images]
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      matrix:
+        service: [mobile, admin, backend, gateway]
+    steps:
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:${{ needs.build-and-test.outputs.tag }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  notify-staging-deployment:
+    name: Notify Staging Deployment
+    runs-on: ubuntu-latest
+    needs:
+      [
+        build-and-test,
+        deploy-to-staging,
+        run-integration-tests,
+        performance-tests,
+      ]
+    if: always()
+    steps:
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#staging-deployments'
+          text: |
+            Staging deployment of ${{ needs.build-and-test.outputs.tag }}
+            Status: ${{ needs.deploy-to-staging.result == 'success' && needs.run-integration-tests.result == 'success' && 'SUCCESS' || 'FAILED' }}
+
+            Deploy: ${{ needs.deploy-to-staging.result }}
+            Integration Tests: ${{ needs.run-integration-tests.result }}
+            Performance Tests: ${{ needs.performance-tests.result }}
+
+            Staging URL: ${{ secrets.STAGING_ADMIN_URL }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  create-release-candidate:
+    name: Create Release Candidate
+    runs-on: ubuntu-latest
+    needs:
+      [
+        build-and-test,
+        deploy-to-staging,
+        run-integration-tests,
+        performance-tests,
+      ]
+    if: success() && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          # Get the last release tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+
+          # Generate changelog
+          echo "## Changes since $LAST_TAG" > release_notes.md
+          git log $LAST_TAG..HEAD --pretty=format:"- %s (%h)" >> release_notes.md
+
+          # Set output
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          cat release_notes.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create release candidate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = '${{ needs.build-and-test.outputs.tag }}';
+            const notes = `${{ steps.release_notes.outputs.notes }}`;
+
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `${tag}-rc`,
+              name: `Release Candidate ${tag}`,
+              body: notes,
+              draft: true,
+              prerelease: true
+            });

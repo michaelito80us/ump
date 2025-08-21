@@ -19,7 +19,7 @@ export interface AuditContext {
 export function withAuditLogging<_T extends (...args: any[]) => Promise<any>>(
   operation: string,
   entityType: string,
-  logService: LogService = getLogService()
+  logService?: LogService
 ) {
   return function (
     target: any,
@@ -56,7 +56,8 @@ export function withAuditLogging<_T extends (...args: any[]) => Promise<any>>(
           tournamentId: context.tournamentId,
         };
 
-        await logService.log(auditLog, logContext);
+        const actualLogService = logService || getLogService();
+        await actualLogService.log(auditLog, logContext);
 
         return result;
       } catch (error) {
@@ -85,7 +86,8 @@ export function withAuditLogging<_T extends (...args: any[]) => Promise<any>>(
           tournamentId: context.tournamentId,
         };
 
-        await logService.log(errorLog, logContext);
+        const actualLogService = logService || getLogService();
+        await actualLogService.log(errorLog, logContext);
 
         throw error;
       }
@@ -118,10 +120,14 @@ function extractAuditContext(args: any[]): AuditContext {
  * Utility functions for specific entity logging
  */
 export class AuditLogger {
-  private logService: LogService;
+  private logService?: LogService;
 
-  constructor(logService: LogService = getLogService()) {
+  constructor(logService?: LogService) {
     this.logService = logService;
+  }
+
+  private getLogService(): LogService {
+    return this.logService || getLogService();
   }
 
   /**
@@ -153,15 +159,15 @@ export class AuditLogger {
       tournamentId: context.tournamentId,
     };
 
-    await this.logService.log(auditLog, logContext);
+    await this.getLogService().log(auditLog, logContext);
   }
 
   /**
-   * Log team operations
+   * Log tournament operations
    */
-  async logTeamOperation(
+  async logTournamentOperation(
     operation: 'create' | 'update' | 'delete',
-    teamId: string,
+    tournamentId: string,
     context: AuditContext,
     additionalData?: any
   ): Promise<void> {
@@ -171,22 +177,21 @@ export class AuditLogger {
       timestamp: new Date(),
       actorId: context.actorId,
       actorType: context.actorType,
-      field: `team_${operation}`,
+      field: `tournament_${operation}`,
       originalValue: null,
       newValue: additionalData,
-      affectedEntity: 'TEAM' as const,
-      entityId: teamId,
-      context: `Team ${operation}: ${teamId}`,
+      affectedEntity: 'TOURNAMENT' as const,
+      entityId: tournamentId,
+      context: `Tournament ${operation}: ${tournamentId}`,
     };
 
     const logContext = {
       actorId: context.actorId,
       actorType: context.actorType,
       tournamentId: context.tournamentId,
-      teamId: teamId,
     };
 
-    await this.logService.log(auditLog, logContext);
+    await this.getLogService().log(auditLog, logContext);
   }
 
   /**
@@ -222,7 +227,7 @@ export class AuditLogger {
       matchId: match.id,
     };
 
-    await this.logService.log(auditLog, logContext);
+    await this.getLogService().log(auditLog, logContext);
   }
 
   /**
@@ -246,7 +251,7 @@ export class AuditLogger {
       matchId: match.id,
     };
 
-    await this.logService.logScoreSubmission(
+    await this.getLogService().logScoreSubmission(
       match.id,
       context.actorId,
       scoreData.newScoreA,
@@ -255,38 +260,6 @@ export class AuditLogger {
       'manual',
       logContext
     );
-  }
-
-  /**
-   * Log tournament operations
-   */
-  async logTournamentOperation(
-    operation: 'create' | 'update' | 'delete',
-    tournamentId: string,
-    context: AuditContext,
-    additionalData?: any
-  ): Promise<void> {
-    const auditLog = {
-      id: require('uuid').v4(),
-      type: 'MANUAL_OVERRIDE' as const,
-      timestamp: new Date(),
-      actorId: context.actorId,
-      actorType: context.actorType,
-      field: `tournament_${operation}`,
-      originalValue: null,
-      newValue: additionalData,
-      affectedEntity: 'TOURNAMENT' as const,
-      entityId: tournamentId,
-      context: `Tournament ${operation}: ${tournamentId}`,
-    };
-
-    const logContext = {
-      actorId: context.actorId,
-      actorType: context.actorType,
-      tournamentId: tournamentId,
-    };
-
-    await this.logService.log(auditLog, logContext);
   }
 }
 

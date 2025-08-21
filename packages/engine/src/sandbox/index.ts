@@ -1,4 +1,15 @@
-import ivm from 'isolated-vm';
+// Conditional imports based on environment
+let SandboxExecutor: any;
+let ivm: typeof import('isolated-vm') | null = null;
+
+try {
+  // Try to import isolated-vm (Node.js only)
+  ivm = require('isolated-vm');
+} catch (_error) {
+  // isolated-vm not available (browser environment)
+  ivm = null;
+}
+
 import { PluginExecutionError } from '../errors';
 import {
   PluginExecutionContext,
@@ -11,8 +22,9 @@ import { SharedStore } from '../sharedStore';
 
 /**
  * Secure sandbox executor using isolated-vm for plugin code execution
+ * Falls back to browser-compatible version when isolated-vm is not available
  */
-export class SandboxExecutor {
+export class NodeSandboxExecutor {
   private options: Required<SandboxOptions>;
   private eventBus: EventBus;
   private sharedStore: SharedStore;
@@ -52,7 +64,7 @@ export class SandboxExecutor {
     context: PluginExecutionContext
   ): Promise<SandboxExecutionResult> {
     const startTime = Date.now();
-    let isolate: ivm.Isolate | null = null;
+    let isolate: any = null;
 
     try {
       // Validate code before execution (only for truly dangerous patterns)
@@ -64,6 +76,10 @@ export class SandboxExecutor {
           'VALIDATION_ERROR',
           { pluginId: context.pluginId, errors: validation.errors }
         );
+      }
+
+      if (!ivm) {
+        throw new Error('isolated-vm not available');
       }
 
       // Create isolate with memory limit
@@ -157,55 +173,59 @@ export class SandboxExecutor {
   }
 
   /**
-   * Inject safe context into the isolated environment
+   * Injects safe context into the isolate
    */
   private async injectSafeContext(
-    isolate: ivm.Isolate,
-    context_ivm: ivm.Context,
-    jail: ivm.Reference<any>,
+    isolate: any,
+    context_ivm: any,
+    jail: any,
     context: PluginExecutionContext
   ): Promise<void> {
     // Inject basic context data
     await jail.set('__pluginId', context.pluginId);
     await jail.set('__version', context.version);
 
-    const permissionsArray = new ivm.ExternalCopy(context.permissions);
-    await jail.set('__permissions', permissionsArray.copyInto());
+    if (context.permissions) {
+      const permissionsArray = new (ivm as any).ExternalCopy(
+        context.permissions
+      );
+      await jail.set('__permissions', permissionsArray.copyInto());
+    }
 
     // Create direct function references for communication
     const self = this;
 
     // Create function references with actual functions (cast to any to bypass incorrect type definitions)
-    const consoleLogRef = new (ivm.Reference as any)((...args: any[]) => {
+    const consoleLogRef = new (ivm as any).Reference((...args: any[]) => {
       console.log(`[Plugin:${context.pluginId}]`, ...args);
     });
     await jail.set('__consoleLog', consoleLogRef);
 
-    const eventBusPublishRef = new (ivm.Reference as any)(
+    const eventBusPublishRef = new (ivm as any).Reference(
       (event: string, data: any) => {
         self.eventBus.publish(`${context.pluginId}:${event}`, data);
       }
     );
     await jail.set('__eventBusPublish', eventBusPublishRef);
 
-    const sharedSetRef = new (ivm.Reference as any)(
+    const sharedSetRef = new (ivm as any).Reference(
       (key: string, value: any) => {
         self.sharedStore.set(`${context.pluginId}:${key}`, value);
       }
     );
     await jail.set('__sharedSet', sharedSetRef);
 
-    const sharedGetRef = new (ivm.Reference as any)((key: string) => {
+    const sharedGetRef = new (ivm as any).Reference((key: string) => {
       return self.sharedStore.get(`${context.pluginId}:${key}`);
     });
     await jail.set('__sharedGet', sharedGetRef);
 
-    const sharedHasRef = new (ivm.Reference as any)((key: string) => {
+    const sharedHasRef = new (ivm as any).Reference((key: string) => {
       return self.sharedStore.has(`${context.pluginId}:${key}`);
     });
     await jail.set('__sharedHas', sharedHasRef);
 
-    const sharedDeleteRef = new (ivm.Reference as any)((key: string) => {
+    const sharedDeleteRef = new (ivm as any).Reference((key: string) => {
       return self.sharedStore.delete(`${context.pluginId}:${key}`);
     });
     await jail.set('__sharedDelete', sharedDeleteRef);
@@ -409,5 +429,16 @@ export class SandboxExecutor {
   }
 }
 
+// Conditional export based on environment
+if (ivm) {
+  // Node.js environment with isolated-vm
+  SandboxExecutor = NodeSandboxExecutor;
+} else {
+  // Browser environment - import browser implementation
+  const { BrowserSandboxExecutor } = require('./browser');
+  SandboxExecutor = BrowserSandboxExecutor;
+}
+
+export { SandboxExecutor };
 export * from './types';
 export { SandboxExecutor as default };

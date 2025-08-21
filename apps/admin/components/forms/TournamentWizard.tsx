@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useRouter } from 'next/navigation';
 import { PluginPicker } from '../PluginPicker';
 import { TemplateSelector } from './TemplateSelector';
 import {
@@ -11,6 +12,8 @@ import {
   getTemplateById,
 } from '../../lib/tournament-templates';
 import { pluginRegistry } from '../PluginPicker';
+import { GraphQL } from '@ump/core';
+import { useToast } from '@ump/ui';
 // Tournament types will be used in future implementations
 
 // Validation schema for the tournament wizard
@@ -95,6 +98,23 @@ type WizardStepId = (typeof WIZARD_STEPS)[number]['id'];
 export function TournamentWizard() {
   const [currentStep, setCurrentStep] = useState<WizardStepId>('basics');
   const [isDraft, setIsDraft] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
+
+  // GraphQL data source configuration
+  const dataSource = {
+    endpoint:
+      process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT ||
+      'http://localhost:1235/graphql',
+    fetchParams: {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  };
+
+  const createTournamentMutation =
+    GraphQL.useCreateTournamentMutation(dataSource);
 
   const form = useForm<TournamentFormData>({
     resolver: zodResolver(tournamentSchema),
@@ -150,16 +170,48 @@ export function TournamentWizard() {
   };
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    console.log('Publishing tournament:', data);
+    try {
+      await createTournamentMutation.mutateAsync({
+        input: {
+          name: data.name,
+          sport: data.sport,
+          startDate: data.startDate,
+          endDate: data.endDate,
+          description: data.description,
+          maxTeams: data.maxTeams,
+          settings: {
+            templateId: data.templateId,
+            registrationOpen: data.registrationOpen,
+            minPlayersPerTeam: data.minPlayersPerTeam,
+            maxPlayersPerTeam: data.maxPlayersPerTeam,
+            allowSubstitutes: data.allowSubstitutes,
+            sportPluginId: data.sportPluginId,
+            phasePlugins: data.phasePlugins,
+            seedingPluginId: data.seedingPluginId,
+            schedulingPluginId: data.schedulingPluginId,
+            statTier: data.statTier,
+            matchDuration: data.matchDuration,
+            tiebreakerRules: data.tiebreakerRules,
+            status: 'published',
+          },
+        },
+      });
 
-    // TODO: Implement tournament creation/publication
-    // This would involve:
-    // 1. Validation
-    // 2. Creating tournament record
-    // 3. Setting status to 'Published'
-    // 4. Generating tournament slug
+      toast({
+        title: 'Tournament Published',
+        description:
+          'Your tournament has been successfully created and published.',
+      });
 
-    console.log('Tournament published successfully!');
+      // Navigate to the tournament dashboard or list
+      router.push('/tournaments');
+    } catch (_error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to create tournament. Please try again.',
+        variant: 'destructive',
+      });
+    }
   });
 
   return (

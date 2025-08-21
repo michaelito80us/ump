@@ -31,4 +31,4 @@ export type {
   ConstraintViolationLog,
   PlayerMovementLog,
   ManualOverrideLog,
-} from '@ump/core';
+} from '@ump/core/types';

@@ -1,4 +1,4 @@
-import type { AuditLog } from '@ump/core';
+import type { AuditLog } from '@ump/core/types';
 import { v4 as uuidv4 } from 'uuid';
 
 /**

@@ -1,8 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScheduleCalendar } from '../../components/ScheduleCalendar';
 import type { Match, Team } from '@ump/core';
+import {
+  useMatchesSubscription,
+  useRealtimeConnection,
+} from '../../hooks/use-realtime';
+import { ConnectionStatus } from '../../components/connection-status';
 
 // Mock data for testing
 const mockTeams: Team[] = [
@@ -83,8 +88,38 @@ export default function ScheduleTestPage() {
   const [matches, setMatches] = useState<Match[]>(generateMockMatches());
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  const { isConnected } = useRealtimeConnection();
+
+  // Subscribe to real-time updates for all matches
+  const matchIds = matches.map((m) => m.id);
+  const { matchesData: realtimeMatches, lastUpdate } =
+    useMatchesSubscription(matchIds);
 
   const venues = ['Field A', 'Field B', 'Court 1', 'Court 2'];
+
+  // Update local matches when real-time data changes
+  useEffect(() => {
+    if (lastUpdate && realtimeMatches[lastUpdate.entityId]) {
+      setMatches((prev) =>
+        prev.map((match) => {
+          if (match.id === lastUpdate.entityId) {
+            const realtimeData = realtimeMatches[lastUpdate.entityId];
+            return {
+              ...match,
+              ...realtimeData,
+              // Map real-time fields to local match structure
+              scoreA: realtimeData.scoreA ?? match.scoreA,
+              scoreB: realtimeData.scoreB ?? match.scoreB,
+              status: realtimeData.status || match.status,
+              scheduledTime: realtimeData.scheduledTime || match.scheduledTime,
+              venue: realtimeData.venue || match.venue,
+            };
+          }
+          return match;
+        })
+      );
+    }
+  }, [lastUpdate, realtimeMatches]);
 
   const handleMatchUpdate = async (
     matchId: string,
@@ -120,11 +155,19 @@ export default function ScheduleTestPage() {
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Schedule Calendar Test
-          </h1>
-          <p className="text-gray-600 mt-1">
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="text-2xl font-bold text-gray-900">
+              Schedule Calendar Test
+            </h1>
+            <ConnectionStatus compact />
+          </div>
+          <p className="text-gray-600">
             Testing T-5.4 Schedule Calendar with Drag-Drop functionality
+            {isConnected && (
+              <span className="ml-2 text-green-600 text-sm">
+                • Live match updates enabled
+              </span>
+            )}
           </p>
         </div>
 
@@ -162,11 +205,17 @@ export default function ScheduleTestPage() {
           </div>
           <div className="text-sm text-gray-600">Completed</div>
         </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-lg border border-gray-200 relative">
           <div className="text-2xl font-bold text-orange-600">
             {matches.filter((m) => m.status === 'live').length}
           </div>
           <div className="text-sm text-gray-600">Live</div>
+          {matches.some((m) => m.status === 'live') && isConnected && (
+            <div
+              className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full animate-pulse"
+              title="Live updates active"
+            />
+          )}
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-2xl font-bold text-gray-600">

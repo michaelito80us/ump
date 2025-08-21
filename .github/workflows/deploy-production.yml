@@ -1,0 +1,311 @@
+name: Deploy to Production
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to deploy'
+        required: true
+        type: string
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/ump
+
+jobs:
+  validate-deployment:
+    name: Validate Deployment
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+      environment: ${{ steps.env.outputs.environment }}
+    steps:
+      - name: Determine tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Determine environment
+        id: env
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+          else
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Validate tag format
+        run: |
+          TAG=${{ steps.tag.outputs.tag }}
+          if [[ ! $TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid tag format: $TAG. Expected format: vX.Y.Z"
+            exit 1
+          fi
+
+  pre-deployment-checks:
+    name: Pre-deployment Checks
+    runs-on: ubuntu-latest
+    needs: validate-deployment
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Docker images exist
+        run: |
+          TAG=${{ needs.validate-deployment.outputs.tag }}
+          SERVICES=("mobile" "admin" "backend" "gateway")
+
+          for service in "${SERVICES[@]}"; do
+            echo "Checking image: ${{ env.IMAGE_PREFIX }}-${service}:${TAG}"
+            if ! docker manifest inspect ${{ env.IMAGE_PREFIX }}-${service}:${TAG} > /dev/null 2>&1; then
+              echo "Image not found: ${{ env.IMAGE_PREFIX }}-${service}:${TAG}"
+              exit 1
+            fi
+          done
+
+      - name: Run security scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_PREFIX }}-backend:${{ needs.validate-deployment.outputs.tag }}
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+
+  database-migration:
+    name: Database Migration
+    runs-on: ubuntu-latest
+    needs: [validate-deployment, pre-deployment-checks]
+    environment: ${{ needs.validate-deployment.outputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run database migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          pnpm --filter @ump/backend prisma:migrate:deploy
+          pnpm --filter @ump/backend prisma:generate
+
+  deploy-to-kubernetes:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    needs: [validate-deployment, pre-deployment-checks, database-migration]
+    environment: ${{ needs.validate-deployment.outputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.12.0'
+
+      - name: Update Helm values
+        run: |
+          TAG=${{ needs.validate-deployment.outputs.tag }}
+          ENV=${{ needs.validate-deployment.outputs.environment }}
+
+          # Update image tags
+          sed -i "s/tag: .*/tag: ${TAG}/g" infra/k8s/values.yaml
+
+          # Update environment-specific values
+          if [ "$ENV" = "production" ]; then
+            sed -i "s/replicaCount: .*/replicaCount: 3/g" infra/k8s/values.yaml
+            sed -i "s/environment: .*/environment: production/g" infra/k8s/values.yaml
+          fi
+
+      - name: Deploy with Helm
+        run: |
+          ENV=${{ needs.validate-deployment.outputs.environment }}
+          NAMESPACE="ump-${ENV}"
+
+          # Create namespace if it doesn't exist
+          kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
+
+          # Deploy application
+          helm upgrade --install ump-${ENV} ./infra/k8s \
+            --namespace $NAMESPACE \
+            --values infra/k8s/values.yaml \
+            --set global.environment=$ENV \
+            --set image.tag=${{ needs.validate-deployment.outputs.tag }} \
+            --wait --timeout=10m
+
+      - name: Verify deployment
+        run: |
+          ENV=${{ needs.validate-deployment.outputs.environment }}
+          NAMESPACE="ump-${ENV}"
+
+          # Wait for rollout to complete
+          kubectl rollout status deployment/ump-admin -n $NAMESPACE --timeout=300s
+          kubectl rollout status deployment/ump-mobile -n $NAMESPACE --timeout=300s
+          kubectl rollout status deployment/ump-backend -n $NAMESPACE --timeout=300s
+          kubectl rollout status deployment/ump-gateway -n $NAMESPACE --timeout=300s
+
+          # Check pod health
+          kubectl get pods -n $NAMESPACE
+          kubectl get services -n $NAMESPACE
+
+  smoke-tests:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    needs: [validate-deployment, deploy-to-kubernetes]
+    environment: ${{ needs.validate-deployment.outputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run smoke tests
+        env:
+          API_URL: ${{ secrets.API_URL }}
+          ADMIN_URL: ${{ secrets.ADMIN_URL }}
+          MOBILE_URL: ${{ secrets.MOBILE_URL }}
+        run: |
+          # Health check endpoints
+          curl -f $API_URL/health || exit 1
+          curl -f $ADMIN_URL/api/health || exit 1
+          curl -f $MOBILE_URL/api/health || exit 1
+
+          # Run basic API tests
+          pnpm --filter @ump/backend test:smoke
+
+  update-deployment-status:
+    name: Update Deployment Status
+    runs-on: ubuntu-latest
+    needs: [validate-deployment, deploy-to-kubernetes, smoke-tests]
+    if: always()
+    steps:
+      - name: Create deployment status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = '${{ needs.validate-deployment.outputs.tag }}';
+            const environment = '${{ needs.validate-deployment.outputs.environment }}';
+            const deployResult = '${{ needs.deploy-to-kubernetes.result }}';
+            const smokeResult = '${{ needs.smoke-tests.result }}';
+
+            const state = deployResult === 'success' && smokeResult === 'success' ? 'success' : 'failure';
+            const description = state === 'success' ? 
+              `Successfully deployed ${tag} to ${environment}` : 
+              `Failed to deploy ${tag} to ${environment}`;
+
+            await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: tag,
+              environment: environment,
+              description: description,
+              auto_merge: false,
+              required_contexts: []
+            });
+
+  notify-deployment:
+    name: Notify Deployment
+    runs-on: ubuntu-latest
+    needs: [validate-deployment, deploy-to-kubernetes, smoke-tests]
+    if: always()
+    steps:
+      - name: Notify Slack
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#deployments'
+          text: |
+            Deployment of ${{ needs.validate-deployment.outputs.tag }} to ${{ needs.validate-deployment.outputs.environment }}
+            Status: ${{ needs.deploy-to-kubernetes.result == 'success' && needs.smoke-tests.result == 'success' && 'SUCCESS' || 'FAILED' }}
+
+            Deploy: ${{ needs.deploy-to-kubernetes.result }}
+            Smoke Tests: ${{ needs.smoke-tests.result }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: [validate-deployment, deploy-to-kubernetes, smoke-tests]
+    if: failure() && needs.validate-deployment.outputs.environment == 'production'
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Rollback deployment
+        run: |
+          NAMESPACE="ump-production"
+
+          # Rollback all deployments
+          kubectl rollout undo deployment/ump-admin -n $NAMESPACE
+          kubectl rollout undo deployment/ump-mobile -n $NAMESPACE
+          kubectl rollout undo deployment/ump-backend -n $NAMESPACE
+          kubectl rollout undo deployment/ump-gateway -n $NAMESPACE
+
+          # Wait for rollback to complete
+          kubectl rollout status deployment/ump-admin -n $NAMESPACE --timeout=300s
+          kubectl rollout status deployment/ump-mobile -n $NAMESPACE --timeout=300s
+          kubectl rollout status deployment/ump-backend -n $NAMESPACE --timeout=300s
+          kubectl rollout status deployment/ump-gateway -n $NAMESPACE --timeout=300s
+
+      - name: Notify rollback
+        uses: 8398a7/action-slack@v3
+        with:
+          status: 'warning'
+          channel: '#deployments'
+          text: |
+            🚨 ROLLBACK EXECUTED 🚨
+            Failed deployment of ${{ needs.validate-deployment.outputs.tag }} has been rolled back.
+            Production environment has been restored to previous version.
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -1,6 +1,9 @@
+import 'server-only';
 import { User } from '@clerk/nextjs/server';
+import { UserContext } from './clerkClient';
 /**
  * Server-side authentication utilities for Clerk integration
+ * This module should only be used in server components
  */
 export declare class ClerkAuthProvider {
   /**
@@ -32,44 +35,5 @@ export declare class ClerkAuthProvider {
    * @returns string | null
    */
   static extractTokenFromHeader(authHeader?: string): string | null;
-}
-/**
- * User context interface for GraphQL resolvers
- */
-export interface UserContext {
-  id: string;
-  email: string;
-  clerkId: string;
-  role: string;
-  firstName: string;
-  lastName: string;
-}
-/**
- * Client-side authentication hook utilities
- */
-export declare const ClerkClientUtils: {
-  /**
-   * Set Clerk token in window for Apollo Client
-   * @param token - JWT token from Clerk
-   */
-  setTokenInWindow: (token: string | null) => void;
-  /**
-   * Get Clerk token from window
-   * @returns string | null
-   */
-  getTokenFromWindow: () => string | null;
-  /**
-   * Clear Clerk token from window
-   */
-  clearTokenFromWindow: () => void;
-};
-/**
- * Error types for authentication
- */
-export declare class AuthenticationError extends Error {
-  constructor(message: string);
-}
-export declare class AuthorizationError extends Error {
-  constructor(message: string);
 }
 //# sourceMappingURL=clerkProvider.d.ts.map

@@ -1,6 +1,6 @@
 import { Match, Prisma, PrismaClient } from '@prisma/client';
 import { BaseService, PaginatedResult, ListOptions } from './base.service';
-import { ValidationError } from '@ump/core';
+import { ValidationError } from '@ump/core/backend';
 import { auditLogger, AuditContext } from './auditLogIntegration';
 import {
   DedupeScoreGuard,

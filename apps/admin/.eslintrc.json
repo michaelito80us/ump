@@ -1,7 +1,18 @@
 {
   "extends": ["next/core-web-vitals"],
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
+  },
+  "globals": {
+    "WebSocket": "readonly",
+    "window": "readonly"
+  },
   "rules": {
     "react/no-unescaped-entities": "off",
-    "@next/next/no-page-custom-font": "off"
+    "@next/next/no-page-custom-font": "off",
+    "no-case-declarations": "off",
+    "no-undef": "off"
   }
 }

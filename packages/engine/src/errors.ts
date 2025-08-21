@@ -2,7 +2,7 @@
  * Engine-specific error types for plugin registry and execution
  */
 
-import { TournamentError } from '@ump/core';
+import { TournamentError } from '@ump/core/errors';
 
 export class PluginRegistryError extends TournamentError {
   constructor(message: string) {

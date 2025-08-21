@@ -1,0 +1,106 @@
+# Production Dockerfile for Backend Service
+FROM node:18-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat python3 make g++
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy package files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/backend/package.json ./packages/backend/
+COPY packages/core/package.json ./packages/core/
+COPY packages/engine/package.json ./packages/engine/
+COPY packages/plugins/package.json ./packages/plugins/
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile --prod
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+
+# Install build dependencies
+RUN apk add --no-cache libc6-compat python3 make g++
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy package files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/backend/package.json ./packages/backend/
+COPY packages/core/package.json ./packages/core/
+COPY packages/engine/package.json ./packages/engine/
+COPY packages/plugins/package.json ./packages/plugins/
+
+# Install all dependencies (including devDependencies)
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
+COPY packages/backend ./packages/backend
+COPY packages/core ./packages/core
+COPY packages/engine ./packages/engine
+COPY packages/plugins ./packages/plugins
+COPY tsconfig.base.json ./
+COPY schema.graphql ./
+
+# Build dependencies
+RUN pnpm --filter @ump/core build
+RUN pnpm --filter @ump/engine build
+RUN pnpm --filter @ump/plugins build
+
+# Generate Prisma client
+RUN pnpm --filter @ump/backend prisma:generate
+
+# Build the backend
+RUN pnpm --filter @ump/backend build
+
+# Production image
+FROM base AS runner
+WORKDIR /app
+
+# Install runtime dependencies
+RUN apk add --no-cache curl
+
+ENV NODE_ENV=production
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 backend
+
+# Copy built application
+COPY --from=builder --chown=backend:nodejs /app/packages/backend/dist ./packages/backend/dist
+COPY --from=builder --chown=backend:nodejs /app/packages/backend/prisma ./packages/backend/prisma
+COPY --from=builder --chown=backend:nodejs /app/packages/backend/package.json ./packages/backend/
+
+# Copy built dependencies
+COPY --from=builder --chown=backend:nodejs /app/packages/core/dist ./packages/core/dist
+COPY --from=builder --chown=backend:nodejs /app/packages/engine/dist ./packages/engine/dist
+COPY --from=builder --chown=backend:nodejs /app/packages/plugins/dist ./packages/plugins/dist
+
+# Copy production dependencies
+COPY --from=deps --chown=backend:nodejs /app/node_modules ./node_modules
+COPY --from=deps --chown=backend:nodejs /app/packages/backend/node_modules ./packages/backend/node_modules
+
+# Copy package.json files
+COPY --chown=backend:nodejs package.json pnpm-workspace.yaml ./
+COPY --chown=backend:nodejs packages/core/package.json ./packages/core/
+COPY --chown=backend:nodejs packages/engine/package.json ./packages/engine/
+COPY --chown=backend:nodejs packages/plugins/package.json ./packages/plugins/
+
+USER backend
+
+EXPOSE 4001
+
+ENV PORT=4001
+ENV HOST=0.0.0.0
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:4001/health || exit 1
+
+# Start the application
+CMD ["node", "packages/backend/dist/index.js"]

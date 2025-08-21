@@ -9,7 +9,7 @@ import type {
 } from '../registry';
 
 // Import core types from @ump/core
-import type { Match, Team, Phase, MatchStatus } from '@ump/core';
+import type { Match, Team, Phase, MatchStatus } from '@ump/core/types';
 
 export interface ConformanceTestResult {
   passed: boolean;

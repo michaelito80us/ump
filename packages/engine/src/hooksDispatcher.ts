@@ -9,7 +9,7 @@ import {
   MatchContext,
   LeaderboardEntry,
 } from './types';
-import { Match, Phase } from '@ump/core';
+import { Match, Phase } from '@ump/core/types';
 import { PluginExecutionError } from './errors';
 
 export type HookName = keyof LifecycleHooks;

@@ -6,13 +6,12 @@
  */
 
 import { GraphQLError } from 'graphql';
-import { ValidationError } from '@ump/core';
+import { ValidationError } from '@ump/core/backend';
 import { matchService } from '../../services/match.service';
 import { db } from '../../services/database';
 import { matchResolvers } from '../../resolvers/match.resolvers';
 
-// Import fail from Jest for test assertions
-const { fail } = require('@jest/globals');
+// Jest assertions are available globally in the test environment
 
 // Mock context for GraphQL resolvers
 const createMockContext = (userId: string) => ({
@@ -219,7 +218,7 @@ describe('T-16.1: Duplicate Score Submission Guard Integration', () => {
           { id: testData.match.id, input: { ...input, scoreA: 3 } },
           context
         );
-        fail('Expected GraphQLError to be thrown');
+        expect(true).toBe(false); // Expected GraphQLError to be thrown
       } catch (error) {
         expect(error).toBeInstanceOf(GraphQLError);
         expect((error as GraphQLError).extensions?.code).toBe(

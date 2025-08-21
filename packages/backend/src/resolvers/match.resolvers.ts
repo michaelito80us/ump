@@ -1,6 +1,7 @@
 import { db } from '../services/database';
 import { GraphQLError } from 'graphql';
-import { ValidationError } from '@ump/core';
+import { ValidationError } from '@ump/core/backend';
+import { matchService } from '../services';
 
 export const matchResolvers = {
   Query: {
@@ -97,7 +98,6 @@ export const matchResolvers = {
 
       try {
         // Update match score using service (includes deduplication guard)
-        const { matchService } = await import('../services');
         const updatedMatch = await matchService.updateScore(
           id,
           input.scoreA,

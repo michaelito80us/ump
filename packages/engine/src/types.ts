@@ -1,7 +1,7 @@
 // Engine Types - Plugin execution and registry interfaces
 
 import { BasePluginMeta, AnyPlugin, PluginCategory } from './registry';
-import { Tournament, Match, Phase } from '@ump/core';
+import { Tournament, Match, Phase } from '@ump/core/types';
 
 export interface PluginContext {
   version: string;

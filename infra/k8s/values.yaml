@@ -3,16 +3,18 @@
 
 # Global settings
 global:
-  imageRegistry: ""
+  imageRegistry: "ghcr.io"
   imagePullSecrets: []
   storageClass: ""
+  environment: "production"
 
 # Image settings
 image:
-  registry: docker.io
+  registry: ghcr.io
+  repository: "ump"
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "latest"
 
 # Service account
 serviceAccount:
@@ -33,7 +35,7 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 1000
 
-# Resources
+# Default resources
 resources:
   limits:
     cpu: 500m
@@ -41,6 +43,14 @@ resources:
   requests:
     cpu: 250m
     memory: 256Mi
+
+# Replica count
+replicaCount: 2
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 3000
 
 # Node selector
 nodeSelector: {}
@@ -177,27 +187,74 @@ mobile:
 
 # Ingress configuration
 ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+  host: "ump.example.com"
   hosts:
-    - host: ump.local
-      paths:
-        - path: /
-          pathType: Prefix
-          service: gateway
-        - path: /admin
-          pathType: Prefix
-          service: admin
-        - path: /mobile
-          pathType: Prefix
-          service: mobile
-  tls: []
-  #  - secretName: ump-tls
-  #    hosts:
-  #      - ump.local
+    - host: ump.example.com
+  tls:
+    - secretName: ump-tls
+      hosts:
+        - ump.example.com
+
+# Configuration values
+config:
+  graphqlHttpUrl: "https://ump.example.com/api/graphql"
+  graphqlWsUrl: "wss://ump.example.com/api/graphql"
+  corsOrigin: "https://ump.example.com"
+  corsOrigins: "https://ump.example.com"
+  coreSubgraphUrl: "http://ump-backend:4000/graphql"
+  logLevel: "info"
+  graphqlIntrospection: "false"
+  graphqlPlayground: "false"
+  enableAnalytics: "true"
+  enableMonitoring: "true"
+  enableWebsockets: "true"
+  cdnUrl: ""
+  assetsUrl: ""
+  rateLimitWindow: "900000"
+  rateLimitMax: "100"
+  healthCheckTimeout: "5000"
+  healthCheckInterval: "30000"
+
+# Secrets configuration (should be overridden in production)
+secrets:
+  jwtSecret: "change-me-in-production"
+  clerkPublishableKey: ""
+  clerkSecretKey: ""
+  clerkWebhookSecret: ""
+  openaiApiKey: ""
+  stripeSecretKey: ""
+  stripeWebhookSecret: ""
+  sendgridApiKey: ""
+  sentryDsn: ""
+  mixpanelToken: ""
+  googleAnalyticsId: ""
+  awsAccessKeyId: ""
+  awsSecretAccessKey: ""
+  awsS3Bucket: ""
+  awsRegion: "us-east-1"
+  firebaseProjectId: ""
+  firebasePrivateKey: ""
+  firebaseClientEmail: ""
+  encryptionKey: ""
+  sessionSecret: ""
+  datadogApiKey: ""
+  newrelicLicenseKey: ""
+  cloudflareApiToken: ""
+  migrationPassword: ""
 
 # Backup configuration
 backup:

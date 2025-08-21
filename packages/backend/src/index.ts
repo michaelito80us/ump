@@ -14,6 +14,7 @@ import dotenv from 'dotenv';
 import { resolvers } from './resolvers';
 import { db } from './services/database';
 import { logger } from './utils/logger';
+import { configureLogService, createPrismaAuditLogDatabase } from '@ump/engine';
 
 // Load environment variables
 dotenv.config();
@@ -135,6 +136,16 @@ async function startServer() {
   try {
     await db.connect();
     logger.info('Database connected successfully');
+
+    // Configure LogService with Prisma database
+    const auditDatabase = createPrismaAuditLogDatabase(db);
+    configureLogService({
+      database: auditDatabase,
+      enabled: true,
+      maxRetries: 3,
+      retryDelay: 1000,
+    });
+    logger.info('LogService configured successfully');
   } catch (error) {
     logger.error('Failed to connect to database:', error);
     process.exit(1);

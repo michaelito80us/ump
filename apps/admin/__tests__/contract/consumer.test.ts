@@ -10,6 +10,7 @@ import path from 'path';
 import '@testing-library/jest-dom';
 
 // Jest types are provided by ts-jest preset
+// expect is available globally in Jest environment
 
 // Polyfill fetch for Node.js environment
 if (!global.fetch) {
@@ -465,8 +466,8 @@ describe('Admin App Consumer Contract Tests', () => {
       expect(result.data).toBeNull();
       expect(result.errors).toBeDefined();
       expect(result.errors![0]).toMatchObject({
-        message: expect.any(String),
-        extensions: expect.objectContaining({
+        message: (expect as any).any(String),
+        extensions: (expect as any).objectContaining({
           code: 'FORBIDDEN',
           httpStatus: 403,
         }),

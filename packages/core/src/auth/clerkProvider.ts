@@ -1,8 +1,11 @@
+import 'server-only';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { User } from '@clerk/nextjs/server';
+import { UserContext } from './clerkClient';
 
 /**
  * Server-side authentication utilities for Clerk integration
+ * This module should only be used in server components
  */
 export class ClerkAuthProvider {
   /**
@@ -77,66 +80,5 @@ export class ClerkAuthProvider {
   }
 }
 
-/**
- * User context interface for GraphQL resolvers
- */
-export interface UserContext {
-  id: string;
-  email: string;
-  clerkId: string;
-  role: string;
-  firstName: string;
-  lastName: string;
-}
-
-/**
- * Client-side authentication hook utilities
- */
-export const ClerkClientUtils = {
-  /**
-   * Set Clerk token in window for Apollo Client
-   * @param token - JWT token from Clerk
-   */
-  setTokenInWindow: (token: string | null) => {
-    if (typeof window !== 'undefined') {
-      (window as any).__CLERK_TOKEN__ = token;
-    }
-  },
-
-  /**
-   * Get Clerk token from window
-   * @returns string | null
-   */
-  getTokenFromWindow: (): string | null => {
-    if (typeof window !== 'undefined') {
-      return (window as any).__CLERK_TOKEN__ || null;
-    }
-    return null;
-  },
-
-  /**
-   * Clear Clerk token from window
-   */
-  clearTokenFromWindow: () => {
-    if (typeof window !== 'undefined') {
-      delete (window as any).__CLERK_TOKEN__;
-    }
-  },
-};
-
-/**
- * Error types for authentication
- */
-export class AuthenticationError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'AuthenticationError';
-  }
-}
-
-export class AuthorizationError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'AuthorizationError';
-  }
-}
+// Client-side utilities and error classes are now in clerkClient.ts
+// Import them from there to avoid server-only imports in client components

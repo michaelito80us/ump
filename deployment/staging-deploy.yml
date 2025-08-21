@@ -1,0 +1,95 @@
+# Staging Deployment Configuration
+# GitHub Actions workflow for staging environment
+
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [develop, staging]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Run linting
+        run: pnpm lint
+
+  build-and-deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker images
+        run: |
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:staging -f packages/backend/Dockerfile .
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/admin:staging -f apps/admin/Dockerfile .
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mobile:staging -f apps/mobile/Dockerfile .
+
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:staging
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/admin:staging
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mobile:staging
+
+      - name: Deploy to Staging Kubernetes
+        run: |
+          echo "${{ secrets.KUBECONFIG_STAGING }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+
+          # Update image tags in staging values
+          helm upgrade --install ump-staging ./infra/k8s \
+            --namespace ump-staging \
+            --create-namespace \
+            --values ./infra/k8s/values.staging.yaml \
+            --set backend.image.tag=staging \
+            --set admin.image.tag=staging \
+            --set mobile.image.tag=staging
+
+      - name: Run staging health checks
+        run: |
+          sleep 30  # Wait for deployment
+          curl -f https://staging.ump-platform.com/health || exit 1
+          curl -f https://staging-admin.ump-platform.com/health || exit 1
+          curl -f https://staging-app.ump-platform.com/health || exit 1
+
+      - name: Run performance tests against staging
+        run: |
+          cd tests/perf
+          pnpm test:staging
+
+      - name: Notify deployment status
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#deployments'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}

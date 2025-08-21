@@ -31,6 +31,36 @@
       "require": "./dist/types.js",
       "default": "./dist/types.js"
     },
+    "./utils/date": {
+      "types": "./dist/utils/date.d.ts",
+      "import": "./dist-esm/utils/date.js",
+      "require": "./dist/utils/date.js",
+      "default": "./dist/utils/date.js"
+    },
+    "./utils/createPatch": {
+      "types": "./dist/utils/createPatch.d.ts",
+      "import": "./dist-esm/utils/createPatch.js",
+      "require": "./dist/utils/createPatch.js",
+      "default": "./dist/utils/createPatch.js"
+    },
+    "./backend": {
+      "types": "./dist/backend.d.ts",
+      "import": "./dist-esm/backend.js",
+      "require": "./dist/backend.js",
+      "default": "./dist/backend.js"
+    },
+    "./errors": {
+      "types": "./dist/errors.d.ts",
+      "import": "./dist-esm/errors.js",
+      "require": "./dist/errors.js",
+      "default": "./dist/errors.js"
+    },
+    "./types-only": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist-esm/types.js",
+      "require": "./dist/types.js",
+      "default": "./dist/types.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [

@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Match, Phase, Team, MatchContext } from '@ump/core';
+import { Match, Phase, Team, MatchContext } from '@ump/core/types';
 import { LifecycleHooks } from './types';
 import { satisfies } from './semverLite';
 import {

@@ -1,3 +1,13 @@
+// Mock @ump/core to prevent server-only imports
+jest.mock('@ump/core/errors', () => ({
+  TournamentError: class TournamentError extends Error {
+    constructor(message: string) {
+      super(message);
+      this.name = 'TournamentError';
+    }
+  },
+}));
+
 // Sandbox Executor Tests
 
 import { SandboxExecutor } from '../sandbox';
@@ -5,7 +15,7 @@ import { PluginExecutionError } from '../errors';
 import { PluginExecutionContext } from '../sandbox/types';
 
 describe('SandboxExecutor', () => {
-  let sandbox: SandboxExecutor;
+  let sandbox: InstanceType<typeof SandboxExecutor>;
   let mockContext: PluginExecutionContext;
 
   beforeEach(() => {

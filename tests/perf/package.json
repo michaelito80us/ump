@@ -6,8 +6,8 @@
   "scripts": {
     "test": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run k6-load.js",
     "test:scenarios": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run k6-scenarios.js",
-    "test:local": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run --env TARGET_URL=http://localhost:3001 k6-load.js",
-    "test:staging": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run --env TARGET_URL=https://ump-staging.example.com k6-load.js",
+    "test:local": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run --env TARGET_URL=http://localhost:4001 k6-load.js",
+    "test:staging": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run --env TARGET_URL=http://localhost:4001 k6-load.js",
     "test:production": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run --env TARGET_URL=https://ump.example.com k6-load.js",
     "test:smoke": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run --vus 1 --duration 30s k6-load.js",
     "test:load": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run --vus 10 --duration 5m k6-load.js",

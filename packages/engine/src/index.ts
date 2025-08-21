@@ -17,7 +17,22 @@ export type {
   SandboxExecutionResult,
   PluginExecutionContext,
 } from './sandbox/types';
-export { SandboxExecutor } from './sandbox';
+
+// Conditionally import and re-export SandboxExecutor
+let SandboxExecutor: any;
+try {
+  if (typeof window === 'undefined') {
+    // Node.js environment
+    SandboxExecutor = require('./sandbox').SandboxExecutor;
+  } else {
+    // Browser environment
+    SandboxExecutor = null;
+  }
+} catch {
+  // Fallback for any import issues
+  SandboxExecutor = null;
+}
+export { SandboxExecutor };
 
 // Engine version
 export const ENGINE_VERSION = '0.1.0';
@@ -41,13 +56,35 @@ export * from './privacy';
 // Guards exports
 export * from './guards/dedupeScore';
 
-// Remote bundle fetching
-export {
-  RemoteBundleFetcher,
-  fetchRemoteBundle,
-  type RemoteBundleConfig,
-  type BundleResult,
+// Conditionally import and re-export remote bundle functionality
+let RemoteBundleFetcher: any;
+let fetchRemoteBundle: any;
+
+// Import types directly to avoid ESLint unused variable warnings
+import type {
+  RemoteBundleConfig,
+  BundleResult,
 } from './remote/fetchRemoteBundle';
+
+try {
+  if (typeof window === 'undefined') {
+    // Node.js environment
+    const remoteBundleModule = require('./remote/fetchRemoteBundle');
+    RemoteBundleFetcher = remoteBundleModule.RemoteBundleFetcher;
+    fetchRemoteBundle = remoteBundleModule.fetchRemoteBundle;
+  } else {
+    // Browser environment
+    RemoteBundleFetcher = null;
+    fetchRemoteBundle = null;
+  }
+} catch {
+  // Fallback for any import issues
+  RemoteBundleFetcher = null;
+  fetchRemoteBundle = null;
+}
+
+export { RemoteBundleFetcher, fetchRemoteBundle };
+export type { RemoteBundleConfig, BundleResult };
 
 // Updated error exports
 export {

@@ -6,7 +6,7 @@
  * defined in 002_dedupe_scores.sql.
  */
 
-import { ValidationError } from '@ump/core';
+import { ValidationError } from '@ump/core/errors';
 
 /**
  * Error thrown when a duplicate score submission is detected
@@ -104,6 +104,30 @@ class SubmissionCache {
   recordSubmission(matchId: string, submittedBy: string): void {
     const key = this.getCacheKey(matchId, submittedBy);
     this.cache.set(key, Date.now());
+  }
+
+  /**
+   * Atomically check if recent and record if not
+   * Returns true if was recent (duplicate), false if recorded successfully
+   */
+  checkAndRecord(matchId: string, submittedBy: string): boolean {
+    const key = this.getCacheKey(matchId, submittedBy);
+    const timestamp = this.cache.get(key);
+    const now = Date.now();
+
+    if (timestamp) {
+      const age = now - timestamp;
+      // Clean up expired entries
+      if (age > this.maxAge) {
+        this.cache.delete(key);
+      } else {
+        return true; // Recent submission found
+      }
+    }
+
+    // No recent submission, record this one
+    this.cache.set(key, now);
+    return false;
   }
 
   /**
@@ -239,9 +263,9 @@ export class DedupeScoreGuard {
       return;
     }
 
-    // Check for duplicates
-    const isDupe = await this.isDuplicate(matchId, submittedBy);
-    if (isDupe) {
+    // Atomically check for duplicates and record submission to prevent race conditions
+    const isRecentInCache = this.cache.checkAndRecord(matchId, submittedBy);
+    if (isRecentInCache) {
       throw new DuplicateScoreSubmissionError(
         matchId,
         submittedBy,
@@ -249,8 +273,25 @@ export class DedupeScoreGuard {
       );
     }
 
-    // Record the submission in cache for future checks
-    this.cache.recordSubmission(matchId, submittedBy);
+    // Also check database for submissions that might not be in cache
+    try {
+      const hasRecent = await this.db.checkRecentSubmission(
+        matchId,
+        submittedBy,
+        this.config.timeWindowMs
+      );
+
+      if (hasRecent) {
+        throw new DuplicateScoreSubmissionError(
+          matchId,
+          submittedBy,
+          this.config.timeWindowMs
+        );
+      }
+    } catch (error) {
+      // If database check fails, continue with cache protection
+      console.error('Failed to check for duplicate submissions:', error);
+    }
 
     // Attempt to create the audit record
     // This will trigger database constraints if there's still a race condition

@@ -1,3 +1,25 @@
+// Mock @ump/core to prevent server-only imports
+jest.mock('@ump/core', () => ({
+  ValidationError: class ValidationError extends Error {
+    constructor(message: string) {
+      super(message);
+      this.name = 'ValidationError';
+    }
+  },
+  PermissionError: class PermissionError extends Error {
+    constructor(message: string) {
+      super(message);
+      this.name = 'PermissionError';
+    }
+  },
+  PluginExecutionError: class PluginExecutionError extends Error {
+    constructor(message: string) {
+      super(message);
+      this.name = 'PluginExecutionError';
+    }
+  },
+}));
+
 // Imports removed as they're mocked and not directly used
 import { PluginSchemaLoader } from '../services/pluginSchemaLoader';
 import { formatError, ERROR_CODES } from '../errorMapper';

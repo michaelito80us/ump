@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { db } from './database';
-import { TournamentError, ValidationError } from '@ump/core';
+import { TournamentError, ValidationError } from '@ump/core/backend';
 
 /**
  * Base service class providing common CRUD operations and utilities
