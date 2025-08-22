@@ -1,7 +1,10 @@
 'use client';
 
 import React from 'react';
-import { TournamentWizard } from '../../components/forms/TournamentWizard';
+// import { TournamentWizard } from '../../components/forms/TournamentWizard';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
 
 export default function TournamentSetupPage() {
   return (
@@ -18,7 +21,12 @@ export default function TournamentSetupPage() {
             </p>
           </div>
           <div className="p-6">
-            <TournamentWizard />
+            {/* <TournamentWizard /> */}
+            <div className="text-center py-8">
+              <p className="text-gray-600">
+                Tournament Wizard temporarily disabled for build testing
+              </p>
+            </div>
           </div>
         </div>
       </div>

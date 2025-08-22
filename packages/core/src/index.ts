@@ -11,8 +11,8 @@ import { MATCH_STATUSES, TOURNAMENT_STATUSES, ValidationError } from './types';
 // Export GraphQL generated types and hooks (with namespace to avoid conflicts)
 export * as GraphQL from './generated';
 
-// Export server-side authentication utilities (server-only)
-export { ClerkAuthProvider } from './auth/clerkProvider';
+// Note: Server-side authentication utilities are exported separately in server.ts
+// to avoid importing server-only code in client components
 
 // Export client-side authentication utilities
 export {

@@ -49,6 +49,12 @@
       "require": "./dist/backend.js",
       "default": "./dist/backend.js"
     },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "import": "./dist-esm/server.js",
+      "require": "./dist/server.js",
+      "default": "./dist/server.js"
+    },
     "./errors": {
       "types": "./dist/errors.d.ts",
       "import": "./dist-esm/errors.js",

@@ -1,7 +1,6 @@
 export * from './types';
 import type { MatchStatus, Tournament, Match } from './types';
 export * as GraphQL from './generated';
-export { ClerkAuthProvider } from './auth/clerkProvider';
 export {
   ClerkClientUtils,
   AuthenticationError,
