@@ -15,7 +15,13 @@ export interface ScoreUpdate {
 export interface MatchEvent {
   id: string;
   matchId: string;
-  type: 'GOAL' | 'CARD' | 'SUBSTITUTION' | 'TIMEOUT' | 'PERIOD_START' | 'PERIOD_END';
+  type:
+    | 'GOAL'
+    | 'CARD'
+    | 'SUBSTITUTION'
+    | 'TIMEOUT'
+    | 'PERIOD_START'
+    | 'PERIOD_END';
   timestamp: string;
   description: string;
   playerId?: string;
@@ -46,10 +52,10 @@ export class EnhancedWebSocketMock {
   private isConnected = false;
   private matchIds: string[] = [];
   private scores: { [matchId: string]: { home: number; away: number } } = {};
-  
+
   constructor(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _url: string, 
+    _url: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _protocols?: string | string[]
   ) {
@@ -70,7 +76,7 @@ export class EnhancedWebSocketMock {
 
   removeEventListener(type: string, listener: (event: MessageEvent) => void) {
     if (this.listeners[type]) {
-      this.listeners[type] = this.listeners[type].filter(l => l !== listener);
+      this.listeners[type] = this.listeners[type].filter((l) => l !== listener);
     }
   }
 
@@ -101,40 +107,47 @@ export class EnhancedWebSocketMock {
     this.dispatchEvent('close', {});
   }
 
-  private dispatchEvent(type: string, data: RealtimeMessage | Record<string, unknown>) {
+  private dispatchEvent(
+    type: string,
+    data: RealtimeMessage | Record<string, unknown>
+  ) {
     if (this.listeners[type]) {
       const event = new MessageEvent(type, { data: JSON.stringify(data) });
-      this.listeners[type].forEach(listener => listener(event));
+      this.listeners[type].forEach((listener) => listener(event));
     }
   }
 
   private startSimulation() {
     // Send periodic score updates every 3-8 seconds
-    this.intervalId = setInterval(() => {
-      if (this.matchIds.length > 0 && Math.random() > 0.3) {
-        this.simulateScoreUpdate();
-      }
-      
-      // Occasionally send match events
-      if (this.matchIds.length > 0 && Math.random() > 0.7) {
-        this.simulateMatchEvent();
-      }
-    }, 3000 + Math.random() * 5000);
+    this.intervalId = setInterval(
+      () => {
+        if (this.matchIds.length > 0 && Math.random() > 0.3) {
+          this.simulateScoreUpdate();
+        }
+
+        // Occasionally send match events
+        if (this.matchIds.length > 0 && Math.random() > 0.7) {
+          this.simulateMatchEvent();
+        }
+      },
+      3000 + Math.random() * 5000
+    );
   }
 
   private simulateScoreUpdate() {
-    const matchId = this.matchIds[Math.floor(Math.random() * this.matchIds.length)];
+    const matchId =
+      this.matchIds[Math.floor(Math.random() * this.matchIds.length)];
     const currentScore = this.scores[matchId] || { home: 0, away: 0 };
-    
+
     // Randomly increment home or away score
     if (Math.random() > 0.5) {
       currentScore.home++;
     } else {
       currentScore.away++;
     }
-    
+
     this.scores[matchId] = currentScore;
-    
+
     const scoreUpdate: RealtimeMessage = {
       type: 'SCORE_UPDATE',
       data: {
@@ -143,18 +156,23 @@ export class EnhancedWebSocketMock {
         awayScore: currentScore.away,
         timestamp: new Date().toISOString(),
         period: `Period ${Math.floor(Math.random() * 3) + 1}`,
-        gameTime: `${Math.floor(Math.random() * 45) + 1}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`
-      }
+        gameTime: `${Math.floor(Math.random() * 45) + 1}:${Math.floor(
+          Math.random() * 60
+        )
+          .toString()
+          .padStart(2, '0')}`,
+      },
     };
-    
+
     this.dispatchEvent('message', scoreUpdate);
   }
 
   private simulateMatchEvent() {
-    const matchId = this.matchIds[Math.floor(Math.random() * this.matchIds.length)];
+    const matchId =
+      this.matchIds[Math.floor(Math.random() * this.matchIds.length)];
     const eventTypes = ['GOAL', 'CARD', 'SUBSTITUTION', 'TIMEOUT'] as const;
     const eventType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
-    
+
     const matchEvent: RealtimeMessage = {
       type: 'MATCH_EVENT',
       data: {
@@ -164,10 +182,10 @@ export class EnhancedWebSocketMock {
         timestamp: new Date().toISOString(),
         description: this.getEventDescription(eventType),
         playerId: `player-${Math.floor(Math.random() * 20) + 1}`,
-        teamId: `team-${Math.floor(Math.random() * 2) + 1}`
-      }
+        teamId: `team-${Math.floor(Math.random() * 2) + 1}`,
+      },
     };
-    
+
     this.dispatchEvent('message', matchEvent);
   }
 
@@ -176,9 +194,11 @@ export class EnhancedWebSocketMock {
       GOAL: 'Goal scored!',
       CARD: Math.random() > 0.5 ? 'Yellow card issued' : 'Red card issued',
       SUBSTITUTION: 'Player substitution',
-      TIMEOUT: 'Team timeout called'
+      TIMEOUT: 'Team timeout called',
     };
-    return descriptions[eventType as keyof typeof descriptions] || 'Match event';
+    return (
+      descriptions[eventType as keyof typeof descriptions] || 'Match event'
+    );
   }
 
   // WebSocket-like properties
@@ -186,10 +206,18 @@ export class EnhancedWebSocketMock {
     return this.isConnected ? 1 : 0; // OPEN = 1
   }
 
-  get CONNECTING() { return 0; }
-  get OPEN() { return 1; }
-  get CLOSING() { return 2; }
-  get CLOSED() { return 3; }
+  get CONNECTING() {
+    return 0;
+  }
+  get OPEN() {
+    return 1;
+  }
+  get CLOSING() {
+    return 2;
+  }
+  get CLOSED() {
+    return 3;
+  }
 }
 
 // Types for match updates and change details
@@ -207,7 +235,10 @@ export interface RealtimeMatch {
 }
 
 export interface MatchUpdateCallback {
-  (match: RealtimeMatch, changeDetails: Array<{ type: string; description?: string }>): void;
+  (
+    match: RealtimeMatch,
+    changeDetails: Array<{ type: string; description?: string }>
+  ): void;
 }
 
 // React hook for using the realtime simulator
@@ -219,13 +250,15 @@ export function useRealtimeSimulator(matchIds: string[] = []) {
   const [events, setEvents] = useState<MatchEvent[]>([]);
   const [isSimulationActive, setIsSimulationActive] = useState(false);
   const wsRef = useRef<EnhancedWebSocketMock | null>(null);
-  const subscriptionsRef = useRef<{ [matchId: string]: MatchUpdateCallback }>({});
+  const subscriptionsRef = useRef<{ [matchId: string]: MatchUpdateCallback }>(
+    {}
+  );
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === 1) return; // Already connected
 
     setConnectionStatus('Connecting...');
-    
+
     // Use mock WebSocket for development/testing
     wsRef.current = new EnhancedWebSocketMock('ws://localhost:4000/realtime');
 
@@ -243,11 +276,11 @@ export function useRealtimeSimulator(matchIds: string[] = []) {
         switch (message.type) {
           case 'SCORE_UPDATE': {
             const scoreData = message.data as ScoreUpdate;
-            setScores(prev => ({
+            setScores((prev) => ({
               ...prev,
-              [scoreData.matchId]: scoreData
+              [scoreData.matchId]: scoreData,
             }));
-            
+
             // Trigger match update callback if subscribed
             const callback = subscriptionsRef.current[scoreData.matchId];
             if (callback) {
@@ -257,25 +290,29 @@ export function useRealtimeSimulator(matchIds: string[] = []) {
                 scoreB: scoreData.awayScore,
                 teamA: { name: 'Team A' },
                 teamB: { name: 'Team B' },
-                status: 'LIVE'
+                status: 'LIVE',
               };
-              callback(mockMatch, [{ type: 'SCORE_UPDATE', description: 'Score updated' }]);
+              callback(mockMatch, [
+                { type: 'SCORE_UPDATE', description: 'Score updated' },
+              ]);
             }
             break;
           }
 
           case 'MATCH_EVENT': {
             const eventData = message.data as MatchEvent;
-            setEvents(prev => [eventData, ...prev].slice(0, 50)); // Keep last 50 events
-            
+            setEvents((prev) => [eventData, ...prev].slice(0, 50)); // Keep last 50 events
+
             // Trigger match event callback if subscribed
             const eventCallback = subscriptionsRef.current[eventData.matchId];
             if (eventCallback) {
               const mockMatch = {
                 id: eventData.matchId,
-                status: 'LIVE'
+                status: 'LIVE',
               };
-              eventCallback(mockMatch, [{ type: 'MATCH_EVENT', description: eventData.description }]);
+              eventCallback(mockMatch, [
+                { type: 'MATCH_EVENT', description: eventData.description },
+              ]);
             }
             break;
           }
@@ -306,10 +343,12 @@ export function useRealtimeSimulator(matchIds: string[] = []) {
 
   const subscribeToMatches = useCallback((newMatchIds: string[]) => {
     if (wsRef.current?.readyState === 1) {
-      wsRef.current.send(JSON.stringify({
-        type: 'SUBSCRIBE_MATCHES',
-        matchIds: newMatchIds
-      }));
+      wsRef.current.send(
+        JSON.stringify({
+          type: 'SUBSCRIBE_MATCHES',
+          matchIds: newMatchIds,
+        })
+      );
     }
   }, []);
 
@@ -325,22 +364,27 @@ export function useRealtimeSimulator(matchIds: string[] = []) {
     disconnect();
   }, [disconnect]);
 
-  const subscribeToMatch = useCallback((matchId: string, callback: MatchUpdateCallback): (() => void) => {
-    subscriptionsRef.current[matchId] = callback;
-    
-    // Subscribe to this specific match if connected
-    if (wsRef.current?.readyState === 1) {
-      wsRef.current.send(JSON.stringify({
-        type: 'SUBSCRIBE_MATCHES',
-        matchIds: [matchId]
-      }));
-    }
-    
-    // Return unsubscribe function
-    return () => {
-      delete subscriptionsRef.current[matchId];
-    };
-  }, []);
+  const subscribeToMatch = useCallback(
+    (matchId: string, callback: MatchUpdateCallback): (() => void) => {
+      subscriptionsRef.current[matchId] = callback;
+
+      // Subscribe to this specific match if connected
+      if (wsRef.current?.readyState === 1) {
+        wsRef.current.send(
+          JSON.stringify({
+            type: 'SUBSCRIBE_MATCHES',
+            matchIds: [matchId],
+          })
+        );
+      }
+
+      // Return unsubscribe function
+      return () => {
+        delete subscriptionsRef.current[matchId];
+      };
+    },
+    []
+  );
 
   const unsubscribeFromMatch = useCallback((matchId: string) => {
     delete subscriptionsRef.current[matchId];
@@ -380,7 +424,7 @@ export function useRealtimeSimulator(matchIds: string[] = []) {
     startSimulation,
     stopSimulation,
     subscribeToMatch,
-    unsubscribeFromMatch
+    unsubscribeFromMatch,
   };
 }
 
@@ -393,5 +437,5 @@ export function createMockMatchIds(count: number = 3): string[] {
 export default {
   EnhancedWebSocketMock,
   useRealtimeSimulator,
-  createMockMatchIds
+  createMockMatchIds,
 };

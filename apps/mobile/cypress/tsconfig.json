@@ -15,9 +15,5 @@
     "../tests/e2e/**/*.ts",
     "../tests/e2e/**/*.tsx"
   ],
-  "exclude": [
-    "../node_modules",
-    "../__tests__",
-    "../jest.config.js"
-  ]
+  "exclude": ["../node_modules", "../__tests__", "../jest.config.js"]
 }

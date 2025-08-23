@@ -9,7 +9,7 @@ export default function SchedulePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <OfflineIndicator />
-      
+
       <div className="container mx-auto px-4 py-8">
         <header className="mb-6">
           <div className="flex items-center justify-between">
@@ -18,10 +18,12 @@ export default function SchedulePage() {
                 {t('title', { default: 'My Schedule' })}
               </h1>
               <p className="text-gray-600">
-                {t('subtitle', { default: 'View your upcoming matches and tournament schedule' })}
+                {t('subtitle', {
+                  default: 'View your upcoming matches and tournament schedule',
+                })}
               </p>
             </div>
-            <Link 
+            <Link
               href="/"
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >

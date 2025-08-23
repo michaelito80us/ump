@@ -17,9 +17,7 @@ export default async function SchedulePage({ params }: PageProps) {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="px-4 py-3">
-          <h1 className="text-xl font-semibold text-gray-900">
-            {t('title')}
-          </h1>
+          <h1 className="text-xl font-semibold text-gray-900">{t('title')}</h1>
           <p className="text-sm text-gray-600 mt-1">{t('upcomingMatches')}</p>
         </div>
       </div>

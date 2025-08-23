@@ -7,7 +7,10 @@ import { Observable } from '@apollo/client/utilities';
 import { LiveMatchCard } from '../../../../src/components/LiveMatchCard';
 import { Match, MatchStatus } from '../../../../lib/types';
 import { motion } from 'framer-motion';
-import { useRealtimeSimulator, RealtimeMatch } from '../../../../src/Services/realtimeSimulator';
+import {
+  useRealtimeSimulator,
+  RealtimeMatch,
+} from '../../../../src/Services/realtimeSimulator';
 
 /**
  * Real-time Demo Page for T-8.2: Client-side real-time updates with diff rendering
@@ -36,25 +39,32 @@ export default function RealtimeDemoPage() {
     connectionStatus,
     startSimulation: startRealtimeSimulation,
     stopSimulation: stopRealtimeSimulation,
-    subscribeToMatch
+    subscribeToMatch,
   } = useRealtimeSimulator();
 
   // Helper function to merge RealtimeMatch updates with existing Match data
-  const mergeMatchUpdate = (existingMatch: Match, realtimeUpdate: RealtimeMatch): Match => {
+  const mergeMatchUpdate = (
+    existingMatch: Match,
+    realtimeUpdate: RealtimeMatch
+  ): Match => {
     return {
       ...existingMatch,
       scoreA: realtimeUpdate.scoreA ?? existingMatch.scoreA,
       scoreB: realtimeUpdate.scoreB ?? existingMatch.scoreB,
       status: realtimeUpdate.status as MatchStatus,
       // Only update team names if they exist in the realtime update
-      teamA: realtimeUpdate.teamA ? {
-        ...existingMatch.teamA,
-        name: realtimeUpdate.teamA.name
-      } : existingMatch.teamA,
-      teamB: realtimeUpdate.teamB ? {
-        ...existingMatch.teamB,
-        name: realtimeUpdate.teamB.name
-      } : existingMatch.teamB,
+      teamA: realtimeUpdate.teamA
+        ? {
+            ...existingMatch.teamA,
+            name: realtimeUpdate.teamA.name,
+          }
+        : existingMatch.teamA,
+      teamB: realtimeUpdate.teamB
+        ? {
+            ...existingMatch.teamB,
+            name: realtimeUpdate.teamB.name,
+          }
+        : existingMatch.teamB,
     };
   };
 
@@ -171,50 +181,55 @@ export default function RealtimeDemoPage() {
   useEffect(() => {
     if (simulationActive && matches.length > 0) {
       const subscriptions: (() => void)[] = [];
-      
-      matches.forEach(match => {
-        const unsubscribe = subscribeToMatch(match.id, (updatedMatch, changeDetails) => {
-          // Update the match in our local state
-          setMatches(prev => prev.map(m => 
-            m.id === updatedMatch.id ? mergeMatchUpdate(m, updatedMatch) : m
-          ));
-          
-          // Log the changes for debug view
-          const changes = changeDetails.map(detail => {
-            switch (detail.type) {
-              case 'SCORE_UPDATE':
-                return `Score: ${updatedMatch.teamA?.name || 'Team A'} ${updatedMatch.scoreA} - ${updatedMatch.scoreB} ${updatedMatch.teamB?.name || 'Team B'}`;
-              case 'STATUS_CHANGE':
-                return `Status changed to: ${updatedMatch.status}`;
-              case 'MATCH_EVENT':
-                return `Event: ${detail.description || 'Match event occurred'}`;
-              default:
-                return `Update: ${detail.description || 'Match updated'}`;
-            }
-          });
-          
-          setUpdateLog(prev => [
-            {
-              timestamp: new Date(),
-              matchId: updatedMatch.id,
-              changes,
-            },
-            ...prev.slice(0, 9), // Keep last 10 updates
-          ]);
-        });
-        
+
+      matches.forEach((match) => {
+        const unsubscribe = subscribeToMatch(
+          match.id,
+          (updatedMatch, changeDetails) => {
+            // Update the match in our local state
+            setMatches((prev) =>
+              prev.map((m) =>
+                m.id === updatedMatch.id ? mergeMatchUpdate(m, updatedMatch) : m
+              )
+            );
+
+            // Log the changes for debug view
+            const changes = changeDetails.map((detail) => {
+              switch (detail.type) {
+                case 'SCORE_UPDATE':
+                  return `Score: ${updatedMatch.teamA?.name || 'Team A'} ${updatedMatch.scoreA} - ${updatedMatch.scoreB} ${updatedMatch.teamB?.name || 'Team B'}`;
+                case 'STATUS_CHANGE':
+                  return `Status changed to: ${updatedMatch.status}`;
+                case 'MATCH_EVENT':
+                  return `Event: ${detail.description || 'Match event occurred'}`;
+                default:
+                  return `Update: ${detail.description || 'Match updated'}`;
+              }
+            });
+
+            setUpdateLog((prev) => [
+              {
+                timestamp: new Date(),
+                matchId: updatedMatch.id,
+                changes,
+              },
+              ...prev.slice(0, 9), // Keep last 10 updates
+            ]);
+          }
+        );
+
         subscriptions.push(unsubscribe);
       });
-      
+
       return () => {
-        subscriptions.forEach(unsub => unsub());
+        subscriptions.forEach((unsub) => unsub());
       };
     }
   }, [simulationActive, matches.length, subscribeToMatch]);
 
   const handleMatchUpdate = (match: Match) => {
     // This is called by LiveMatchCard for any additional updates
-    setMatches(prev => prev.map(m => m.id === match.id ? match : m));
+    setMatches((prev) => prev.map((m) => (m.id === match.id ? match : m)));
   };
 
   const startSimulation = () => {
@@ -322,19 +337,21 @@ export default function RealtimeDemoPage() {
                   <span className="text-gray-500">⚪ Inactive</span>
                 )}
               </div>
-              
+
               <div className="text-sm text-gray-600">
                 WebSocket:{' '}
                 {isConnected ? (
-                  <span className="text-green-600 font-medium">🟢 Connected</span>
+                  <span className="text-green-600 font-medium">
+                    🟢 Connected
+                  </span>
                 ) : (
-                  <span className="text-red-600 font-medium">🔴 Disconnected</span>
+                  <span className="text-red-600 font-medium">
+                    🔴 Disconnected
+                  </span>
                 )}
               </div>
-              
-              <div className="text-xs text-gray-500">
-                {connectionStatus}
-              </div>
+
+              <div className="text-xs text-gray-500">{connectionStatus}</div>
             </div>
           </motion.div>
 
@@ -470,54 +487,76 @@ export default function RealtimeDemoPage() {
 
         {/* Navigation Links */}
         <div className="mt-8 p-6 bg-white rounded-lg shadow-sm border">
-          <h2 className="text-xl font-semibold mb-4 text-gray-800">Explore Other Pages</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">
+            Explore Other Pages
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <a
               href="/en"
               className="block p-4 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors"
             >
               <div className="text-lg font-medium text-blue-800">🏠 Home</div>
-              <div className="text-sm text-blue-600">Main dashboard and overview</div>
+              <div className="text-sm text-blue-600">
+                Main dashboard and overview
+              </div>
             </a>
-            
+
             <a
               href="/en/live"
               className="block p-4 bg-green-50 rounded-lg border border-green-200 hover:bg-green-100 transition-colors"
             >
-              <div className="text-lg font-medium text-green-800">🔴 Live Scores</div>
-              <div className="text-sm text-green-600">Current matches and live updates</div>
+              <div className="text-lg font-medium text-green-800">
+                🔴 Live Scores
+              </div>
+              <div className="text-sm text-green-600">
+                Current matches and live updates
+              </div>
             </a>
-            
+
             <a
               href="/en/schedule"
               className="block p-4 bg-purple-50 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors"
             >
-              <div className="text-lg font-medium text-purple-800">📅 Schedule</div>
-              <div className="text-sm text-purple-600">Upcoming matches and events</div>
+              <div className="text-lg font-medium text-purple-800">
+                📅 Schedule
+              </div>
+              <div className="text-sm text-purple-600">
+                Upcoming matches and events
+              </div>
             </a>
-            
+
             <a
               href="/en/standings"
               className="block p-4 bg-yellow-50 rounded-lg border border-yellow-200 hover:bg-yellow-100 transition-colors"
             >
-              <div className="text-lg font-medium text-yellow-800">🏆 Standings</div>
-              <div className="text-sm text-yellow-600">Current tournament rankings</div>
+              <div className="text-lg font-medium text-yellow-800">
+                🏆 Standings
+              </div>
+              <div className="text-sm text-yellow-600">
+                Current tournament rankings
+              </div>
             </a>
-            
+
             <a
               href="/en/archive"
               className="block p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
             >
-              <div className="text-lg font-medium text-gray-800">📚 Archive</div>
-              <div className="text-sm text-gray-600">Past tournaments and results</div>
+              <div className="text-lg font-medium text-gray-800">
+                📚 Archive
+              </div>
+              <div className="text-sm text-gray-600">
+                Past tournaments and results
+              </div>
             </a>
-            
+
             <a
               href="/en/results"
               className="block p-4 bg-red-50 rounded-lg border border-red-200 hover:bg-red-100 transition-colors"
             >
               <div className="text-lg font-medium text-red-800">📊 Results</div>
-              <div className="text-sm text-red-600">Match results and statistics</div>
+              <div className="text-sm text-red-600">
+                Match results and statistics
+              </div>
             </a>
           </div>
         </div>

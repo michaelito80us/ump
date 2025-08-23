@@ -13,20 +13,20 @@ export default function ResultsPage() {
     champion: {
       id: 'team-1',
       name: 'Thunder Bolts',
-      logo: '⚡'
+      logo: '⚡',
     },
     runnerUp: {
-      id: 'team-2', 
+      id: 'team-2',
       name: 'Fire Dragons',
-      logo: '🔥'
+      logo: '🔥',
     },
-    completedAt: new Date().toISOString()
+    completedAt: new Date().toISOString(),
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <OfflineIndicator />
-      
+
       <div className="container mx-auto px-4 py-8">
         <header className="mb-6">
           <div className="flex items-center justify-between">
@@ -35,10 +35,12 @@ export default function ResultsPage() {
                 {t('title', { default: 'Tournament Results' })}
               </h1>
               <p className="text-gray-600">
-                {t('subtitle', { default: 'Final results and tournament standings' })}
+                {t('subtitle', {
+                  default: 'Final results and tournament standings',
+                })}
               </p>
             </div>
-            <Link 
+            <Link
               href="/"
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >
@@ -69,7 +71,9 @@ export default function ResultsPage() {
             </h3>
             <div className="flex items-center justify-center gap-3">
               <span className="text-3xl">{tournamentData.champion.logo}</span>
-              <span className="text-3xl font-bold">{tournamentData.champion.name}</span>
+              <span className="text-3xl font-bold">
+                {tournamentData.champion.name}
+              </span>
             </div>
           </div>
         </div>
@@ -83,7 +87,9 @@ export default function ResultsPage() {
             </h3>
             <div className="flex items-center justify-center gap-3">
               <span className="text-2xl">{tournamentData.runnerUp.logo}</span>
-              <span className="text-2xl font-semibold">{tournamentData.runnerUp.name}</span>
+              <span className="text-2xl font-semibold">
+                {tournamentData.runnerUp.name}
+              </span>
             </div>
           </div>
         </div>

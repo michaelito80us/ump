@@ -80,38 +80,40 @@ export function MyScheduleView() {
         const response = await fetch('/fixtures/matches.json');
         if (response.ok) {
           const data = await response.json();
-          const fixtureMatches = data.matches.map((match: {
-            id: string;
-            status: string;
-            teamA: { id: string; name: string };
-            teamB: { id: string; name: string };
-            scoreA?: number;
-            scoreB?: number;
-            startTime?: string;
-            venue?: string;
-          }) => ({
-            ...match,
-            teamA: {
-              ...match.teamA,
-              sportIds: [],
-              playerIds: [],
-              managers: [],
-              tournaments: [],
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
-            teamB: {
-              ...match.teamB,
-              sportIds: [],
-              playerIds: [],
-              managers: [],
-              tournaments: [],
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
-            scheduledTime: match.startTime || new Date().toISOString(),
-            phaseId: 'phase-1',
-          }));
+          const fixtureMatches = data.matches.map(
+            (match: {
+              id: string;
+              status: string;
+              teamA: { id: string; name: string };
+              teamB: { id: string; name: string };
+              scoreA?: number;
+              scoreB?: number;
+              startTime?: string;
+              venue?: string;
+            }) => ({
+              ...match,
+              teamA: {
+                ...match.teamA,
+                sportIds: [],
+                playerIds: [],
+                managers: [],
+                tournaments: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              },
+              teamB: {
+                ...match.teamB,
+                sportIds: [],
+                playerIds: [],
+                managers: [],
+                tournaments: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              },
+              scheduledTime: match.startTime || new Date().toISOString(),
+              phaseId: 'phase-1',
+            })
+          );
           setMatches(fixtureMatches);
         } else {
           // Fallback to mock data
@@ -225,11 +227,17 @@ export function MyScheduleView() {
           {/* Teams */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex-1">
-              <div className="font-medium text-gray-900" data-testid={`team-a-${match.id}`}>
+              <div
+                className="font-medium text-gray-900"
+                data-testid={`team-a-${match.id}`}
+              >
                 {match.teamA.name}
               </div>
               <div className="text-sm text-gray-500">vs</div>
-              <div className="font-medium text-gray-900" data-testid={`team-b-${match.id}`}>
+              <div
+                className="font-medium text-gray-900"
+                data-testid={`team-b-${match.id}`}
+              >
                 {match.teamB.name}
               </div>
             </div>
@@ -272,7 +280,7 @@ export function MyScheduleView() {
           {/* Action Button */}
           {match.status === 'LIVE' && (
             <div className="mt-3 pt-3 border-t border-gray-100">
-              <button 
+              <button
                 className="w-full bg-red-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-red-700 transition-colors"
                 data-testid="view-details-button"
               >

@@ -49,13 +49,19 @@ declare global {
        * Custom command to type text without keyboard simulation (bypasses KeyboardEvent issues).
        * @example cy.typeWithoutKeyboard('input[name="name"]', 'Tournament Name')
        */
-      typeWithoutKeyboard(selector: string, text: string): Chainable<JQuery<HTMLElement>>;
+      typeWithoutKeyboard(
+        selector: string,
+        text: string
+      ): Chainable<JQuery<HTMLElement>>;
 
       /**
        * Custom command to simulate match status progression.
        * @example cy.simulateMatchProgression('match-123', 'LIVE')
        */
-      simulateMatchProgression(matchId: string, newStatus: string): Chainable<void>;
+      simulateMatchProgression(
+        matchId: string,
+        newStatus: string
+      ): Chainable<void>;
     }
   }
 }
@@ -81,16 +87,20 @@ Cypress.Commands.add('setupTournamentData', () => {
           createTournament: {
             id: 'test-tournament-123',
             name: 'Summer Basketball Championship',
-            status: 'published'
-          }
-        }
+            status: 'published',
+          },
+        },
       });
     }
   }).as('graphqlApi');
 
   // Mock REST API endpoints if needed
-  cy.intercept('GET', '**/api/tournaments/**', { fixture: 'tournament.json' }).as('getTournament');
-  cy.intercept('GET', '**/api/matches/**', { fixture: 'matches.json' }).as('getMatches');
+  cy.intercept('GET', '**/api/tournaments/**', {
+    fixture: 'tournament.json',
+  }).as('getTournament');
+  cy.intercept('GET', '**/api/matches/**', { fixture: 'matches.json' }).as(
+    'getMatches'
+  );
 });
 
 Cypress.Commands.add('mockLiveUpdates', (matchId: string) => {
@@ -105,12 +115,14 @@ Cypress.Commands.add('mockLiveUpdates', (matchId: string) => {
         homeScore: Math.floor(Math.random() * 100),
         awayScore: Math.floor(Math.random() * 100),
         timeRemaining: '05:30',
-        quarter: 4
-      }
+        quarter: 4,
+      },
     };
-    
+
     // Trigger custom event for live updates
-    win.dispatchEvent(new CustomEvent('liveMatchUpdate', { detail: mockUpdate }));
+    win.dispatchEvent(
+      new CustomEvent('liveMatchUpdate', { detail: mockUpdate })
+    );
   });
 });
 
@@ -122,65 +134,69 @@ Cypress.Commands.add('waitForTournamentCreation', () => {
   });
 });
 
-Cypress.Commands.add('simulateMatchProgression', (matchId: string, newStatus: string, scoreA?: number, scoreB?: number) => {
-  // Dispatch a custom event to simulate real-time updates
-  cy.window().then((win) => {
-    // Dispatch match status update event
-    win.dispatchEvent(
-      new CustomEvent('matchStatusUpdate', {
-        detail: {
-          matchId,
-          status: newStatus,
-          scoreA: scoreA || 0,
-          scoreB: scoreB || 0,
-        },
-      })
-    );
-    
-    // Also dispatch a more generic match update event that components might listen to
-    win.dispatchEvent(
-      new CustomEvent('matchUpdate', {
-        detail: {
-          id: matchId,
-          status: newStatus,
-          scoreA: scoreA || 0,
-          scoreB: scoreB || 0,
-          updatedAt: new Date().toISOString(),
-        },
-      })
-    );
-  });
-  
-  // Wait for DOM to update after event dispatch
-  cy.get('body').should('exist');
-});
+Cypress.Commands.add(
+  'simulateMatchProgression',
+  (matchId: string, newStatus: string, scoreA?: number, scoreB?: number) => {
+    // Dispatch a custom event to simulate real-time updates
+    cy.window().then((win) => {
+      // Dispatch match status update event
+      win.dispatchEvent(
+        new CustomEvent('matchStatusUpdate', {
+          detail: {
+            matchId,
+            status: newStatus,
+            scoreA: scoreA || 0,
+            scoreB: scoreB || 0,
+          },
+        })
+      );
+
+      // Also dispatch a more generic match update event that components might listen to
+      win.dispatchEvent(
+        new CustomEvent('matchUpdate', {
+          detail: {
+            id: matchId,
+            status: newStatus,
+            scoreA: scoreA || 0,
+            scoreB: scoreB || 0,
+            updatedAt: new Date().toISOString(),
+          },
+        })
+      );
+    });
+
+    // Wait for DOM to update after event dispatch
+    cy.get('body').should('exist');
+  }
+);
 
 // Custom command to type text without keyboard simulation
-Cypress.Commands.add('typeWithoutKeyboard', (selector: string, text: string) => {
-  cy.get(selector).then(($el) => {
-    const element = $el[0] as HTMLInputElement | HTMLTextAreaElement;
-    
-    // Set the value directly
-    element.value = text;
-    
-    // Trigger input events to notify React/frameworks of the change
-    element.dispatchEvent(new Event('input', { bubbles: true }));
-    element.dispatchEvent(new Event('change', { bubbles: true }));
-    
-    // For React specifically, trigger the synthetic event
-    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-      window.HTMLInputElement.prototype,
-      'value'
-    )?.set;
-    
-    if (nativeInputValueSetter) {
-      nativeInputValueSetter.call(element, text);
+Cypress.Commands.add(
+  'typeWithoutKeyboard',
+  (selector: string, text: string) => {
+    cy.get(selector).then(($el) => {
+      const element = $el[0] as HTMLInputElement | HTMLTextAreaElement;
+
+      // Set the value directly
+      element.value = text;
+
+      // Trigger input events to notify React/frameworks of the change
       element.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-  });
-});
+      element.dispatchEvent(new Event('change', { bubbles: true }));
 
+      // For React specifically, trigger the synthetic event
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        'value'
+      )?.set;
 
+      if (nativeInputValueSetter) {
+        nativeInputValueSetter.call(element, text);
+        element.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+  }
+);
 
 // Prevent TypeScript from reading file as legacy script
 export {};

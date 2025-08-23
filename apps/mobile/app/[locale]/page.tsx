@@ -105,7 +105,9 @@ export default async function HomePage({ params }: PageProps) {
 
         {/* Tournament Registration Section */}
         <div className="bg-green-50 p-4 rounded border border-green-200">
-          <h3 className="font-semibold text-green-800 mb-2">Tournament Registration</h3>
+          <h3 className="font-semibold text-green-800 mb-2">
+            Tournament Registration
+          </h3>
           <p className="text-sm text-green-700 mb-3">
             Register your team for upcoming tournaments
           </p>

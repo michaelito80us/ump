@@ -59,11 +59,16 @@ class GlobalKeyboardEventPolyfill extends Event implements KeyboardEvent {
 
   getModifierState(key: string): boolean {
     switch (key) {
-      case 'Control': return this.ctrlKey;
-      case 'Shift': return this.shiftKey;
-      case 'Alt': return this.altKey;
-      case 'Meta': return this.metaKey;
-      default: return false;
+      case 'Control':
+        return this.ctrlKey;
+      case 'Shift':
+        return this.shiftKey;
+      case 'Alt':
+        return this.altKey;
+      case 'Meta':
+        return this.metaKey;
+      default:
+        return false;
     }
   }
 
@@ -102,19 +107,23 @@ class GlobalKeyboardEventPolyfill extends Event implements KeyboardEvent {
 
 // Set the polyfill globally on all possible contexts immediately
 if (typeof window !== 'undefined') {
-  (window as Window & { KeyboardEvent?: typeof KeyboardEvent }).KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+  (window as Window & { KeyboardEvent?: typeof KeyboardEvent }).KeyboardEvent =
+    GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
 }
 if (typeof global !== 'undefined') {
-  (global as Record<string, unknown>).KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+  (global as Record<string, unknown>).KeyboardEvent =
+    GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
 }
 if (typeof globalThis !== 'undefined') {
-  (globalThis as Record<string, unknown>).KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+  (globalThis as Record<string, unknown>).KeyboardEvent =
+    GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
 }
 
 // Also set on Cypress global if available
 if (typeof Cypress !== 'undefined') {
-  (Cypress as unknown as Record<string, unknown>).KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
-  
+  (Cypress as unknown as Record<string, unknown>).KeyboardEvent =
+    GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+
   // Set on Cypress.env for global access
   try {
     Cypress.env('KeyboardEvent', GlobalKeyboardEventPolyfill);
@@ -126,8 +135,9 @@ if (typeof Cypress !== 'undefined') {
 // Add KeyboardEvent polyfill for Cypress - ensure it's always available
 Cypress.on('window:before:load', (win) => {
   // Always set the polyfill, even if KeyboardEvent exists
-  win.KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
-  
+  win.KeyboardEvent =
+    GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+
   // Also ensure it's available on the global object and globalThis
   interface WindowWithGlobal extends Window {
     global?: Record<string, unknown>;
@@ -135,28 +145,33 @@ Cypress.on('window:before:load', (win) => {
   }
   const winWithGlobal = win as WindowWithGlobal;
   winWithGlobal.global = winWithGlobal.global || {};
-  winWithGlobal.global.KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
-  
+  winWithGlobal.global.KeyboardEvent =
+    GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+
   // Ensure it's on globalThis as well
   if (winWithGlobal.globalThis) {
-    winWithGlobal.globalThis.KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+    winWithGlobal.globalThis.KeyboardEvent =
+      GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
   }
-  
+
   // Set on the window's parent if it exists (for iframe contexts)
   try {
     if (win.parent && win.parent !== win) {
-      (win.parent as Window & { KeyboardEvent?: typeof KeyboardEvent }).KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+      (
+        win.parent as Window & { KeyboardEvent?: typeof KeyboardEvent }
+      ).KeyboardEvent =
+        GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
     }
   } catch {
     // Ignore cross-origin errors
   }
-  
+
   // Override the window's KeyboardEvent constructor to ensure it's always available
   Object.defineProperty(win, 'KeyboardEvent', {
     value: GlobalKeyboardEventPolyfill,
     writable: true,
     configurable: true,
-    enumerable: true
+    enumerable: true,
   });
 });
 
@@ -164,13 +179,16 @@ Cypress.on('window:before:load', (win) => {
 Cypress.on('test:before:run', () => {
   // Ensure the polyfill is available in all contexts before any test runs
   if (typeof window !== 'undefined') {
-    window.KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+    window.KeyboardEvent =
+      GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
   }
   if (typeof global !== 'undefined') {
-    (global as Record<string, unknown>).KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+    (global as Record<string, unknown>).KeyboardEvent =
+      GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
   }
   if (typeof globalThis !== 'undefined') {
-    (globalThis as Record<string, unknown>).KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+    (globalThis as Record<string, unknown>).KeyboardEvent =
+      GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
   }
 });
 
@@ -178,19 +196,31 @@ Cypress.on('test:before:run', () => {
 beforeEach(() => {
   cy.window().then((win) => {
     // Ensure KeyboardEvent is available on the window
-    win.KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
-    
+    win.KeyboardEvent =
+      GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+
     // Also ensure it's available on the document
     if (win.document) {
-      (win.document as unknown as Record<string, unknown>).KeyboardEvent = GlobalKeyboardEventPolyfill;
+      (win.document as unknown as Record<string, unknown>).KeyboardEvent =
+        GlobalKeyboardEventPolyfill;
     }
-    
+
     // Set it on all possible global contexts within the window
     if ((win as unknown as Record<string, unknown>).global) {
-      ((win as unknown as Record<string, unknown>).global as Record<string, unknown>).KeyboardEvent = GlobalKeyboardEventPolyfill;
+      (
+        (win as unknown as Record<string, unknown>).global as Record<
+          string,
+          unknown
+        >
+      ).KeyboardEvent = GlobalKeyboardEventPolyfill;
     }
     if ((win as unknown as Record<string, unknown>).globalThis) {
-      ((win as unknown as Record<string, unknown>).globalThis as Record<string, unknown>).KeyboardEvent = GlobalKeyboardEventPolyfill;
+      (
+        (win as unknown as Record<string, unknown>).globalThis as Record<
+          string,
+          unknown
+        >
+      ).KeyboardEvent = GlobalKeyboardEventPolyfill;
     }
   });
 });
@@ -198,34 +228,46 @@ beforeEach(() => {
 // Also ensure it's available immediately on all global contexts
 if (typeof window !== 'undefined') {
   // Always set the polyfill on all possible global contexts
-  window.KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
-  
+  window.KeyboardEvent =
+    GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+
   // Also set on global and globalThis if they exist
   if (typeof global !== 'undefined') {
-    (global as Record<string, unknown>).KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+    (global as Record<string, unknown>).KeyboardEvent =
+      GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
   }
   if (typeof globalThis !== 'undefined') {
-    (globalThis as Record<string, unknown>).KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+    (globalThis as Record<string, unknown>).KeyboardEvent =
+      GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
   }
-  
+
   // Set on window.global if it exists
   if ((window as Window & { global?: Record<string, unknown> }).global) {
-    (window as Window & { global: Record<string, unknown> }).global.KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+    (
+      window as Window & { global: Record<string, unknown> }
+    ).global.KeyboardEvent =
+      GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
   }
-  
+
   // Try to set on parent window for iframe contexts
   try {
     if (window.parent && window.parent !== window) {
-      (window.parent as Window & { KeyboardEvent?: typeof KeyboardEvent }).KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+      (
+        window.parent as Window & { KeyboardEvent?: typeof KeyboardEvent }
+      ).KeyboardEvent =
+        GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
     }
   } catch {
     // Ignore cross-origin errors
   }
-  
+
   // Set on window.top for nested iframe contexts
   try {
     if (window.top && window.top !== window) {
-      (window.top as Window & { KeyboardEvent?: typeof KeyboardEvent }).KeyboardEvent = GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
+      (
+        window.top as Window & { KeyboardEvent?: typeof KeyboardEvent }
+      ).KeyboardEvent =
+        GlobalKeyboardEventPolyfill as unknown as typeof KeyboardEvent;
     }
   } catch {
     // Ignore cross-origin errors

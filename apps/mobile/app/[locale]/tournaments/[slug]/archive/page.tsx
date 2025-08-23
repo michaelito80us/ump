@@ -48,7 +48,7 @@ export default function TournamentArchivePage() {
       champion: 'Thunder Bolts',
       runnerUp: 'Fire Dragons',
       topScorer: 'John Smith (Thunder Bolts)',
-      totalGoals: 45
+      totalGoals: 45,
     };
 
     const mockMatches: ArchiveMatch[] = [
@@ -59,7 +59,7 @@ export default function TournamentArchivePage() {
         homeScore: 25,
         awayScore: 18,
         date: '2024-01-15',
-        round: 'Final'
+        round: 'Final',
       },
       {
         id: '2',
@@ -68,7 +68,7 @@ export default function TournamentArchivePage() {
         homeScore: 15,
         awayScore: 22,
         date: '2024-01-14',
-        round: 'Semi-Final'
+        round: 'Semi-Final',
       },
       {
         id: '3',
@@ -77,10 +77,10 @@ export default function TournamentArchivePage() {
         homeScore: 30,
         awayScore: 12,
         date: '2024-01-14',
-        round: 'Semi-Final'
-      }
+        round: 'Semi-Final',
+      },
     ];
-    
+
     setTimeout(() => {
       setTournament(mockTournament);
       setMatches(mockMatches);
@@ -91,7 +91,9 @@ export default function TournamentArchivePage() {
   if (loading) {
     return (
       <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4">Loading Tournament Archive...</h1>
+        <h1 className="text-2xl font-bold mb-4">
+          Loading Tournament Archive...
+        </h1>
       </div>
     );
   }
@@ -107,7 +109,7 @@ export default function TournamentArchivePage() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Tournament Archive</h1>
-      
+
       {/* Tournament Header */}
       <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -116,7 +118,7 @@ export default function TournamentArchivePage() {
             COMPLETED
           </span>
         </div>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
             <span className="text-gray-600">Sport:</span>
@@ -125,7 +127,8 @@ export default function TournamentArchivePage() {
           <div>
             <span className="text-gray-600">Duration:</span>
             <div className="font-medium">
-              {new Date(tournament.startDate).toLocaleDateString()} - {new Date(tournament.endDate).toLocaleDateString()}
+              {new Date(tournament.startDate).toLocaleDateString()} -{' '}
+              {new Date(tournament.endDate).toLocaleDateString()}
             </div>
           </div>
           <div>
@@ -142,26 +145,28 @@ export default function TournamentArchivePage() {
       {/* Championship Results */}
       <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
         <h3 className="text-lg font-semibold mb-4">Championship Results</h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="text-center p-4 bg-yellow-50 rounded-lg border border-yellow-200">
             <div className="text-2xl mb-2">🏆</div>
             <div className="text-lg font-bold text-yellow-800">Champion</div>
             <div className="text-xl font-semibold">{tournament.champion}</div>
           </div>
-          
+
           <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
             <div className="text-2xl mb-2">🥈</div>
             <div className="text-lg font-bold text-gray-700">Runner-up</div>
             <div className="text-xl font-semibold">{tournament.runnerUp}</div>
           </div>
         </div>
-        
+
         {tournament.topScorer && (
           <div className="mt-4 text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
             <div className="text-lg font-bold text-blue-800">Top Scorer</div>
             <div className="text-xl font-semibold">{tournament.topScorer}</div>
-            <div className="text-sm text-blue-600">{tournament.totalGoals} points</div>
+            <div className="text-sm text-blue-600">
+              {tournament.totalGoals} points
+            </div>
           </div>
         )}
       </div>
@@ -171,7 +176,7 @@ export default function TournamentArchivePage() {
         <div className="px-6 py-4 border-b bg-gray-50">
           <h3 className="text-lg font-semibold">Match Results</h3>
         </div>
-        
+
         <div className="divide-y divide-gray-200">
           {matches.map((match) => (
             <div key={match.id} className="p-4 hover:bg-gray-50">
@@ -200,7 +205,7 @@ export default function TournamentArchivePage() {
           ))}
         </div>
       </div>
-      
+
       <div className="mt-6 text-center">
         <button className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mr-3">
           Download Tournament Report

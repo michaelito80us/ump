@@ -49,6 +49,7 @@ This session focused on investigating and attempting to resolve webpack module l
    - Removed Turbopack experimental settings
 
 2. **Webpack Optimization**
+
    ```javascript
    webpack: (config, { dev, isServer }) => {
      if (dev && !isServer) {

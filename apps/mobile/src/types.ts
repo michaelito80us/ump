@@ -1,6 +1,11 @@
 // Type definitions for the mobile app
 
-export type TournamentStatus = 'DRAFT' | 'PUBLISHED' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
+export type TournamentStatus =
+  | 'DRAFT'
+  | 'PUBLISHED'
+  | 'ACTIVE'
+  | 'COMPLETED'
+  | 'CANCELLED';
 
 export interface Team {
   id: string;

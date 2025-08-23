@@ -8,20 +8,22 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <OfflineIndicator />
-      
+
       <div className="container mx-auto px-4 py-8">
         <header className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             {t('appTitle', { default: 'Tournament Management' })}
           </h1>
           <p className="text-gray-600">
-            {t('appSubtitle', { default: 'Live scores, schedules, and results' })}
+            {t('appSubtitle', {
+              default: 'Live scores, schedules, and results',
+            })}
           </p>
         </header>
 
         <nav className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Link 
-            href="/schedule" 
+          <Link
+            href="/schedule"
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
             data-testid="nav-schedule"
           >
@@ -36,8 +38,8 @@ export default function HomePage() {
             </div>
           </Link>
 
-          <Link 
-            href="/live" 
+          <Link
+            href="/live"
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
             data-testid="nav-live"
           >
@@ -52,8 +54,8 @@ export default function HomePage() {
             </div>
           </Link>
 
-          <Link 
-            href="/results" 
+          <Link
+            href="/results"
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
             data-testid="nav-results"
           >
@@ -68,8 +70,8 @@ export default function HomePage() {
             </div>
           </Link>
 
-          <Link 
-            href="/setup" 
+          <Link
+            href="/setup"
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
             data-testid="nav-setup"
           >
@@ -87,14 +89,20 @@ export default function HomePage() {
 
         <section className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            {t('tournamentRegistration', { default: 'Tournament Registration' })}
+            {t('tournamentRegistration', {
+              default: 'Tournament Registration',
+            })}
           </h2>
           <p className="text-gray-600 mb-4">
-            {t('registrationDesc', { default: 'Register your team for upcoming tournaments' })}
+            {t('registrationDesc', {
+              default: 'Register your team for upcoming tournaments',
+            })}
           </p>
           <div className="text-center">
             <span className="text-sm text-gray-500">
-              {t('registrationAvailable', { default: 'Registration available for upcoming tournaments' })}
+              {t('registrationAvailable', {
+                default: 'Registration available for upcoming tournaments',
+              })}
             </span>
           </div>
         </section>

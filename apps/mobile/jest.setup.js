@@ -94,7 +94,7 @@ class KeyboardEventPolyfill extends Event {
     this.repeat = eventInitDict.repeat || false;
     this.location = eventInitDict.location || 0;
   }
-  
+
   static DOM_KEY_LOCATION_STANDARD = 0;
   static DOM_KEY_LOCATION_LEFT = 1;
   static DOM_KEY_LOCATION_RIGHT = 2;

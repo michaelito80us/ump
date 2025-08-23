@@ -21,10 +21,7 @@
     "rules": {
       "matchDuration": 40,
       "statTier": "advanced",
-      "tiebreakers": [
-        "head-to-head",
-        "point-differential"
-      ]
+      "tiebreakers": ["head-to-head", "point-differential"]
     }
   },
   "teams": [

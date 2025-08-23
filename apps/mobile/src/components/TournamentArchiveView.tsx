@@ -26,8 +26,8 @@ const mockArchivedTournaments: ArchivedTournament[] = [
     totalTeams: 16,
     winner: {
       id: 'team-1',
-      name: 'Dragons'
-    }
+      name: 'Dragons',
+    },
   },
   {
     id: 'tournament-2',
@@ -48,8 +48,8 @@ const mockArchivedTournaments: ArchivedTournament[] = [
     totalTeams: 12,
     winner: {
       id: 'team-2',
-      name: 'Lions'
-    }
+      name: 'Lions',
+    },
   },
   {
     id: 'tournament-3',
@@ -70,9 +70,9 @@ const mockArchivedTournaments: ArchivedTournament[] = [
     totalTeams: 8,
     winner: {
       id: 'team-3',
-      name: 'Eagles'
-    }
-  }
+      name: 'Eagles',
+    },
+  },
 ];
 
 export function TournamentArchiveView() {
@@ -87,7 +87,7 @@ export function TournamentArchiveView() {
     const fetchTournaments = async () => {
       setLoading(true);
       // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       setTournaments(mockArchivedTournaments);
       setLoading(false);
     };
@@ -100,7 +100,7 @@ export function TournamentArchiveView() {
     return date.toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -109,12 +109,20 @@ export function TournamentArchiveView() {
   };
 
   const availableYears = Array.from(
-    new Set(tournaments.map(t => t.completedAt ? getYearFromDate(t.completedAt) : '').filter(Boolean))
+    new Set(
+      tournaments
+        .map((t) => (t.completedAt ? getYearFromDate(t.completedAt) : ''))
+        .filter(Boolean)
+    )
   ).sort((a, b) => parseInt(b) - parseInt(a));
 
-  const filteredTournaments = selectedYear === 'all' 
-    ? tournaments 
-    : tournaments.filter(t => t.completedAt && getYearFromDate(t.completedAt) === selectedYear);
+  const filteredTournaments =
+    selectedYear === 'all'
+      ? tournaments
+      : tournaments.filter(
+          (t) =>
+            t.completedAt && getYearFromDate(t.completedAt) === selectedYear
+        );
 
   if (loading) {
     return (
@@ -156,7 +164,10 @@ export function TournamentArchiveView() {
       {/* Filter Controls */}
       <div className="mb-6">
         <div className="flex items-center space-x-4">
-          <label htmlFor="year-filter" className="text-sm font-medium text-gray-700">
+          <label
+            htmlFor="year-filter"
+            className="text-sm font-medium text-gray-700"
+          >
             {t('filterByYear')}
           </label>
           <select
@@ -167,8 +178,10 @@ export function TournamentArchiveView() {
             data-testid="year-filter"
           >
             <option value="all">{t('allYears')}</option>
-            {availableYears.map(year => (
-              <option key={year} value={year}>{year}</option>
+            {availableYears.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
             ))}
           </select>
         </div>
@@ -177,7 +190,9 @@ export function TournamentArchiveView() {
       {/* Tournament Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-blue-600">{filteredTournaments.length}</div>
+          <div className="text-2xl font-bold text-blue-600">
+            {filteredTournaments.length}
+          </div>
           <div className="text-sm text-gray-600">{t('totalTournaments')}</div>
         </div>
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
@@ -205,12 +220,20 @@ export function TournamentArchiveView() {
             {/* Tournament Header */}
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 mb-1" data-testid={`tournament-name-${tournament.id}`}>
+                <h3
+                  className="text-lg font-semibold text-gray-900 mb-1"
+                  data-testid={`tournament-name-${tournament.id}`}
+                >
                   {tournament.name}
                 </h3>
-                <p className="text-gray-600 text-sm mb-2">{tournament.description}</p>
+                <p className="text-gray-600 text-sm mb-2">
+                  {tournament.description}
+                </p>
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <span>{formatDate(tournament.startDate)} - {formatDate(tournament.endDate)}</span>
+                  <span>
+                    {formatDate(tournament.startDate)} -{' '}
+                    {formatDate(tournament.endDate)}
+                  </span>
                   <span>•</span>
                   <span>{tournament.location}</span>
                 </div>
@@ -218,10 +241,21 @@ export function TournamentArchiveView() {
               {tournament.winner && (
                 <div className="text-right">
                   <div className="flex items-center space-x-2">
-                    <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    <svg
+                      className="w-5 h-5 text-yellow-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
                     </svg>
-                    <span className="text-sm font-medium text-gray-900" data-testid={`tournament-winner-${tournament.id}`}>
+                    <span
+                      className="text-sm font-medium text-gray-900"
+                      data-testid={`tournament-winner-${tournament.id}`}
+                    >
                       {tournament.winner.name}
                     </span>
                   </div>
@@ -233,16 +267,24 @@ export function TournamentArchiveView() {
             {/* Tournament Stats */}
             <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
               <div className="text-center">
-                <div className="text-lg font-semibold text-gray-900">{tournament.totalTeams}</div>
+                <div className="text-lg font-semibold text-gray-900">
+                  {tournament.totalTeams}
+                </div>
                 <div className="text-xs text-gray-500">{t('teams')}</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-semibold text-gray-900">{tournament.totalMatches}</div>
+                <div className="text-lg font-semibold text-gray-900">
+                  {tournament.totalMatches}
+                </div>
                 <div className="text-xs text-gray-500">{t('matches')}</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-semibold text-gray-900">
-                  {Math.ceil((new Date(tournament.endDate).getTime() - new Date(tournament.startDate).getTime()) / (1000 * 60 * 60 * 24))}
+                  {Math.ceil(
+                    (new Date(tournament.endDate).getTime() -
+                      new Date(tournament.startDate).getTime()) /
+                      (1000 * 60 * 60 * 24)
+                  )}
                 </div>
                 <div className="text-xs text-gray-500">{t('days')}</div>
               </div>

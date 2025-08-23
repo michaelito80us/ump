@@ -9,13 +9,13 @@ export default function LivePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <OfflineIndicator />
-      
+
       <div className="container mx-auto px-4 py-8">
         <header className="mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
-                <div 
+                <div
                   className="w-3 h-3 bg-red-500 rounded-full animate-pulse"
                   data-testid="live-indicator"
                 ></div>
@@ -24,7 +24,7 @@ export default function LivePage() {
                 </h1>
               </div>
             </div>
-            <Link 
+            <Link
               href="/"
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >
@@ -32,7 +32,9 @@ export default function LivePage() {
             </Link>
           </div>
           <p className="text-gray-600">
-            {t('subtitle', { default: 'Real-time match updates and live scores' })}
+            {t('subtitle', {
+              default: 'Real-time match updates and live scores',
+            })}
           </p>
         </header>
 

@@ -162,31 +162,33 @@ export function LiveScoresView({
     // Listen for custom DOM events from E2E tests
     const handleMatchStatusUpdate = (event: CustomEvent) => {
       const { matchId, status } = event.detail;
-      setMatches((prevMatches) => 
-        prevMatches.map((match) => 
-          match.id === matchId ? { ...match, status: status as MatchStatus } : match
+      setMatches((prevMatches) =>
+        prevMatches.map((match) =>
+          match.id === matchId
+            ? { ...match, status: status as MatchStatus }
+            : match
         )
       );
     };
 
     const handleMatchUpdate = (event: CustomEvent) => {
       const { matchId, scoreA, scoreB, status } = event.detail;
-      setMatches((prevMatches) => 
+      setMatches((prevMatches) =>
         prevMatches.map((match) => {
           if (match.id === matchId) {
-            const updatedMatch = { 
-              ...match, 
+            const updatedMatch = {
+              ...match,
               scoreA: scoreA ?? match.scoreA,
               scoreB: scoreB ?? match.scoreB,
-              status: status ? (status as MatchStatus) : match.status
+              status: status ? (status as MatchStatus) : match.status,
             };
-            
+
             // Update previous scores for animation tracking
             previousScores.current[matchId] = {
               scoreA: updatedMatch.scoreA,
               scoreB: updatedMatch.scoreB,
             };
-            
+
             return updatedMatch;
           }
           return match;
@@ -195,13 +197,22 @@ export function LiveScoresView({
     };
 
     // Add event listeners
-    window.addEventListener('matchStatusUpdate', handleMatchStatusUpdate as EventListener);
+    window.addEventListener(
+      'matchStatusUpdate',
+      handleMatchStatusUpdate as EventListener
+    );
     window.addEventListener('matchUpdate', handleMatchUpdate as EventListener);
 
     // Cleanup event listeners
     return () => {
-      window.removeEventListener('matchStatusUpdate', handleMatchStatusUpdate as EventListener);
-      window.removeEventListener('matchUpdate', handleMatchUpdate as EventListener);
+      window.removeEventListener(
+        'matchStatusUpdate',
+        handleMatchStatusUpdate as EventListener
+      );
+      window.removeEventListener(
+        'matchUpdate',
+        handleMatchUpdate as EventListener
+      );
     };
   }, []);
 
@@ -253,7 +264,10 @@ export function LiveScoresView({
     <div className="p-4 space-y-4" data-testid="live-scores-view">
       {/* Live indicator */}
       <div className="flex items-center justify-center mb-4">
-        <div className="flex items-center space-x-2 bg-red-100 text-red-800 px-3 py-1 rounded-full" data-testid="live-indicator">
+        <div
+          className="flex items-center space-x-2 bg-red-100 text-red-800 px-3 py-1 rounded-full"
+          data-testid="live-indicator"
+        >
           <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
           <span className="text-sm font-medium">{t('live')}</span>
         </div>
@@ -262,7 +276,9 @@ export function LiveScoresView({
       {matches.map((match, index) => (
         <div
           key={match.id}
-          data-testid={index === 0 ? 'live-match-card' : `live-match-card-${match.id}`}
+          data-testid={
+            index === 0 ? 'live-match-card' : `live-match-card-${match.id}`
+          }
           className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
         >
           {/* Match Header */}
@@ -286,7 +302,10 @@ export function LiveScoresView({
             <div className="flex items-center justify-between">
               {/* Team A */}
               <div className="flex-1 text-center">
-                <div className="font-semibold text-lg text-gray-900 mb-1" data-testid={`live-team-a-name-${match.id}`}>
+                <div
+                  className="font-semibold text-lg text-gray-900 mb-1"
+                  data-testid={`live-team-a-name-${match.id}`}
+                >
                   {match.teamA.name}
                 </div>
                 <motion.div
@@ -313,7 +332,10 @@ export function LiveScoresView({
 
               {/* Team B */}
               <div className="flex-1 text-center">
-                <div className="font-semibold text-lg text-gray-900 mb-1" data-testid={`live-team-b-name-${match.id}`}>
+                <div
+                  className="font-semibold text-lg text-gray-900 mb-1"
+                  data-testid={`live-team-b-name-${match.id}`}
+                >
                   {match.teamB.name}
                 </div>
                 <motion.div

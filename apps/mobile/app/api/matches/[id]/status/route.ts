@@ -24,29 +24,29 @@ const matches: Match[] = [
     status: 'PENDING',
     homeTeam: { id: '1', name: 'Fire Dragons', score: 0 },
     awayTeam: { id: '2', name: 'Thunder Bolts', score: 0 },
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   },
   {
     id: '2',
     status: 'LIVE',
     homeTeam: { id: '3', name: 'Storm Eagles', score: 45 },
     awayTeam: { id: '4', name: 'Lightning Wolves', score: 42 },
-    updatedAt: new Date().toISOString()
-  }
+    updatedAt: new Date().toISOString(),
+  },
 ];
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const { id } = await params;
     const { status, homeTeamScore, awayTeamScore } = await request.json();
 
     // Find the match
-    const matchIndex = matches.findIndex(m => m.id === id);
+    const matchIndex = matches.findIndex((m) => m.id === id);
     if (matchIndex === -1) {
-      return NextResponse.json(
-        { error: 'Match not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Match not found' }, { status: 404 });
     }
 
     // Update match status and scores
@@ -55,18 +55,18 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       status,
       homeTeam: {
         ...matches[matchIndex].homeTeam,
-        score: homeTeamScore ?? matches[matchIndex].homeTeam.score
+        score: homeTeamScore ?? matches[matchIndex].homeTeam.score,
       },
       awayTeam: {
         ...matches[matchIndex].awayTeam,
-        score: awayTeamScore ?? matches[matchIndex].awayTeam.score
+        score: awayTeamScore ?? matches[matchIndex].awayTeam.score,
       },
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
     return NextResponse.json({
       success: true,
-      match: matches[matchIndex]
+      match: matches[matchIndex],
     });
   } catch (error) {
     console.error('Failed to update match status:', error);
@@ -77,24 +77,21 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const { id } = await params;
-    
-    const match = matches.find(m => m.id === id);
+
+    const match = matches.find((m) => m.id === id);
     if (!match) {
-      return NextResponse.json(
-        { error: 'Match not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Match not found' }, { status: 404 });
     }
 
     return NextResponse.json({ match });
   } catch (error) {
     console.error('Failed to get match:', error);
-    return NextResponse.json(
-      { error: 'Failed to get match' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to get match' }, { status: 500 });
   }
 }

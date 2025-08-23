@@ -24,15 +24,15 @@ const matches: Match[] = [
     status: 'PENDING',
     homeTeam: { id: '1', name: 'Fire Dragons', score: 0 },
     awayTeam: { id: '2', name: 'Thunder Bolts', score: 0 },
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   },
   {
     id: '2',
     status: 'LIVE',
     homeTeam: { id: '3', name: 'Storm Eagles', score: 45 },
     awayTeam: { id: '4', name: 'Lightning Wolves', score: 42 },
-    updatedAt: new Date().toISOString()
-  }
+    updatedAt: new Date().toISOString(),
+  },
 ];
 
 export async function POST(request: NextRequest) {
@@ -43,11 +43,14 @@ export async function POST(request: NextRequest) {
       const { matchId, status, homeTeamScore, awayTeamScore } = variables;
 
       // Find the match
-      const matchIndex = matches.findIndex(m => m.id === matchId);
+      const matchIndex = matches.findIndex((m) => m.id === matchId);
       if (matchIndex === -1) {
-        return NextResponse.json({
-          errors: [{ message: 'Match not found' }]
-        }, { status: 404 });
+        return NextResponse.json(
+          {
+            errors: [{ message: 'Match not found' }],
+          },
+          { status: 404 }
+        );
       }
 
       // Update match status and scores
@@ -56,13 +59,13 @@ export async function POST(request: NextRequest) {
         status,
         homeTeam: {
           ...matches[matchIndex].homeTeam,
-          score: homeTeamScore ?? matches[matchIndex].homeTeam.score
+          score: homeTeamScore ?? matches[matchIndex].homeTeam.score,
         },
         awayTeam: {
           ...matches[matchIndex].awayTeam,
-          score: awayTeamScore ?? matches[matchIndex].awayTeam.score
+          score: awayTeamScore ?? matches[matchIndex].awayTeam.score,
         },
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       return NextResponse.json({
@@ -71,47 +74,53 @@ export async function POST(request: NextRequest) {
             id: matches[matchIndex].id,
             status: matches[matchIndex].status,
             homeTeam: {
-              score: matches[matchIndex].homeTeam.score
+              score: matches[matchIndex].homeTeam.score,
             },
             awayTeam: {
-              score: matches[matchIndex].awayTeam.score
-            }
-          }
-        }
+              score: matches[matchIndex].awayTeam.score,
+            },
+          },
+        },
       });
     }
 
     if (operationName === 'GetMatches') {
       return NextResponse.json({
         data: {
-          matches: matches.map(match => ({
+          matches: matches.map((match) => ({
             id: match.id,
             status: match.status,
             teamA: match.homeTeam,
             teamB: match.awayTeam,
             scoreA: match.homeTeam.score,
             scoreB: match.awayTeam.score,
-            startedAt: match.updatedAt
-          }))
-        }
+            startedAt: match.updatedAt,
+          })),
+        },
       });
     }
 
     // Default response for unknown operations
-    return NextResponse.json({
-      errors: [{ message: `Unknown operation: ${operationName}` }]
-    }, { status: 400 });
-
+    return NextResponse.json(
+      {
+        errors: [{ message: `Unknown operation: ${operationName}` }],
+      },
+      { status: 400 }
+    );
   } catch (error) {
     console.error('GraphQL API error:', error);
-    return NextResponse.json({
-      errors: [{ message: 'Internal server error' }]
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        errors: [{ message: 'Internal server error' }],
+      },
+      { status: 500 }
+    );
   }
 }
 
 export async function GET() {
   return NextResponse.json({
-    message: 'GraphQL endpoint is available. Use POST for queries and mutations.'
+    message:
+      'GraphQL endpoint is available. Use POST for queries and mutations.',
   });
 }

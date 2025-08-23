@@ -26,10 +26,13 @@ export default function SetupPage() {
     maxPlayersPerTeam: 12,
   });
 
-  const handleInputChange = (field: keyof TournamentData, value: string | number) => {
-    setTournamentData(prev => ({
+  const handleInputChange = (
+    field: keyof TournamentData,
+    value: string | number
+  ) => {
+    setTournamentData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -42,10 +45,10 @@ export default function SetupPage() {
   const handlePublish = async () => {
     // Simulate tournament creation
     console.log('Creating tournament:', tournamentData);
-    
+
     // Mock API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     // Redirect to tournament page
     router.push('/en');
   };
@@ -54,14 +57,20 @@ export default function SetupPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-2xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Tournament</h1>
-          <p className="text-gray-600 mb-8">Set up your tournament step by step</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Create New Tournament
+          </h1>
+          <p className="text-gray-600 mb-8">
+            Set up your tournament step by step
+          </p>
 
           {/* Step 1: Basics */}
           {step === 1 && (
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold">Step 1: Tournament Basics</h2>
-              
+              <h2 className="text-xl font-semibold">
+                Step 1: Tournament Basics
+              </h2>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Tournament Name
@@ -102,7 +111,9 @@ export default function SetupPage() {
                     type="date"
                     data-testid="start-date"
                     value={tournamentData.startDate}
-                    onChange={(e) => handleInputChange('startDate', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange('startDate', e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -114,7 +125,9 @@ export default function SetupPage() {
                     type="date"
                     data-testid="end-date"
                     value={tournamentData.endDate}
-                    onChange={(e) => handleInputChange('endDate', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange('endDate', e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -126,7 +139,7 @@ export default function SetupPage() {
           {step === 2 && (
             <div className="space-y-6">
               <h2 className="text-xl font-semibold">Step 2: Teams & Players</h2>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Maximum Teams
@@ -135,7 +148,9 @@ export default function SetupPage() {
                   type="number"
                   data-testid="max-teams"
                   value={tournamentData.maxTeams}
-                  onChange={(e) => handleInputChange('maxTeams', parseInt(e.target.value))}
+                  onChange={(e) =>
+                    handleInputChange('maxTeams', parseInt(e.target.value))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   min="2"
                   max="32"
@@ -151,7 +166,12 @@ export default function SetupPage() {
                     type="number"
                     data-testid="min-players"
                     value={tournamentData.minPlayersPerTeam}
-                    onChange={(e) => handleInputChange('minPlayersPerTeam', parseInt(e.target.value))}
+                    onChange={(e) =>
+                      handleInputChange(
+                        'minPlayersPerTeam',
+                        parseInt(e.target.value)
+                      )
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     min="1"
                   />
@@ -164,7 +184,12 @@ export default function SetupPage() {
                     type="number"
                     data-testid="max-players"
                     value={tournamentData.maxPlayersPerTeam}
-                    onChange={(e) => handleInputChange('maxPlayersPerTeam', parseInt(e.target.value))}
+                    onChange={(e) =>
+                      handleInputChange(
+                        'maxPlayersPerTeam',
+                        parseInt(e.target.value)
+                      )
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     min="1"
                   />
@@ -176,33 +201,59 @@ export default function SetupPage() {
           {/* Step 3: Format */}
           {step === 3 && (
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold">Step 3: Tournament Format</h2>
-              <p className="text-gray-600">Tournament format configuration will be implemented here.</p>
+              <h2 className="text-xl font-semibold">
+                Step 3: Tournament Format
+              </h2>
+              <p className="text-gray-600">
+                Tournament format configuration will be implemented here.
+              </p>
             </div>
           )}
 
           {/* Step 4: Plugins */}
           {step === 4 && (
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold">Step 4: Plugins & Features</h2>
-              <p className="text-gray-600">Plugin configuration will be implemented here.</p>
+              <h2 className="text-xl font-semibold">
+                Step 4: Plugins & Features
+              </h2>
+              <p className="text-gray-600">
+                Plugin configuration will be implemented here.
+              </p>
             </div>
           )}
 
           {/* Step 5: Rules */}
           {step === 5 && (
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold">Step 5: Rules & Settings</h2>
-              <p className="text-gray-600">Tournament rules configuration will be implemented here.</p>
-              
+              <h2 className="text-xl font-semibold">
+                Step 5: Rules & Settings
+              </h2>
+              <p className="text-gray-600">
+                Tournament rules configuration will be implemented here.
+              </p>
+
               <div className="bg-blue-50 p-4 rounded-md">
-                <h3 className="font-medium text-blue-900 mb-2">Tournament Summary</h3>
+                <h3 className="font-medium text-blue-900 mb-2">
+                  Tournament Summary
+                </h3>
                 <ul className="text-sm text-blue-800 space-y-1">
-                  <li><strong>Name:</strong> {tournamentData.name}</li>
-                  <li><strong>Sport:</strong> {tournamentData.sport}</li>
-                  <li><strong>Dates:</strong> {tournamentData.startDate} to {tournamentData.endDate}</li>
-                  <li><strong>Teams:</strong> Up to {tournamentData.maxTeams}</li>
-                  <li><strong>Players:</strong> {tournamentData.minPlayersPerTeam}-{tournamentData.maxPlayersPerTeam} per team</li>
+                  <li>
+                    <strong>Name:</strong> {tournamentData.name}
+                  </li>
+                  <li>
+                    <strong>Sport:</strong> {tournamentData.sport}
+                  </li>
+                  <li>
+                    <strong>Dates:</strong> {tournamentData.startDate} to{' '}
+                    {tournamentData.endDate}
+                  </li>
+                  <li>
+                    <strong>Teams:</strong> Up to {tournamentData.maxTeams}
+                  </li>
+                  <li>
+                    <strong>Players:</strong> {tournamentData.minPlayersPerTeam}
+                    -{tournamentData.maxPlayersPerTeam} per team
+                  </li>
                 </ul>
               </div>
             </div>
@@ -217,7 +268,7 @@ export default function SetupPage() {
             >
               Previous
             </button>
-            
+
             {step < 5 ? (
               <button
                 onClick={handleNext}
@@ -247,8 +298,8 @@ export default function SetupPage() {
                     stepNum === step
                       ? 'bg-blue-600'
                       : stepNum < step
-                      ? 'bg-green-500'
-                      : 'bg-gray-300'
+                        ? 'bg-green-500'
+                        : 'bg-gray-300'
                   }`}
                 />
               ))}
