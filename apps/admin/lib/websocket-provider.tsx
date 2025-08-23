@@ -137,7 +137,84 @@ export function WebSocketProvider({
       console.error('Failed to get auth token:', error);
       setLastError('Authentication failed');
     }
-  }, [isClerkAvailable, isSignedIn, getToken]);
+  }, [isClerkAvailable, isSignedIn, getToken, sendMessage]);
+
+  const connectRef = useRef<() => Promise<void>>(() => Promise.resolve());
+
+  const scheduleReconnect = useCallback(() => {
+    if (reconnectAttemptsRef.current >= config.maxReconnectAttempts) {
+      setLastError(
+        `Failed to reconnect after ${config.maxReconnectAttempts} attempts`
+      );
+      return;
+    }
+
+    reconnectAttemptsRef.current++;
+    if (config.enableLogging) {
+      console.log(
+        `Scheduling reconnect attempt ${reconnectAttemptsRef.current}/${config.maxReconnectAttempts}`
+      );
+    }
+
+    reconnectTimeoutRef.current = setTimeout(() => {
+      connectRef.current?.();
+    }, config.reconnectInterval);
+  }, [
+    config.maxReconnectAttempts,
+    config.enableLogging,
+    config.reconnectInterval,
+  ]);
+
+  const handleMessage = useCallback(
+    (message: WebSocketMessage) => {
+      switch (message.type) {
+        case WebSocketMessageType.WELCOME:
+          if (config.enableLogging) {
+            console.log('Received welcome message:', message.data);
+          }
+          break;
+
+        case WebSocketMessageType.EVENT: {
+          const eventMessage = message as EventMessage;
+          const { channel, event } = eventMessage.data;
+
+          // Notify all subscribers for this channel
+          const callbacks = subscriptionsRef.current.get(channel);
+          if (callbacks) {
+            callbacks.forEach((callback) => {
+              try {
+                callback(event);
+              } catch (error) {
+                console.error('Error in event callback:', error);
+              }
+            });
+          }
+          break;
+        }
+
+        case WebSocketMessageType.ACK:
+          if (config.enableLogging) {
+            console.log('Received acknowledgment:', message.data);
+          }
+          break;
+
+        case WebSocketMessageType.ERROR:
+          console.error('Received error:', message.data);
+          setLastError(message.data?.message || 'Unknown error');
+          break;
+
+        case WebSocketMessageType.PONG:
+          // Handle ping/pong for connection health
+          break;
+
+        default:
+          if (config.enableLogging) {
+            console.log('Received unknown message type:', message.type);
+          }
+      }
+    },
+    [config.enableLogging]
+  );
 
   const connect = useCallback(async () => {
     if (typeof window === 'undefined' || !window.WebSocket) {
@@ -204,75 +281,17 @@ export function WebSocketProvider({
       setLastError('Failed to establish connection');
       scheduleReconnect();
     }
-  }, []);
+  }, [
+    authenticate,
+    config.enableLogging,
+    config.maxReconnectAttempts,
+    config.url,
+    handleMessage,
+    scheduleReconnect,
+  ]);
 
-  const scheduleReconnect = () => {
-    if (reconnectAttemptsRef.current >= config.maxReconnectAttempts) {
-      setLastError(
-        `Failed to reconnect after ${config.maxReconnectAttempts} attempts`
-      );
-      return;
-    }
-
-    reconnectAttemptsRef.current++;
-    if (config.enableLogging) {
-      console.log(
-        `Scheduling reconnect attempt ${reconnectAttemptsRef.current}/${config.maxReconnectAttempts}`
-      );
-    }
-
-    reconnectTimeoutRef.current = setTimeout(() => {
-      connect();
-    }, config.reconnectInterval);
-  };
-
-  const handleMessage = (message: WebSocketMessage) => {
-    switch (message.type) {
-      case WebSocketMessageType.WELCOME:
-        if (config.enableLogging) {
-          console.log('Received welcome message:', message.data);
-        }
-        break;
-
-      case WebSocketMessageType.EVENT: {
-        const eventMessage = message as EventMessage;
-        const { channel, event } = eventMessage.data;
-
-        // Notify all subscribers for this channel
-        const callbacks = subscriptionsRef.current.get(channel);
-        if (callbacks) {
-          callbacks.forEach((callback) => {
-            try {
-              callback(event);
-            } catch (error) {
-              console.error('Error in event callback:', error);
-            }
-          });
-        }
-        break;
-      }
-
-      case WebSocketMessageType.ACK:
-        if (config.enableLogging) {
-          console.log('Received acknowledgment:', message.data);
-        }
-        break;
-
-      case WebSocketMessageType.ERROR:
-        console.error('Received error:', message.data);
-        setLastError(message.data?.message || 'Unknown error');
-        break;
-
-      case WebSocketMessageType.PONG:
-        // Handle ping/pong for connection health
-        break;
-
-      default:
-        if (config.enableLogging) {
-          console.log('Received unknown message type:', message.type);
-        }
-    }
-  };
+  // Assign connect function to ref to avoid circular dependencies
+  connectRef.current = connect;
 
   const subscribe = (
     channel: string,
@@ -346,12 +365,7 @@ export function WebSocketProvider({
         wsRef.current.close();
       }
     };
-  }, [
-    config.url,
-    config.enableLogging,
-    config.maxReconnectAttempts,
-    authenticate,
-  ]);
+  }, [config.url, config.enableLogging, config.maxReconnectAttempts, connect]);
 
   // Re-authenticate when auth state changes
   useEffect(() => {

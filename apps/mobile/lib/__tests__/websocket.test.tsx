@@ -55,10 +55,7 @@ class MockWebSocket {
     if (type === 'error') this.onerror = listener as (event: Event) => void;
   }
 
-  removeEventListener(
-    type: string,
-    _listener: EventListenerOrEventListenerObject
-  ) {
+  removeEventListener(type: string) {
     if (type === 'open') this.onopen = null;
     if (type === 'close') this.onclose = null;
     if (type === 'message') this.onmessage = null;
