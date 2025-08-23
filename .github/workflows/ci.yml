@@ -25,8 +25,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
-        with:
-          version: 8
 
       - name: Get pnpm store directory
         shell: bash
@@ -65,8 +63,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
-        with:
-          version: 8
 
       - name: Get pnpm store directory
         shell: bash
@@ -110,8 +106,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
-        with:
-          version: 8
 
       - name: Get pnpm store directory
         shell: bash
@@ -150,8 +144,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
-        with:
-          version: 8
 
       - name: Get pnpm store directory
         shell: bash
