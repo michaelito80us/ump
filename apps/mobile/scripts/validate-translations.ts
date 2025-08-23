@@ -1,14 +1,14 @@
 import en from '../src/i18n/messages/en.json';
 import es from '../src/i18n/messages/es.json';
 
-function getAllKeys(obj: Record<string, any>, prefix = ''): string[] {
+function getAllKeys(obj: Record<string, unknown>, prefix = ''): string[] {
   const keys: string[] = [];
 
   for (const [key, value] of Object.entries(obj)) {
     const fullKey = prefix ? `${prefix}.${key}` : key;
 
     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      keys.push(...getAllKeys(value, fullKey));
+      keys.push(...getAllKeys(value as Record<string, unknown>, fullKey));
     } else {
       keys.push(fullKey);
     }

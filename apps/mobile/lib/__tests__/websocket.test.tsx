@@ -57,7 +57,6 @@ class MockWebSocket {
 
   removeEventListener(
     type: string,
-
     _listener: EventListenerOrEventListenerObject
   ) {
     if (type === 'open') this.onopen = null;

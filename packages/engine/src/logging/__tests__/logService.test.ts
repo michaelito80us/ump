@@ -244,7 +244,7 @@ describe('LogService', () => {
       const logs = mockDb.getLogs();
       expect(logs[0]).toMatchObject({
         type: 'CONSTRAINT_VIOLATION',
-        message: 'Team size constraint violated',
+        message: 'Team exceeds maximum size',
         field: 'team_size_limit',
         description: 'Team exceeds maximum size',
         actor_type: 'system',

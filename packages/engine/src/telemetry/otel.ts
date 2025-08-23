@@ -195,11 +195,25 @@ export class TelemetryService {
   async shutdown(): Promise<void> {
     if (this.sdk) {
       try {
-        await this.sdk.shutdown();
+        // Force flush any pending spans before shutdown
+        await this.flush();
+
+        // Shutdown with timeout to prevent hanging
+        const shutdownPromise = this.sdk.shutdown();
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Shutdown timeout')), 5000);
+        });
+
+        await Promise.race([shutdownPromise, timeoutPromise]);
+
         this.isInitialized = false;
+        this.sdk = null;
         console.log('OpenTelemetry shutdown successfully');
       } catch (error) {
         console.error('Error shutting down OpenTelemetry:', error);
+        // Force cleanup even if shutdown fails
+        this.isInitialized = false;
+        this.sdk = null;
         throw error;
       }
     }

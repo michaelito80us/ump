@@ -40,8 +40,25 @@ describe('TelemetryService', () => {
     (service as any).tracer = mockTracer;
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     jest.clearAllMocks();
+
+    // Reset service state without calling shutdown in unit tests
+    if (service) {
+      (service as any).isInitialized = false;
+      (service as any).sdk = null;
+    }
+
+    // Clear any pending timers
+    jest.clearAllTimers();
+  });
+
+  afterAll(async () => {
+    // Reset service state without calling shutdown in unit tests
+    if (service) {
+      (service as any).isInitialized = false;
+      (service as any).sdk = null;
+    }
   });
 
   describe('initialization', () => {

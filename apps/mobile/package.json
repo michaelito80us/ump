@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "build": "next build",
+    "build:prod": "next build",
+    "build:with-validation": "npm run validate-translations && next build",
     "dev": "next dev -p 3001",
-    "lint": "next lint",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --config eslint.config.mjs",
     "start": "next start",
     "test": "jest",
     "test:watch": "jest --watch",

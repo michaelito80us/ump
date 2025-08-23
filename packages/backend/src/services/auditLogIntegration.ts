@@ -195,6 +195,38 @@ export class AuditLogger {
   }
 
   /**
+   * Log team operations
+   */
+  async logTeamOperation(
+    operation: 'create' | 'update' | 'delete',
+    teamId: string,
+    context: AuditContext,
+    additionalData?: any
+  ): Promise<void> {
+    const auditLog = {
+      id: require('uuid').v4(),
+      type: 'MANUAL_OVERRIDE' as const,
+      timestamp: new Date(),
+      actorId: context.actorId,
+      actorType: context.actorType,
+      field: `team_${operation}`,
+      originalValue: null,
+      newValue: additionalData,
+      affectedEntity: 'TOURNAMENT' as const,
+      entityId: teamId,
+      context: `Team ${operation}: ${teamId}`,
+    };
+
+    const logContext = {
+      actorId: context.actorId,
+      actorType: context.actorType,
+      tournamentId: context.tournamentId,
+    };
+
+    await this.getLogService().log(auditLog, logContext);
+  }
+
+  /**
    * Log match operations
    */
   async logMatchOperation(

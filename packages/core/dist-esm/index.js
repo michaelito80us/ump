@@ -13,6 +13,8 @@ export {
   AuthenticationError,
   AuthorizationError,
 } from './auth/clerkClient';
+// Export server-side authentication provider
+export { ClerkAuthProvider } from './auth/clerkProvider';
 // Export utilities (excluding MatchPatch to avoid conflict with types.ts)
 export {
   createPatch,

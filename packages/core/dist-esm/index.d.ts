@@ -7,6 +7,7 @@ export {
   AuthorizationError,
   type UserContext,
 } from './auth/clerkClient';
+export { ClerkAuthProvider } from './auth/clerkProvider';
 export {
   createPatch,
   applyPatch,
