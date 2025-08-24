@@ -22,8 +22,8 @@ export {
   type UserContext,
 } from './auth/clerkClient';
 
-// Export server-side authentication provider
-export { ClerkAuthProvider } from './auth/clerkProvider';
+// Note: Server-side authentication provider is exported in server.ts
+// to avoid importing server-only code in client components
 
 // Export utilities (excluding MatchPatch to avoid conflict with types.ts)
 export {

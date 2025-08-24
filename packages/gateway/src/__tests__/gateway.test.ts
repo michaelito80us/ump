@@ -1,24 +1,57 @@
-// Mock @ump/core to prevent server-only imports
-jest.mock('@ump/core', () => ({
-  ValidationError: class ValidationError extends Error {
-    constructor(message: string) {
+// Mock @ump/core/errors to prevent server-only imports
+jest.mock('@ump/core/errors', () => {
+  class TournamentError extends Error {
+    public readonly code: string;
+    public readonly details?: any;
+
+    constructor(
+      message: string,
+      code: string = 'TOURNAMENT_ERROR',
+      details?: any
+    ) {
       super(message);
+      this.name = 'TournamentError';
+      this.code = code;
+      this.details = details;
+    }
+  }
+
+  class ValidationError extends TournamentError {
+    constructor(
+      message: string,
+      code: string = 'VALIDATION_ERROR',
+      details?: any
+    ) {
+      super(message, code, details);
       this.name = 'ValidationError';
     }
-  },
-  PermissionError: class PermissionError extends Error {
-    constructor(message: string) {
-      super(message);
+  }
+
+  class PermissionError extends TournamentError {
+    constructor(
+      message: string,
+      code: string = 'PERMISSION_ERROR',
+      details?: any
+    ) {
+      super(message, code, details);
       this.name = 'PermissionError';
     }
-  },
-  PluginExecutionError: class PluginExecutionError extends Error {
-    constructor(message: string) {
-      super(message);
+  }
+
+  class PluginExecutionError extends TournamentError {
+    constructor(message: string, code: string = 'PLUGIN_ERROR', details?: any) {
+      super(message, code, details);
       this.name = 'PluginExecutionError';
     }
-  },
-}));
+  }
+
+  return {
+    TournamentError,
+    ValidationError,
+    PermissionError,
+    PluginExecutionError,
+  };
+});
 
 // Imports removed as they're mocked and not directly used
 import { PluginSchemaLoader } from '../services/pluginSchemaLoader';
@@ -28,7 +61,7 @@ import {
   ValidationError,
   PermissionError,
   PluginExecutionError,
-} from '@ump/core';
+} from '@ump/core/errors';
 
 // Mock the PluginSchemaLoader
 jest.mock('../services/pluginSchemaLoader');

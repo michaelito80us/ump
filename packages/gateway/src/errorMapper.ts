@@ -4,8 +4,18 @@ import {
   ValidationError,
   PermissionError,
   PluginExecutionError,
-} from '@ump/core';
+} from '@ump/core/errors';
 import { logger } from './utils/logger';
+
+// Type guard to check if error has code property
+function hasCodeProperty(error: any): error is { code: string } {
+  return error && typeof error.code === 'string';
+}
+
+// Type guard to check if error has details property
+function hasDetailsProperty(error: any): error is { details: any } {
+  return error && error.details !== undefined;
+}
 
 /**
  * Error code mappings for consistent client-side error handling
@@ -55,7 +65,11 @@ export function formatError(
     errorId,
     message: formattedError.message,
     code:
-      originalError instanceof TournamentError ? originalError.code : 'UNKNOWN',
+      originalError &&
+      originalError instanceof TournamentError &&
+      hasCodeProperty(originalError)
+        ? originalError.code
+        : 'UNKNOWN',
     path: formattedError.path,
     locations: formattedError.locations,
     stack: graphqlError?.stack,
@@ -65,7 +79,8 @@ export function formatError(
           message: originalError.message,
           stack: originalError.stack,
           details:
-            originalError instanceof TournamentError
+            originalError instanceof TournamentError &&
+            hasDetailsProperty(originalError)
               ? originalError.details
               : undefined,
         }
@@ -77,20 +92,32 @@ export function formatError(
   let userMessage: string;
   let httpStatus: number;
 
-  if (originalError instanceof ValidationError) {
-    code = originalError.code || ERROR_CODES.INVALID_INPUT;
+  if (originalError && originalError instanceof ValidationError) {
+    code = hasCodeProperty(originalError)
+      ? originalError.code || ERROR_CODES.INVALID_INPUT
+      : ERROR_CODES.INVALID_INPUT;
     userMessage = originalError.message;
     httpStatus = 400;
-  } else if (originalError instanceof PermissionError) {
-    code = originalError.code || ERROR_CODES.UNAUTHORIZED;
+  } else if (originalError && originalError instanceof PermissionError) {
+    code = hasCodeProperty(originalError)
+      ? originalError.code || ERROR_CODES.UNAUTHORIZED
+      : ERROR_CODES.UNAUTHORIZED;
     userMessage = originalError.message;
-    httpStatus = originalError.code === ERROR_CODES.FORBIDDEN ? 403 : 401;
-  } else if (originalError instanceof PluginExecutionError) {
-    code = originalError.code || ERROR_CODES.INTERNAL_ERROR;
+    httpStatus =
+      hasCodeProperty(originalError) &&
+      originalError.code === ERROR_CODES.FORBIDDEN
+        ? 403
+        : 401;
+  } else if (originalError && originalError instanceof PluginExecutionError) {
+    code = hasCodeProperty(originalError)
+      ? originalError.code
+      : ERROR_CODES.INTERNAL_ERROR;
     userMessage = originalError.message;
     httpStatus = 500;
-  } else if (originalError instanceof TournamentError) {
-    code = originalError.code || ERROR_CODES.INTERNAL_ERROR;
+  } else if (originalError && originalError instanceof TournamentError) {
+    code = hasCodeProperty(originalError)
+      ? originalError.code || ERROR_CODES.INTERNAL_ERROR
+      : ERROR_CODES.INTERNAL_ERROR;
     userMessage = originalError.message;
     httpStatus = 500;
   } else {
@@ -111,7 +138,9 @@ export function formatError(
       httpStatus,
       timestamp: new Date().toISOString(),
       // Include sanitized details for known error types
-      ...(originalError instanceof TournamentError && originalError.details
+      ...(originalError &&
+      originalError instanceof TournamentError &&
+      hasDetailsProperty(originalError)
         ? {
             details: sanitizeErrorDetails(originalError.details),
           }

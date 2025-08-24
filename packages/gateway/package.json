@@ -60,7 +60,8 @@
       "/tests/contract/"
     ],
     "moduleNameMapper": {
-      "^@ump/core$": "<rootDir>/../core/src/index.ts"
+      "^@ump/core$": "<rootDir>/../core/src/index.ts",
+      "^@ump/core/errors$": "<rootDir>/../core/src/errors.ts"
     },
     "transformIgnorePatterns": [
       "node_modules/(?!(@ump)/)"

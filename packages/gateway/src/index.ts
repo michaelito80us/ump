@@ -27,7 +27,7 @@ import {
   incrementActiveConnections,
   decrementActiveConnections,
 } from './middleware/metrics';
-import { ClerkAuthProvider } from '@ump/core';
+import { ClerkAuthProvider } from '@ump/core/server';
 import { PluginSchemaLoader } from './services/pluginSchemaLoader';
 import {
   formatError,

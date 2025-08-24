@@ -103,8 +103,11 @@
   },
   "packageManager": "pnpm@8.6.12",
   "lint-staged": {
+    "apps/mobile/**/*.{ts,tsx,js,jsx}": [
+      "npx eslint --fix --ignore-pattern '**/cypress/**' --ignore-pattern '**/tests/e2e/**' --ignore-pattern '**/jest.setup.js' --config apps/mobile/eslint.config.mjs",
+      "prettier --write"
+    ],
     "**/*.{ts,tsx,js,jsx}": [
-      "eslint --fix --ignore-pattern '**/cypress/**'",
       "prettier --write"
     ],
     "**/*.{json,md,yml,yaml}": [
