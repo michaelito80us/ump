@@ -160,6 +160,8 @@ module.exports = [
         HTMLTextAreaElement: 'readonly',
         Event: 'readonly',
         KeyboardEvent: 'readonly',
+        HTMLElement: 'readonly',
+        HTMLInputElement: 'readonly',
         global: 'readonly',
         globalThis: 'readonly',
       },
