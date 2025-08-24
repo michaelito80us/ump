@@ -1,11 +1,6 @@
 /// <reference types="jest" />
 
-// Mock Clerk dependencies before any imports
-jest.mock('@clerk/nextjs/server', () => ({
-  auth: jest.fn(() => ({ userId: 'test-user' })),
-  currentUser: jest.fn(() => Promise.resolve({ id: 'test-user' })),
-  User: jest.fn(),
-}));
+// Clerk dependencies mocking is handled by moduleNameMapper in package.json
 
 jest.mock('@clerk/backend', () => ({
   createClerkClient: jest.fn(),

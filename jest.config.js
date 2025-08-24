@@ -2,8 +2,6 @@
 module.exports = {
   // Root configuration for workspace-wide Jest settings
   projects: [
-    '<rootDir>/packages/core',
-    '<rootDir>/packages/engine',
     {
       displayName: 'root',
       testMatch: ['<rootDir>/__tests__/**/*.test.js'],
@@ -19,8 +17,14 @@ module.exports = {
     },
   ],
 
+  // Global settings
+  testPathIgnorePatterns: [
+    '<rootDir>/**/dist/',
+    '<rootDir>/**/dist-esm/',
+    '<rootDir>/node_modules/',
+  ],
+
   // Global coverage settings
-  collectCoverage: true,
   coverageDirectory: '<rootDir>/coverage',
   coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
 
@@ -49,8 +53,17 @@ module.exports = {
   },
 
   // Global test settings
-  testTimeout: 10000,
   verbose: true,
+
+  // Module name mapping to resolve workspace packages to source files
+  moduleNameMapper: {
+    '^@ump/core/(.*)$': '<rootDir>/packages/core/src/$1',
+    '^@ump/core$': '<rootDir>/packages/core/src/index.ts',
+    '^@ump/engine/(.*)$': '<rootDir>/packages/engine/src/$1',
+    '^@ump/engine$': '<rootDir>/packages/engine/src/index.ts',
+    '^@ump/plugins/(.*)$': '<rootDir>/packages/plugins/src/$1',
+    '^@ump/plugins$': '<rootDir>/packages/plugins/src/index.ts',
+  },
 
   // Ignore patterns
   testPathIgnorePatterns: [

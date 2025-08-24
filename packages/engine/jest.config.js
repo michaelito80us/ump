@@ -10,7 +10,10 @@ module.exports = {
       testEnvironment: 'node',
       roots: ['<rootDir>/src'],
       testMatch: ['<rootDir>/src/**/__tests__/**/*.test.ts'],
-      testPathIgnorePatterns: ['.*\\.integration\\.test\\.ts$'],
+      testPathIgnorePatterns: [
+        '.*\\.integration\\.test\\.ts$',
+        '<rootDir>/dist/',
+      ],
       setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
       collectCoverage: true,
       collectCoverageFrom: [
@@ -26,6 +29,8 @@ module.exports = {
             useESM: false,
             tsconfig: {
               types: ['jest', 'node'],
+              module: 'CommonJS',
+              target: 'ES2022',
             },
           },
         ],
@@ -43,6 +48,7 @@ module.exports = {
       testEnvironment: 'node',
       roots: ['<rootDir>/src'],
       testMatch: ['<rootDir>/src/**/__tests__/**/*.integration.test.ts'],
+      testPathIgnorePatterns: ['<rootDir>/dist/'],
       setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
       transform: {
         '^.+.ts$': [
@@ -51,6 +57,8 @@ module.exports = {
             useESM: false,
             tsconfig: {
               types: ['jest', 'node'],
+              module: 'CommonJS',
+              target: 'ES2022',
             },
           },
         ],

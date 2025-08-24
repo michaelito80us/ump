@@ -25,11 +25,7 @@ jest.mock('@clerk/nextjs', () => ({
   }),
 }));
 
-// Mock Clerk server functions
-jest.mock('@clerk/nextjs/server', () => ({
-  auth: jest.fn(),
-  currentUser: jest.fn(),
-}));
+// Clerk server mocking is handled by moduleNameMapper in jest.config.js
 
 // Mock @ump/core to avoid server-side imports in tests
 jest.mock('@ump/core', () => ({
