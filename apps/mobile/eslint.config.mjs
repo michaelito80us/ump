@@ -10,7 +10,7 @@ const config = [
   js.configs.recommended,
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
-    ignores: ['cypress/**/*.{js,ts}', 'tests/e2e/**/*.{js,ts}'],
+    ignores: ['cypress/**/*.{js,ts}'],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
@@ -246,7 +246,6 @@ const config = [
         CSSGroupingRule: 'readonly',
         MediaList: 'readonly',
         StyleSheet: 'readonly',
-        CSSStyleSheet: 'readonly',
         StyleSheetList: 'readonly',
         Navigator: 'readonly',
         ServiceWorkerRegistration: 'readonly',
@@ -364,6 +363,10 @@ const config = [
     files: ['cypress/**/*.{js,ts}', 'tests/e2e/**/*.{js,ts}'],
     languageOptions: {
       parser: tsparser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
       globals: {
         cy: 'readonly',
         Cypress: 'readonly',
@@ -388,6 +391,7 @@ const config = [
       },
     },
     plugins: {
+      '@typescript-eslint': tseslint,
       cypress: cypress,
     },
     rules: {
@@ -395,6 +399,8 @@ const config = [
       'cypress/no-unnecessary-waiting': 'warn',
       'cypress/assertion-before-screenshot': 'warn',
       'cypress/no-force': 'warn',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
     },
   },
   {

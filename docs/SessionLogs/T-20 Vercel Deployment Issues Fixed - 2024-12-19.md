@@ -409,6 +409,105 @@ After previous server-only import fixes, the `dist` folders in `@ump/core` and `
 
 ---
 
+## ESLint Cypress Configuration Issues - January 2025
+
+### Problem Summary
+
+ESLint was reporting numerous `no-undef` errors for Cypress globals in test files, preventing clean linting of the codebase.
+
+### Root Cause Analysis
+
+**Primary Issues Identified:**
+
+1. **Configuration Precedence**: ESLint was using the root `eslint.config.shared.js` instead of the mobile app's specific `eslint.config.mjs`
+2. **Missing Cypress Globals**: Shared ESLint configuration lacked definitions for Cypress-specific globals
+3. **Duplicate Key Error**: `CSSStyleSheet` was defined twice in mobile app's ESLint config
+4. **Missing DOM/Browser Globals**: Various browser APIs were not defined in the Cypress context
+
+### Error Messages Encountered
+
+```
+no-undef errors for:
+- cy (Cypress command object)
+- Cypress (main Cypress object)
+- Event, KeyboardEvent (DOM events)
+- Window, CustomEvent (browser APIs)
+- JQuery, $ (jQuery globals)
+- global, globalThis (global scope)
+```
+
+### Solution Implementation
+
+#### 1. Enhanced Shared ESLint Configuration
+
+**File Modified:** `g:\Ump\eslint.config.shared.js`
+
+**Changes:**
+
+- Added comprehensive Cypress configuration block for `**/cypress/**/*.{js,ts}` and `**/tests/e2e/**/*.{js,ts}` patterns
+- Defined all necessary Cypress globals:
+  - Core: `cy`, `Cypress`, `describe`, `it`, `expect`, `beforeEach`, `afterEach`, `before`, `after`
+  - DOM/Browser: `Event`, `KeyboardEvent`, `Window`, `CustomEvent`, `JQuery`, `$`, `HTMLTextAreaElement`
+  - Global scope: `global`, `globalThis`
+
+```javascript
+// Added to eslint.config.shared.js
+{
+  files: ['**/cypress/**/*.{js,ts}', '**/tests/e2e/**/*.{js,ts}'],
+  languageOptions: {
+    globals: {
+      cy: 'readonly',
+      Cypress: 'readonly',
+      // ... all other globals
+    }
+  }
+}
+```
+
+#### 2. Fixed Duplicate Key Error
+
+**File Modified:** `g:\Ump\apps\mobile\eslint.config.mjs`
+
+**Changes:**
+
+- Removed duplicate `CSSStyleSheet: 'readonly'` definition (was defined on both lines 79 and 249)
+- Kept the first occurrence and removed the second
+
+### Testing and Verification
+
+**Commands Executed:**
+
+```bash
+# Verified ESLint configuration
+npx eslint --print-config apps/mobile/cypress/support/e2e.ts
+
+# Tested all Cypress files
+npx eslint apps/mobile/tests/e2e/happyPath.spec.ts
+npx eslint apps/mobile/cypress/support/commands.ts
+npx eslint apps/mobile/cypress/support/e2e.ts
+```
+
+**Results:**
+
+- ✅ All Cypress test files now pass ESLint validation
+- ✅ Zero `no-undef` errors for Cypress globals
+- ✅ Zero `no-dupe-keys` errors
+- ✅ Clean linting across all test files
+
+### Files Modified Summary
+
+1. **`eslint.config.shared.js`** - Added comprehensive Cypress globals configuration
+2. **`apps/mobile/eslint.config.mjs`** - Removed duplicate `CSSStyleSheet` key
+
+### Impact
+
+- **Developer Experience**: Eliminated false positive ESLint errors in Cypress tests
+- **CI/CD Pipeline**: ESLint checks now pass cleanly for all test files
+- **Code Quality**: Proper linting coverage for Cypress test files
+- **Maintainability**: Centralized Cypress ESLint configuration in shared config
+
+---
+
 **Session Completed:** January 2025  
 **Status:** Ready for production deployment  
-**Next Steps:** Deploy to Vercel with confidence - all server-only import issues resolved and dist folders properly built
+**Next Steps:** Deploy to Vercel with confidence - all server-only import issues resolved, dist folders properly built, and ESLint configuration optimized for Cypress testing
