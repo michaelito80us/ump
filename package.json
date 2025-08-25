@@ -50,7 +50,8 @@
     "adr:new": "node scripts/adr-tools.js new",
     "adr:list": "node scripts/adr-tools.js list",
     "adr:generate": "node scripts/adr-tools.js generate toc > docs/adr/INDEX.md",
-    "adr:toc": "node scripts/adr-tools.js generate toc"
+    "adr:toc": "node scripts/adr-tools.js generate toc",
+    "postinstall": "pnpm --filter @ump/backend db:generate"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.23.0",
