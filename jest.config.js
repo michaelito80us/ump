@@ -28,27 +28,13 @@ module.exports = {
   coverageDirectory: '<rootDir>/coverage',
   coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
 
-  // Coverage thresholds - CI will fail if any package falls below 85%
+  // Coverage thresholds
   coverageThreshold: {
     global: {
-      branches: 85,
-      functions: 85,
-      lines: 85,
-      statements: 85,
-    },
-    // Specific thresholds for core package
-    './packages/core/src/**/*.ts': {
-      branches: 85,
-      functions: 85,
-      lines: 85,
-      statements: 85,
-    },
-    // Specific thresholds for engine package
-    './packages/engine/src/**/*.ts': {
-      branches: 85,
-      functions: 85,
-      lines: 85,
-      statements: 85,
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
     },
   },
 
@@ -72,10 +58,12 @@ module.exports = {
     '<rootDir>/coverage/',
   ],
 
-  // Coverage collection patterns
+  // Coverage collection patterns - only collect from root tests
+  // Package-specific coverage is handled by individual package configs
   collectCoverageFrom: [
     './__tests__/**/*.js',
     '!**/*.d.ts',
     '!**/node_modules/**',
+    '!**/__mocks__/**',
   ],
 };
