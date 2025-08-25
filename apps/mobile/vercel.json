@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @ump/backend db:generate && pnpm run build --filter=@ump/mobile",
+  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @ump/backend db:generate && pnpm codegen && pnpm run build --filter=@ump/mobile",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "framework": "nextjs",
   "outputDirectory": ".next",
