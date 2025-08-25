@@ -85,7 +85,7 @@ describe('AuditLogIntegration', () => {
             field: 'user_create',
             originalValue: null,
             newValue: { email: 'test@example.com' },
-            affectedEntity: 'TOURNAMENT',
+            affectedEntity: 'USER',
             entityId: 'user-456',
             context: 'User create: user-456',
           }),
@@ -129,7 +129,7 @@ describe('AuditLogIntegration', () => {
             field: 'user_update',
             originalValue: null,
             newValue: { updatedFields: ['name', 'email'] },
-            affectedEntity: 'TOURNAMENT',
+            affectedEntity: 'USER',
             entityId: 'user-123',
             context: 'User update: user-123',
           }),
@@ -291,7 +291,7 @@ describe('AuditLogIntegration', () => {
       it('should log tournament UPDATE operation', async () => {
         const context = createAuditContext(
           { id: 'organizer-123' },
-          undefined,
+          'tournament-456',
           'tournament_admin'
         );
 

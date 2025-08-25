@@ -222,7 +222,7 @@ export interface ManualOverrideLog extends BaseLog {
   field: string;
   originalValue: unknown;
   newValue: unknown;
-  affectedEntity: 'MATCH' | 'TEAM' | 'TOURNAMENT' | 'PHASE';
+  affectedEntity: 'MATCH' | 'TEAM' | 'TOURNAMENT' | 'PHASE' | 'USER';
   entityId: string;
   context: string;
   approvedById?: string;

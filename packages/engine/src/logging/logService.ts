@@ -287,7 +287,7 @@ export class LogService {
     field: string,
     originalValue: unknown,
     newValue: unknown,
-    affectedEntity: 'MATCH' | 'TEAM' | 'TOURNAMENT' | 'PHASE',
+    affectedEntity: 'MATCH' | 'TEAM' | 'TOURNAMENT' | 'PHASE' | 'USER',
     entityId: string,
     context: string,
     logContext: LogContext,

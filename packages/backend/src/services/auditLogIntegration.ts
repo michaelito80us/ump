@@ -148,7 +148,7 @@ export class AuditLogger {
       field: `user_${operation}`,
       originalValue: null,
       newValue: additionalData,
-      affectedEntity: 'TOURNAMENT' as const,
+      affectedEntity: 'USER' as const,
       entityId: userId,
       context: `User ${operation}: ${userId}`,
     };
@@ -212,7 +212,7 @@ export class AuditLogger {
       field: `team_${operation}`,
       originalValue: null,
       newValue: additionalData,
-      affectedEntity: 'TOURNAMENT' as const,
+      affectedEntity: 'TEAM' as const,
       entityId: teamId,
       context: `Team ${operation}: ${teamId}`,
     };
@@ -220,6 +220,7 @@ export class AuditLogger {
     const logContext = {
       actorId: context.actorId,
       actorType: context.actorType,
+      teamId: teamId,
       tournamentId: context.tournamentId,
     };
 
