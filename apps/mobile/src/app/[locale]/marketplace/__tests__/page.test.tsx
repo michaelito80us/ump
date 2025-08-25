@@ -11,6 +11,9 @@ import { useTranslations } from 'next-intl';
 import MarketplacePage from '../page';
 import { pluginRegistry } from '@ump/engine';
 
+// Type declaration for Jest expect
+declare const expect: jest.Expect;
+
 // Mock modules
 jest.mock('next-intl');
 jest.mock('@ump/engine');

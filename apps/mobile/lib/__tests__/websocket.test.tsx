@@ -4,6 +4,9 @@ import { MockedProvider } from '@apollo/client/testing';
 import { gql, useSubscription } from '@apollo/client';
 import React from 'react';
 
+// Type declaration for Jest expect
+declare const expect: jest.Expect;
+
 // Global type declarations for testing environment
 declare global {
   interface Window {

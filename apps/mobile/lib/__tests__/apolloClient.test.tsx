@@ -2,6 +2,9 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import { gql, useQuery } from '@apollo/client';
+
+// Type declaration for Jest expect
+declare const expect: jest.Expect;
 // ApolloTestComponent import removed as it's not used in tests
 // testApolloClient import removed as it's not used in tests
 

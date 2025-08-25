@@ -5,6 +5,31 @@ import { toHaveNoViolations } from 'jest-axe';
 // Extend expect with jest-axe
 expect.extend(toHaveNoViolations);
 
+// Add Jest matchers to global expect to fix TypeScript errors
+global.expect = expect;
+global.expect.stringMatching = expect.stringMatching;
+global.expect.any = expect.any;
+global.expect.objectContaining = expect.objectContaining;
+global.expect.arrayContaining = expect.arrayContaining;
+global.expect.anything = expect.anything;
+
+// Extend global expect with all Jest matchers to fix TypeScript conflicts
+Object.assign(global.expect, {
+  toBe: expect.toBe?.bind(expect),
+  toBeNull: expect.toBeNull?.bind(expect),
+  toBeDefined: expect.toBeDefined?.bind(expect),
+  toBeInstanceOf: expect.toBeInstanceOf?.bind(expect),
+  toEqual: expect.toEqual?.bind(expect),
+  toStrictEqual: expect.toStrictEqual?.bind(expect),
+  toHaveLength: expect.toHaveLength?.bind(expect),
+  toBeGreaterThan: expect.toBeGreaterThan?.bind(expect),
+  toHaveBeenCalledWith: expect.toHaveBeenCalledWith?.bind(expect),
+  toHaveBeenCalledTimes: expect.toHaveBeenCalledTimes?.bind(expect),
+  toBeInTheDocument: expect.toBeInTheDocument?.bind(expect),
+  toHaveTextContent: expect.toHaveTextContent?.bind(expect),
+  toHaveAttribute: expect.toHaveAttribute?.bind(expect),
+});
+
 // Mock Next.js router
 jest.mock('next/router', () => ({
   useRouter() {

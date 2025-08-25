@@ -9,6 +9,9 @@ import path from 'path';
 import '@testing-library/jest-dom';
 import fetch from 'node-fetch';
 
+// Type assertion to fix Jest expect matchers
+declare const expect: jest.Expect;
+
 // Store original fetch to restore it
 const originalFetch = global.fetch;
 

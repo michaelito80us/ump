@@ -1,4 +1,7 @@
 import React from 'react';
+
+// Type declaration for Jest expect
+declare const expect: jest.Expect;
 import {
   render,
   screen,

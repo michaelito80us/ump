@@ -1,6 +1,10 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { ClerkProvider } from '@clerk/nextjs';
 // Using mocked ClerkClientUtils from jest.mock('@ump/core') below
+
+// Type declaration for Jest expect
+declare const expect: jest.Expect;
 
 // Mock Clerk
 jest.mock('@clerk/nextjs', () => ({

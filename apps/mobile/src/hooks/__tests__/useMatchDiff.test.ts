@@ -4,6 +4,9 @@ import { renderHook, act } from '@testing-library/react';
 import { useMatchDiff, useMatchUpdates } from '../useMatchDiff';
 import type { Match, MatchPatch } from '../../../lib/types';
 
+// Type assertion to fix Jest expect matchers
+declare const expect: jest.Expect;
+
 // Mock match data
 const createMockMatch = (overrides: Partial<Match> = {}): Match => ({
   id: 'match-1',
