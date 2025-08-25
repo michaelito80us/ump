@@ -171,6 +171,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build packages
+        run: pnpm build
+
       - name: Install Playwright Browsers
         run: |
           cd apps/admin && npx playwright install --with-deps
