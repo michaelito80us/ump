@@ -13,39 +13,8 @@ import path from 'path';
 const shouldSkipIntegrationTests =
   process.env.CI === 'true' || process.env.SKIP_INTEGRATION_TESTS === 'true';
 
-// Only mock fetch for Jaeger API calls, not OTLP exports
-jest.mock('node-fetch', () => {
-  return jest.fn().mockImplementation((url) => {
-    // Only mock Jaeger API calls, let OTLP exports through
-    if (url.includes('jaeger') && url.includes('api/traces')) {
-      return Promise.resolve({
-        status: 200,
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [
-              {
-                traceID: 'mock-trace-id',
-                spans: [
-                  {
-                    operationName: 'test-span-manual',
-                    spanID: 'mock-span-id',
-                    traceID: 'mock-trace-id',
-                  },
-                ],
-              },
-            ],
-          }),
-      });
-    }
-    // For other URLs, return a basic successful response
-    return Promise.resolve({
-      status: 200,
-      ok: true,
-      json: () => Promise.resolve({}),
-    });
-  });
-});
+// No mocking - use real Jaeger API to verify actual span export
+// This allows the tests to verify that spans are actually exported to Jaeger
 
 const JAEGER_PORT = 16686;
 const OTLP_GRPC_PORT = 4317;

@@ -4,6 +4,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "noEmit": false,
+    "lib": ["ES2021", "DOM"],
     "types": ["jest", "node"],
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "skipLibCheck": true,
