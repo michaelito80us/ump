@@ -27,6 +27,22 @@ export default async function Layout({ children, params }: LayoutProps) {
     <html lang={locale}>
       <head>
         <title>UMP Tournament Manager</title>
+
+        {/* Preload critical resources */}
+        <link
+          rel="preload"
+          href="/fonts/inter-var.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+
         {/* PWA Meta Tags */}
         <meta name="application-name" content="UMP Tournament Manager" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

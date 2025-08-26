@@ -111,7 +111,7 @@ export default async function HomePage({ params }: PageProps) {
           <p className="text-sm text-green-700 mb-3">
             Register your team for upcoming tournaments
           </p>
-          <button className="px-4 py-2 bg-green-800 text-white rounded hover:bg-green-900 transition-colors">
+          <button className="px-4 py-2 bg-green-900 text-white rounded hover:bg-green-950 transition-colors">
             Register Team
           </button>
         </div>

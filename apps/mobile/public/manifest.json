@@ -2,12 +2,12 @@
   "name": "UMP Mobile - Tournament Management",
   "short_name": "UMP Mobile",
   "description": "Unified Management Platform - Mobile Tournament Management",
-  "start_url": "/",
+  "start_url": "/en",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0066EE",
   "orientation": "portrait-primary",
-  "scope": "/",
+  "scope": "/en",
   "icons": [
     {
       "src": "/icons/icon-72x72.svg",

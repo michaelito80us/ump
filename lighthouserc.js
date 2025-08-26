@@ -1,7 +1,7 @@
 module.exports = {
   ci: {
     collect: {
-      url: ['http://localhost:3000'],
+      url: ['http://localhost:3000/en'],
       startServerCommand: 'cd apps/mobile && pnpm start',
       startServerReadyPattern: 'Ready',
       startServerReadyTimeout: 60000,

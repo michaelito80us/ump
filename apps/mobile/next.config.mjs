@@ -10,6 +10,15 @@ const nextConfig = {
   },
   transpilePackages: ['@ump/ui', '@ump/core'],
   reactStrictMode: true,
+  swcMinify: true,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  experimental: {
+    optimizeCss: true,
+    legacyBrowsers: false,
+    browsersListForSwc: true,
+  },
   images: {
     domains: ['localhost'],
   },
