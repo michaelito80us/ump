@@ -26,6 +26,7 @@ export default async function Layout({ children, params }: LayoutProps) {
   return (
     <html lang={locale}>
       <head>
+        <title>UMP Tournament Manager</title>
         {/* PWA Meta Tags */}
         <meta name="application-name" content="UMP Tournament Manager" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

@@ -7,11 +7,19 @@ test.describe('Mobile App Accessibility Tests', () => {
     await page.goto('/en');
     // Wait for the page to be fully loaded
     await page.waitForLoadState('networkidle');
+    // Wait for any client-side hydration to complete
+    await page.waitForTimeout(2000);
+    // Ensure the page is stable before running accessibility tests
+    await page.waitForFunction(() => document.readyState === 'complete');
   });
 
   test('should not have any automatically detectable accessibility issues on home page', async ({
     page,
   }) => {
+    // Ensure page is stable before analysis
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(1000);
+
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
       .analyze();
@@ -20,6 +28,10 @@ test.describe('Mobile App Accessibility Tests', () => {
   });
 
   test('should not have color contrast violations', async ({ page }) => {
+    // Ensure page is stable before analysis
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(1000);
+
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2aa'])
       .analyze();
@@ -109,6 +121,10 @@ test.describe('Mobile App Accessibility Tests', () => {
   });
 
   test('should pass comprehensive WCAG 2.1 AA compliance', async ({ page }) => {
+    // Ensure page is stable before analysis
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(1000);
+
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
       .analyze();
