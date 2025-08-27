@@ -1,14 +1,15 @@
 {
   "version": 2,
-  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @ump/backend db:generate && pnpm codegen && pnpm run build --filter=@ump/mobile",
+  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @ump/backend db:generate && pnpm codegen && pnpm turbo build --filter=@ump/mobile",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "framework": "nextjs",
   "outputDirectory": ".next",
   "env": {
     "NODE_ENV": "production",
     "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": "@clerk_publishable_key",
-    "NEXT_PUBLIC_GRAPHQL_URL": "@graphql_url",
-    "NEXT_PUBLIC_WS_URL": "@ws_url"
+    "CLERK_SECRET_KEY": "@clerk_secret_key",
+    "NEXT_PUBLIC_GRAPHQL_HTTP_URL": "@graphql_http_url",
+    "NEXT_PUBLIC_GRAPHQL_WS_URL": "@graphql_ws_url"
   },
   "headers": [
     {
