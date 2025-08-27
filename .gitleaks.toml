@@ -56,11 +56,11 @@ paths = [
 
 # Allowlist for specific test secrets
 regexes = [
-  '''test[_-]?key[_-]?[0-9a-f]{8,}''',
-  '''mock[_-]?secret[_-]?[0-9a-f]{8,}''',
-  '''dummy[_-]?token[_-]?[0-9a-f]{8,}''',
-  '''example[_-]?api[_-]?key''',
-  '''placeholder[_-]?secret'''
+  "test[_-]?key[_-]?[0-9a-f]{8,}",
+  "mock[_-]?secret[_-]?[0-9a-f]{8,}",
+  "dummy[_-]?token[_-]?[0-9a-f]{8,}",
+  "example[_-]?api[_-]?key",
+  "placeholder[_-]?secret"
 ]
 
 # Stop words to reduce false positives
