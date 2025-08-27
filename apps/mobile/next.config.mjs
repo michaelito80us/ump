@@ -15,6 +15,8 @@ const nextConfig = {
   },
   // Enable source maps in production for Lighthouse audit
   productionBrowserSourceMaps: true,
+  // Disable polyfills for modern browsers to fix legacy JavaScript audit
+  excludeDefaultMomentLocales: true,
   experimental: {
     optimizeCss: true,
     // Enable modern JavaScript output
@@ -47,6 +49,19 @@ const nextConfig = {
         tls: false,
         child_process: false,
         crypto: false,
+      };
+      
+      // Exclude polyfills for modern browsers to fix legacy JavaScript audit
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        // Disable Next.js polyfills for modern browsers
+        'core-js/modules/es.array.at': false,
+        'core-js/modules/es.array.flat': false,
+        'core-js/modules/es.array.flat-map': false,
+        'core-js/modules/es.object.from-entries': false,
+        'core-js/modules/es.object.has-own': false,
+        'core-js/modules/es.string.trim-end': false,
+        'core-js/modules/es.string.trim-start': false,
       };
       
       // Add optimization to handle module loading and reduce bundle size
