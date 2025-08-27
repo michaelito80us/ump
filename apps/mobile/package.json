@@ -28,6 +28,7 @@
   "dependencies": {
     "@apollo/client": "^3.13.9",
     "@clerk/nextjs": "^6.31.1",
+    "@ducanh2912/next-pwa": "^10.2.9",
     "@ump/core": "workspace:*",
     "@ump/engine": "workspace:*",
     "@ump/ui": "workspace:*",
@@ -36,7 +37,6 @@
     "graphql-ws": "^6.0.6",
     "next": "^15.3.2",
     "next-intl": "^4.3.4",
-    "next-pwa": "^5.6.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
@@ -59,6 +59,7 @@
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
     "autoprefixer": "^10.4.16",
+    "critters": "^0.0.24",
     "cypress": "^13.17.0",
     "eslint": "^9.33.0",
     "eslint-config-next": "^15.4.5",
@@ -74,13 +75,13 @@
   },
   "browserslist": {
     "production": [
-      ">0.2%",
+      ">0.5%",
       "not dead",
       "not op_mini all",
-      "Chrome >= 88",
-      "Firefox >= 85",
-      "Safari >= 14",
-      "Edge >= 88"
+      "Chrome >= 109",
+      "Firefox >= 109",
+      "Safari >= 16",
+      "Edge >= 109"
     ],
     "development": [
       "last 1 chrome version",
