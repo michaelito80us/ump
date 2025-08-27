@@ -11,17 +11,5 @@
     "url": "http://localhost:3000/",
     "auditTitle": "Network dependency tree",
     "auditDocumentationLink": "https://developer.chrome.com/docs/lighthouse/performance/critical-request-chains"
-  },
-  {
-    "name": "auditRan",
-    "expected": 1,
-    "actual": 0,
-    "values": [0, 0, 0],
-    "operator": ">=",
-    "passed": false,
-    "auditProperty": "pwa",
-    "auditId": "categories",
-    "level": "error",
-    "url": "http://localhost:3000/"
   }
 ]
