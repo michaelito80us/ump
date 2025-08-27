@@ -41,19 +41,17 @@ tags = ["jwt", "secret"]
 [allowlist]
 paths = [
   ".env.example",
-  "**/*.test.ts",
-  "**/*.test.tsx",
-  "**/*.spec.ts",
-  "**/*.spec.tsx",
-  "**/test/**",
-  "**/tests/**",
-  "**/__tests__/**",
-  "**/mocks/**",
-  "**/__mocks__/**",
-  "**/fixtures/**",
-  "docs/**",
+  ".*\.test\.(ts|tsx)$",
+  ".*\.spec\.(ts|tsx)$",
+  ".*/test/.*",
+  ".*/tests/.*",
+  ".*/__tests__/.*",
+  ".*/mocks/.*",
+  ".*/__mocks__/.*",
+  ".*/fixtures/.*",
+  "docs/.*",
   "README.md",
-  "**/README.md"
+  ".*/README.md"
 ]
 
 # Allowlist for specific test secrets
