@@ -2,7 +2,8 @@ module.exports = {
   ci: {
     collect: {
       url: ['http://localhost:3000'],
-      startServerCommand: '.\\start-production.bat',
+      startServerCommand:
+        'pnpm --filter @ump/mobile build && pnpm --filter @ump/mobile start',
       startServerReadyPattern: 'Ready',
       startServerReadyTimeout: 60000,
       numberOfRuns: 3,
@@ -14,7 +15,6 @@ module.exports = {
           'accessibility',
           'best-practices',
           'seo',
-          'pwa',
         ],
         skipAudits: ['uses-http2'],
         budgets: './lighthouse/budgets.json',
@@ -27,7 +27,7 @@ module.exports = {
         'categories:accessibility': ['error', { minScore: 0.9 }],
         'categories:best-practices': ['error', { minScore: 0.8 }],
         'categories:seo': ['error', { minScore: 0.8 }],
-        'categories:pwa': ['error', { minScore: 0.7 }],
+        // 'categories:pwa': ['error', { minScore: 0.7 }], // PWA audits deprecated in Lighthouse v12+
         // Core Web Vitals
         'first-contentful-paint': ['error', { maxNumericValue: 2500 }],
         'largest-contentful-paint': ['error', { maxNumericValue: 4000 }],
