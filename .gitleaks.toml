@@ -10,31 +10,31 @@ path = "https://raw.githubusercontent.com/gitleaks/gitleaks/master/config/gitlea
 [[rules]]
 id = "clerk-secret-key"
 description = "Clerk Secret Key"
-regex = '''sk_test_[a-zA-Z0-9]{48}|sk_live_[a-zA-Z0-9]{48}'''
+regex = "sk_test_[a-zA-Z0-9]{48}|sk_live_[a-zA-Z0-9]{48}"
 tags = ["key", "clerk"]
 
 [[rules]]
 id = "clerk-publishable-key"
 description = "Clerk Publishable Key"
-regex = '''pk_test_[a-zA-Z0-9]{48}|pk_live_[a-zA-Z0-9]{48}'''
+regex = "pk_test_[a-zA-Z0-9]{48}|pk_live_[a-zA-Z0-9]{48}"
 tags = ["key", "clerk"]
 
 [[rules]]
 id = "database-url"
 description = "Database URL with credentials"
-regex = '''postgres://[a-zA-Z0-9_]+:[a-zA-Z0-9_@#$%^&*()+=\-\[\]{}|;:,.<>?/~`!]+@[a-zA-Z0-9.-]+:[0-9]+/[a-zA-Z0-9_]+'''
+regex = "postgres://[a-zA-Z0-9_]+:[a-zA-Z0-9_@#$%^&*()+=\\-\\[\\]{}|;:,.<>?/~`!]+@[a-zA-Z0-9.-]+:[0-9]+/[a-zA-Z0-9_]+"
 tags = ["database", "credentials"]
 
 [[rules]]
 id = "redis-url"
 description = "Redis URL with credentials"
-regex = '''redis://[a-zA-Z0-9_]*:[a-zA-Z0-9_@#$%^&*()+=\-\[\]{}|;:,.<>?/~`!]*@[a-zA-Z0-9.-]+:[0-9]+'''
+regex = "redis://[a-zA-Z0-9_]*:[a-zA-Z0-9_@#$%^&*()+=\\-\\[\\]{}|;:,.<>?/~`!]*@[a-zA-Z0-9.-]+:[0-9]+"
 tags = ["redis", "credentials"]
 
 [[rules]]
 id = "jwt-secret"
 description = "JWT Secret"
-regex = '''jwt[_-]?secret["']?\s*[:=]\s*["']?[a-zA-Z0-9+/]{32,}[="']?'''
+regex = "jwt[_-]?secret[\"']?\\s*[:=]\\s*[\"']?[a-zA-Z0-9+/]{32,}=[\"']?"
 tags = ["jwt", "secret"]
 
 # Allowlist for test files and examples
