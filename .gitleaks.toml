@@ -10,8 +10,8 @@ path = "https://raw.githubusercontent.com/gitleaks/gitleaks/master/config/gitlea
 [allowlist]
 paths = [
   ".env.example",
-  ".*\.test\.(ts|tsx)$",
-  ".*\.spec\.(ts|tsx)$",
+  ".*\\.test\\.(ts|tsx)$",
+  ".*\\.spec\\.(ts|tsx)$",
   ".*/test/.*",
   ".*/tests/.*",
   ".*/__tests__/.*",
