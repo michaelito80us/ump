@@ -7,7 +7,9 @@
   "background_color": "#ffffff",
   "theme_color": "#0066EE",
   "orientation": "portrait-primary",
-  "scope": "/en",
+  "scope": "/",
+  "id": "/",
+  "display_override": ["window-controls-overlay", "standalone"],
   "icons": [
     {
       "src": "/icons/icon-72x72.svg",

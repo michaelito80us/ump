@@ -29,13 +29,6 @@ export default async function Layout({ children, params }: LayoutProps) {
         <title>UMP Tournament Manager</title>
 
         {/* Preload critical resources */}
-        <link
-          rel="preload"
-          href="/fonts/inter-var.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

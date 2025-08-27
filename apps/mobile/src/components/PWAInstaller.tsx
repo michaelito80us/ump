@@ -70,22 +70,22 @@ export function PWAInstaller() {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 bg-blue-600 text-white p-4 rounded-lg shadow-lg z-50">
+    <div className="fixed bottom-4 left-4 right-4 bg-blue-700 text-white p-4 rounded-lg shadow-lg z-50">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="font-semibold">Install UMP Tournament Manager</h3>
-          <p className="text-sm opacity-90">Get the full app experience</p>
+          <p className="text-sm text-blue-50">Get the full app experience</p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => setIsInstallable(false)}
-            className="px-3 py-1 text-sm bg-blue-500 rounded hover:bg-blue-400"
+            className="px-3 py-1 text-sm bg-blue-800 text-white rounded hover:bg-blue-700"
           >
             Later
           </button>
           <button
             onClick={handleInstallClick}
-            className="px-3 py-1 text-sm bg-white text-blue-600 rounded hover:bg-gray-100"
+            className="px-3 py-1 text-sm bg-white text-blue-700 rounded hover:bg-gray-100"
           >
             Install
           </button>

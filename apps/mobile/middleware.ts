@@ -6,7 +6,7 @@ import { NextRequest, NextFetchEvent } from 'next/server';
 const intlMiddleware = createIntlMiddleware({
   locales: ['en', 'es'],
   defaultLocale: 'en',
-  localePrefix: 'always',
+  localePrefix: 'as-needed',
 });
 
 // Define protected routes that require authentication

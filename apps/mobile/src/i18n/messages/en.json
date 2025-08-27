@@ -116,5 +116,25 @@
     "opponent": "Opponent",
     "venue": "Venue",
     "status": "Status"
+  },
+  "test": {
+    "title": "The Test Page Works!",
+    "description": "This is a simple static route test.",
+    "i18nIntegration": "This page is now properly integrated with the i18n layout structure.",
+    "layoutFixed": "Layout Fixed!",
+    "layoutDescription": "This page now has access to the root layout and supports internationalization.",
+    "currentLocale": "Current Language",
+    "backToHome": "Back to Home"
+  },
+  "navigation": {
+    "home": "Home",
+    "schedule": "Schedule",
+    "live": "Live Scores",
+    "standings": "Standings",
+    "teams": "Teams",
+    "profile": "Profile",
+    "settings": "Settings",
+    "tournaments": "Tournaments",
+    "players": "Players"
   }
 }
