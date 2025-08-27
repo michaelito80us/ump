@@ -21,19 +21,17 @@ const nextConfig = {
     optimizeCss: true,
     // Enable modern JavaScript output
     esmExternals: true,
-    // Enable SWC minification for better tree shaking
-    swcMinify: true,
-    // Enable modern bundling
-    modularizeImports: {
-      'lodash': {
-        transform: 'lodash/{{member}}',
-      },
-      '@mui/material': {
-        transform: '@mui/material/{{member}}',
-      },
-      '@mui/icons-material': {
-        transform: '@mui/icons-material/{{member}}',
-      },
+  },
+  // Enable modern bundling (moved out of experimental)
+  modularizeImports: {
+    'lodash': {
+      transform: 'lodash/{{member}}',
+    },
+    '@mui/material': {
+      transform: '@mui/material/{{member}}',
+    },
+    '@mui/icons-material': {
+      transform: '@mui/icons-material/{{member}}',
     },
   },
   images: {
@@ -86,7 +84,6 @@ const nextConfig = {
             },
           },
         },
-        usedExports: true,
         sideEffects: false,
         // Enable tree shaking
         providedExports: true,
