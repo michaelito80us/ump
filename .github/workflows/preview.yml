@@ -63,7 +63,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Build mobile
-        run: pnpm turbo build --filter=mobile
+        run: pnpm turbo build --filter=@ump/mobile
 
       - name: Set deployment status
         env:
@@ -134,7 +134,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build admin
-        run: pnpm turbo build --filter=admin
+        run: pnpm turbo build --filter=@ump/admin
 
       - name: Set deployment status
         env:
