@@ -92,6 +92,24 @@ export default async function Layout({ children, params }: LayoutProps) {
         {/* Manifest */}
         <link rel="manifest" href="/manifest.json" />
 
+        {/* Preload critical resources */}
+        <link
+          rel="preload"
+          href="/icons/icon-192x192.svg"
+          as="image"
+          type="image/svg+xml"
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+
+        {/* DNS prefetch for external resources */}
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+
         {/* Splash Screen */}
         <meta
           name="apple-mobile-web-app-status-bar-style"

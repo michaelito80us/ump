@@ -13,9 +13,27 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  // experimental: {
-  //   optimizeCss: true,
-  // },
+  // Enable source maps in production for Lighthouse audit
+  productionBrowserSourceMaps: true,
+  experimental: {
+    optimizeCss: true,
+    // Enable modern JavaScript output
+    esmExternals: true,
+    // Enable SWC minification for better tree shaking
+    swcMinify: true,
+    // Enable modern bundling
+    modularizeImports: {
+      'lodash': {
+        transform: 'lodash/{{member}}',
+      },
+      '@mui/material': {
+        transform: '@mui/material/{{member}}',
+      },
+      '@mui/icons-material': {
+        transform: '@mui/icons-material/{{member}}',
+      },
+    },
+  },
   images: {
     domains: ['localhost'],
   },
@@ -31,20 +49,34 @@ const nextConfig = {
         crypto: false,
       };
       
-      // Add optimization to handle module loading
+      // Add optimization to handle module loading and reduce bundle size
       config.optimization = {
         ...config.optimization,
         splitChunks: {
           ...config.optimization.splitChunks,
+          chunks: 'all',
           cacheGroups: {
             ...config.optimization.splitChunks?.cacheGroups,
             vendor: {
               test: /[/]node_modules[/]/,
               name: 'vendors',
               chunks: 'all',
+              enforce: true,
+            },
+            common: {
+              name: 'common',
+              minChunks: 2,
+              chunks: 'all',
+              enforce: true,
             },
           },
         },
+        usedExports: true,
+        sideEffects: false,
+        // Enable tree shaking
+        providedExports: true,
+        // Minimize bundle size
+        minimize: true,
       };
       
       // Suppress webpack runtime errors that cause console errors in Lighthouse
@@ -65,7 +97,7 @@ const nextConfig = {
 
 const withPWAConfig = withPWA({
   dest: 'public',
-  disable: false,
+  disable: process.env.NODE_ENV === 'development',
   register: true,
   skipWaiting: true,
   scope: '/',
@@ -76,6 +108,20 @@ const withPWAConfig = withPWA({
   },
   workboxOptions: {
     disableDevLogs: true,
+    // Improve caching strategy
+    runtimeCaching: [
+      {
+        urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'google-fonts',
+          expiration: {
+            maxEntries: 4,
+            maxAgeSeconds: 365 * 24 * 60 * 60, // 365 days
+          },
+        },
+      },
+    ],
   }
 });
 
