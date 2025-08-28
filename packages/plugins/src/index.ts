@@ -5,8 +5,8 @@
 export const PLUGINS_VERSION = '0.1.0';
 
 // Export Rugby Plugin (T-10.1)
-export { RugbyPlugin, rugbyVariants } from './sports/rugby';
-export type { RugbyScoreBreakdown } from './sports/rugby';
+export { RugbyPlugin, rugbyVariants } from './sports/rugby/index.js';
+export type { RugbyScoreBreakdown } from './sports/rugby/index.js';
 
 // Export Single Elimination Plugin
 export { SingleEliminationPlugin } from './phases/single-elimination';

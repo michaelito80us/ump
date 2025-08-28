@@ -1,4 +1,5 @@
 /// <reference types="jest" />
+import { testPluginConformance } from '@ump/engine';
 import {
   RoundRobinPlugin,
   calculateStandings,
@@ -21,6 +22,31 @@ describe('RoundRobinPlugin', () => {
       expect(typeof RoundRobinPlugin.getNextMatches).toBe('function');
       expect(typeof RoundRobinPlugin.renderBracketUI).toBe('function');
       expect(typeof RoundRobinPlugin.renderStandings).toBe('function');
+    });
+  });
+
+  describe('Conformance Tests', () => {
+    it('should pass all conformance tests', async () => {
+      const results = await testPluginConformance(RoundRobinPlugin, 'phase');
+
+      expect(results.metadata.passed).toBe(true);
+      expect(results.lifecycle.passed).toBe(true);
+      expect(results.ui.passed).toBe(true);
+      expect(results.ssr.passed).toBe(true);
+
+      // Log any errors for debugging
+      if (!results.metadata.passed) {
+        console.log('Metadata errors:', results.metadata.errors);
+      }
+      if (!results.lifecycle.passed) {
+        console.log('Lifecycle errors:', results.lifecycle.errors);
+      }
+      if (!results.ui.passed) {
+        console.log('UI errors:', results.ui.errors);
+      }
+      if (!results.ssr.passed) {
+        console.log('SSR errors:', results.ssr.errors);
+      }
     });
   });
 
