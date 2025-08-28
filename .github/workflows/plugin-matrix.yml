@@ -122,10 +122,14 @@ jobs:
           echo "Testing plugin: ${{ matrix.plugin.name }} (category: ${{ matrix.plugin.category }})"
 
           # Create a test file for this specific plugin
-          cat > test-plugin-${{ matrix.plugin.id }}.js << 'EOF'
-          const { testPluginConformance } = require('./packages/engine/dist/harness');
-          const fs = require('fs');
-          const path = require('path');
+          cat > test-plugin-${{ matrix.plugin.id }}.mjs << 'EOF'
+          import { testPluginConformance } from './packages/engine/dist/harness/index.js';
+          import fs from 'fs';
+          import path from 'path';
+          import { fileURLToPath } from 'url';
+
+          const __filename = fileURLToPath(import.meta.url);
+          const __dirname = path.dirname(__filename);
 
           async function testPlugin() {
             try {
@@ -148,7 +152,7 @@ jobs:
               
               try {
                 // Try importing from the main plugins package
-                const pluginsModule = require('./packages/plugins/dist/index.js');
+                const pluginsModule = await import('./packages/plugins/dist/index.js');
                 
                 // Look for the plugin by different naming patterns
                 const possibleNames = [
@@ -349,11 +353,11 @@ jobs:
           EOF
 
           # Run the test
-          node test-plugin-${{ matrix.plugin.id }}.js
+          node test-plugin-${{ matrix.plugin.id }}.mjs
 
       - name: Cleanup test file
         if: always()
-        run: rm -f test-plugin-${{ matrix.plugin.id }}.js
+        run: rm -f test-plugin-${{ matrix.plugin.id }}.mjs
 
   plugin-conformance-summary:
     name: Plugin Conformance Summary
