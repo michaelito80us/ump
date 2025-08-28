@@ -5,6 +5,10 @@
       "dependsOn": ["^build", "codegen"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
+    "@ump/mobile#build": {
+      "dependsOn": ["^build", "codegen"],
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
     "codegen": {
       "inputs": [
         "schema.graphql",
