@@ -123,7 +123,7 @@ jobs:
 
           # Create a test file for this specific plugin
           cat > test-plugin-${{ matrix.plugin.id }}.mjs << 'EOF'
-          import { testPluginConformance } from '../packages/engine/dist/harness/index.js';
+          import { testPluginConformance } from '../../packages/engine/dist/harness/index.js';
           import fs from 'fs';
           import path from 'path';
           import { fileURLToPath } from 'url';
@@ -152,7 +152,7 @@ jobs:
               
               try {
                 // Try importing from the main plugins package
-                const pluginsModule = await import('../packages/plugins/dist/index.js');
+                const pluginsModule = await import('../../packages/plugins/dist/index.js');
                 
                 // Look for the plugin by different naming patterns
                 const possibleNames = [
