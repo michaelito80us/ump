@@ -45,7 +45,7 @@ jobs:
             const fs = require('fs');
             const path = require('path');
             
-            const pluginsDir = 'packages/plugins/src';
+            const pluginsDir = '../../packages/plugins/src';
             const categories = ['sports', 'phases', 'scheduling', 'seeding', 'tournaments'];
             const plugins = [];
             
