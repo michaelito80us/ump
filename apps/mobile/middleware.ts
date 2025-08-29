@@ -4,16 +4,16 @@ import { NextRequest, NextFetchEvent } from 'next/server';
 
 // Create the intl middleware
 const intlMiddleware = createIntlMiddleware({
-  locales: ['en', 'es'],
+  locales: ['en', 'es', 'zh-CN'],
   defaultLocale: 'en',
   localePrefix: 'as-needed',
 });
 
 // Define protected routes that require authentication
 const isProtectedRoute = createRouteMatcher([
-  '/(en|es)/dashboard(.*)',
-  '/(en|es)/profile(.*)',
-  '/(en|es)/admin(.*)',
+  '/(en|es|zh-CN)/dashboard(.*)',
+  '/(en|es|zh-CN)/profile(.*)',
+  '/(en|es|zh-CN)/admin(.*)',
 ]);
 
 // Check if we have a valid Clerk key
@@ -48,7 +48,7 @@ export const config = {
 
     // Set a cookie to remember the previous locale for
     // all requests that have a locale prefix
-    '/(en|es)/:path*',
+    '/(en|es|zh-CN)/:path*',
 
     // Enable redirects that add missing locales
     // (e.g. `/pathnames` -> `/en/pathnames`)
