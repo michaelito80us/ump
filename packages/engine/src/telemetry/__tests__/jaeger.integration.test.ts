@@ -270,7 +270,7 @@ async function getSpansFromJaeger(
       return [];
     }
 
-    const tracesData = await tracesResponse.json();
+    const tracesData = (await tracesResponse.json()) as { data?: any[] };
     const traces = tracesData.data || [];
     console.log(`Found ${traces.length} traces`);
 
