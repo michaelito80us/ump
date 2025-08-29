@@ -15,7 +15,6 @@ module.exports = {
         '<rootDir>/dist/',
       ],
       setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
-      collectCoverage: true,
       collectCoverageFrom: [
         'src/**/*.ts',
         '!src/__tests__/**',
@@ -40,7 +39,6 @@ module.exports = {
         '^@ump/core/errors$': '<rootDir>/../core/src/errors.ts',
         '^@/(.*)$': '<rootDir>/src/$1',
       },
-      testTimeout: 10000,
     },
     {
       displayName: 'integration',
@@ -68,10 +66,11 @@ module.exports = {
         '^@ump/core/errors$': '<rootDir>/../core/src/errors.ts',
         '^@/(.*)$': '<rootDir>/src/$1',
       },
-      testTimeout: 30000,
-      // Force exit for integration tests to prevent hanging
-      forceExit: true,
+      // Detect open handles for integration tests to help with debugging
       detectOpenHandles: false,
     },
   ],
+  // Global configuration
+  collectCoverage: true,
+  testTimeout: 10000,
 };
