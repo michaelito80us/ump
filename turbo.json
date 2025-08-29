@@ -3,7 +3,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build", "codegen"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+      "outputs": ["dist/**", "dist-esm/**", ".next/**", "!.next/cache/**"]
     },
     "@ump/mobile#build": {
       "dependsOn": ["^build", "codegen"],
@@ -17,6 +17,23 @@
         "packages/**/*.{ts,tsx}"
       ],
       "outputs": ["packages/core/src/generated/**"]
+    },
+    "@ump/core#codegen": {
+      "inputs": [
+        "schema.graphql",
+        "codegen.yml",
+        "apps/**/*.{ts,tsx}",
+        "packages/**/*.{ts,tsx}"
+      ],
+      "outputs": ["src/generated/**"]
+    },
+    "@ump/gateway#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "@ump/infra-scripts#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
     },
     "lint": {
       "outputs": []
