@@ -12,22 +12,24 @@ const nextConfig = {
   reactStrictMode: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
+    // Disable all polyfills for modern browsers
+    styledComponents: true,
   },
-  // Enable source maps in production for Lighthouse audit
-  productionBrowserSourceMaps: true,
-  // Disable polyfills for modern browsers to fix legacy JavaScript audit
-  excludeDefaultMomentLocales: true,
-  // Target modern browsers to reduce polyfills
-  swcMinify: true,
+  // Completely disable polyfills for modern browsers
   experimental: {
     optimizeCss: true,
     // Enable modern JavaScript output
     esmExternals: true,
-    // Disable polyfills for modern browsers
-    legacyBrowsers: false,
-    // Disable all polyfills
-    polyfillsOptimization: true,
+    // Force modern output without polyfills
+    forceSwcTransforms: true,
   },
+  
+  // Completely disable polyfills
+  excludeDefaultMomentLocales: true,
+  
+  // Enable source maps in production for Lighthouse audit
+  productionBrowserSourceMaps: true,
+
   // Enable modern bundling (moved out of experimental)
   modularizeImports: {
     'lodash': {
@@ -105,7 +107,62 @@ const nextConfig = {
         'next/dist/build/polyfills/polyfill-nomodule': false,
       };
       
-      // Add optimization to handle module loading and reduce bundle size
+      // Remove polyfills from webpack entry points
+      if (config.entry) {
+        const originalEntry = config.entry;
+        config.entry = async () => {
+          const entries = await originalEntry();
+          // Remove polyfills from all entry points
+          Object.keys(entries).forEach(key => {
+            if (Array.isArray(entries[key])) {
+              entries[key] = entries[key].filter(entry => 
+                !entry.includes('polyfill') && 
+                !entry.includes('core-js')
+              );
+            }
+          });
+          return entries;
+        };
+       }
+       
+       // Add custom plugin to prevent polyfill generation
+       config.plugins.push({
+         apply: (compiler) => {
+           compiler.hooks.compilation.tap('RemovePolyfillsPlugin', (compilation) => {
+             compilation.hooks.processAssets.tap(
+               {
+                 name: 'RemovePolyfillsPlugin',
+                 stage: compilation.PROCESS_ASSETS_STAGE_OPTIMIZE,
+               },
+               (assets) => {
+                 // Remove polyfill assets
+                 Object.keys(assets).forEach(assetName => {
+                   if (assetName.includes('polyfill') || assetName.includes('core-js')) {
+                     delete assets[assetName];
+                   }
+                 });
+               }
+             );
+             
+             // Also remove from build manifest
+             compilation.hooks.afterProcessAssets.tap('RemovePolyfillsPlugin', () => {
+               const buildManifestAsset = compilation.assets['build-manifest.json'];
+               if (buildManifestAsset) {
+                 const buildManifest = JSON.parse(buildManifestAsset.source());
+                 if (buildManifest.polyfillFiles) {
+                   buildManifest.polyfillFiles = [];
+                 }
+                 compilation.assets['build-manifest.json'] = {
+                   source: () => JSON.stringify(buildManifest),
+                   size: () => JSON.stringify(buildManifest).length,
+                 };
+               }
+             });
+            });
+          },
+        });
+        
+        // Add optimization to handle module loading and reduce bundle size
       config.optimization = {
         ...config.optimization,
         splitChunks: {
