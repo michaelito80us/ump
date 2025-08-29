@@ -1,6 +1,9 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 
+// Force dynamic rendering to prevent prerendering issues
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ locale: string }>;
 }
