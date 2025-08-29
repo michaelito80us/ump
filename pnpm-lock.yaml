@@ -73,9 +73,6 @@ importers:
       babel-jest:
         specifier: ^29.5.0
         version: 29.7.0(@babel/core@7.28.0)
-      chromatic:
-        specifier: ^11.20.0
-        version: 11.20.0
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -13668,22 +13665,6 @@ packages:
       }
     engines: { node: '>=10' }
     dev: false
-
-  /chromatic@11.20.0:
-    resolution:
-      {
-        integrity: sha512-Btdli1qoAI01UKmk3Iqe6vKhAhePRXqNI/2uKKy2R16q7SN/5kLTqhd1JI20LFOZSnH3xSJaUXeJ2xZOJB//3A==,
-      }
-    hasBin: true
-    peerDependencies:
-      '@chromatic-com/cypress': ^0.*.* || ^1.0.0
-      '@chromatic-com/playwright': ^0.*.* || ^1.0.0
-    peerDependenciesMeta:
-      '@chromatic-com/cypress':
-        optional: true
-      '@chromatic-com/playwright':
-        optional: true
-    dev: true
 
   /chrome-launcher@0.13.4:
     resolution:
@@ -27513,7 +27494,7 @@ packages:
       ejs: 3.1.10
       esbuild: 0.24.2
       fast-json-stable-stringify: 2.1.0
-      jest: 29.7.0(@types/node@20.17.50)(ts-node@10.9.2)
+      jest: 29.7.0(@types/node@20.17.50)
       jest-util: 29.7.0
       json5: 2.2.3
       lodash.memoize: 4.1.2
