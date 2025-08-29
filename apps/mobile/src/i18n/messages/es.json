@@ -1,4 +1,14 @@
 {
+  "status": {
+    "live": "En Vivo",
+    "final": "Final",
+    "pending": "Pendiente",
+    "scheduled": "Programado",
+    "completed": "Completado",
+    "cancelled": "Cancelado",
+    "postponed": "Pospuesto",
+    "needs_approval": "Necesita Aprobación"
+  },
   "common": {
     "appName": "UMP Móvil",
     "appDescription": "Plataforma de Gestión Unificada - Gestión de Torneos Móvil",
@@ -22,7 +32,9 @@
     "search": "Buscar",
     "filter": "Filtrar",
     "sort": "Ordenar",
-    "refresh": "Actualizar"
+    "refresh": "Actualizar",
+    "retry": "Reintentar",
+    "view": "Ver"
   },
   "test": {
     "title": "¡La Página de Prueba Funciona!",
@@ -44,16 +56,47 @@
     "tournaments": "Torneos",
     "players": "Jugadores"
   },
+  "archive": {
+    "tournamentArchive": "Archivo de Torneos",
+    "pastTournaments": "Navegar torneos pasados y estadísticas",
+    "noTournaments": "No se encontraron torneos",
+    "noTournamentsDescription": "No hay torneos archivados para mostrar",
+    "filterByYear": "Filtrar por año",
+    "allYears": "Todos los años",
+    "totalTournaments": "Total de Torneos",
+    "totalMatches": "Total de Partidos",
+    "totalTeams": "Total de Equipos",
+    "winner": "Ganador",
+    "teams": "Equipos",
+    "matches": "Partidos",
+    "days": "Días",
+    "viewDetails": "Ver Detalles",
+    "downloadReport": "Descargar Reporte",
+    "exportData": "Exportar Datos",
+    "searchArchive": "Buscar Archivo",
+    "sortBy": "Ordenar Por",
+    "dateRange": "Rango de Fechas",
+    "status": "Estado",
+    "participants": "Participantes"
+  },
   "tournament": {
     "title": "Torneo",
     "name": "Nombre del Torneo",
+    "description": "Descripción",
     "status": "Estado",
     "startDate": "Fecha de Inicio",
     "endDate": "Fecha de Finalización",
     "venue": "Sede",
     "participants": "Participantes",
     "matches": "Partidos",
-    "phases": "Fases"
+    "phases": "Fases",
+    "teams": "Equipos",
+    "create": "Crear Torneo",
+    "edit": "Editar Torneo",
+    "delete": "Eliminar Torneo",
+    "view": "Ver Torneo",
+    "join": "Unirse al Torneo",
+    "leave": "Abandonar Torneo"
   },
   "match": {
     "title": "Partido",
@@ -62,11 +105,17 @@
     "time": "Hora",
     "venue": "Sede",
     "status": {
-      "scheduled": "Programado",
       "live": "En Vivo",
+      "final": "Final",
+      "pending": "Pendiente",
+      "scheduled": "Programado",
       "completed": "Completado",
       "cancelled": "Cancelado",
-      "postponed": "Pospuesto"
+      "postponed": "Pospuesto",
+      "LIVE": "En Vivo",
+      "FINAL": "Final",
+      "PENDING": "Pendiente",
+      "SCHEDULED": "Programado"
     },
     "startMatch": "Iniciar Partido",
     "endMatch": "Finalizar Partido"
@@ -75,14 +124,30 @@
     "title": "Equipo",
     "name": "Nombre del Equipo",
     "players": "Jugadores",
+    "captain": "Capitán",
     "coach": "Entrenador",
-    "stats": "Estadísticas"
+    "stats": "Estadísticas",
+    "create": "Crear Equipo",
+    "edit": "Editar Equipo",
+    "delete": "Eliminar Equipo",
+    "view": "Ver Equipo",
+    "join": "Unirse al Equipo",
+    "leave": "Abandonar Equipo",
+    "roster": "Lista",
+    "statistics": "Estadísticas"
   },
   "player": {
     "title": "Jugador",
     "name": "Nombre del Jugador",
+    "email": "Correo Electrónico",
     "position": "Posición",
     "number": "Número",
+    "team": "Equipo",
+    "profile": "Perfil",
+    "statistics": "Estadísticas",
+    "matches": "Partidos Jugados",
+    "wins": "Victorias",
+    "losses": "Derrotas",
     "stats": "Estadísticas"
   },
   "auth": {
@@ -91,7 +156,12 @@
     "signUp": "Registrarse",
     "email": "Correo Electrónico",
     "password": "Contraseña",
+    "confirmPassword": "Confirmar Contraseña",
     "forgotPassword": "¿Olvidaste tu contraseña?",
+    "resetPassword": "Restablecer Contraseña",
+    "profile": "Perfil",
+    "account": "Cuenta",
+    "settings": "Configuración",
     "rememberMe": "Recordarme"
   },
   "errors": {
@@ -99,11 +169,26 @@
     "network": "Error de red. Por favor, verifica tu conexión.",
     "unauthorized": "No tienes autorización para realizar esta acción.",
     "notFound": "El recurso solicitado no fue encontrado.",
-    "validation": "Por favor, verifica tu entrada e inténtalo de nuevo."
+    "validation": "Por favor, verifica tu entrada e inténtalo de nuevo.",
+    "general": "Ocurrió un error",
+    "forbidden": "Prohibido",
+    "required": "Este campo es obligatorio",
+    "invalid": "Entrada inválida",
+    "tryAgain": "Por favor, inténtalo de nuevo"
   },
   "marketplace": {
     "title": "Mercado de Plugins",
     "description": "Descubre e instala plugins para extender las capacidades de gestión de torneos",
+    "browse": "Navegar",
+    "search": "Buscar",
+    "categories": "Categorías",
+    "products": "Productos",
+    "services": "Servicios",
+    "buy": "Comprar",
+    "sell": "Vender",
+    "cart": "Carrito",
+    "checkout": "Finalizar Compra",
+    "orders": "Pedidos",
     "loading": "Cargando plugins...",
     "install": "Instalar",
     "installing": "Instalando...",
