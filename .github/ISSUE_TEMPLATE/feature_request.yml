@@ -1,0 +1,185 @@
+name: Feature Request
+description: Suggest an idea for this project
+title: '[Feature]: '
+labels: ['enhancement', 'triage']
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please provide as much detail as possible.
+
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details
+      description: How can we get in touch with you if we need more info?
+      placeholder: ex. email@example.com
+    validations:
+      required: false
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What's the current pain point?
+      placeholder: Describe the problem or need this feature would address
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: What would you like to happen? Describe your ideal solution.
+      placeholder: Describe the feature you'd like to see implemented
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What other solutions have you considered?
+      placeholder: Describe any alternative solutions or features you've considered
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Low - Nice to have
+        - Medium - Would improve workflow
+        - High - Blocking current work
+        - Critical - Cannot proceed without this
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of the system does this feature relate to?
+      multiple: true
+      options:
+        - Mobile App
+        - Admin Dashboard
+        - Plugin System
+        - Tournament Engine
+        - API/Backend
+        - Database
+        - Infrastructure
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: architecture-impact
+    attributes:
+      label: Architecture Impact Assessment
+      description: Please consider the architectural implications of this feature
+      options:
+        - label: This feature requires new external dependencies
+        - label: This feature affects the plugin system architecture
+        - label: This feature changes API contracts or data models
+        - label: This feature impacts security, performance, or scalability
+        - label: This feature affects multiple components/systems
+        - label: This feature requires database schema changes
+        - label: This feature changes user authentication/authorization
+        - label: This feature affects real-time functionality
+        - label: An ADR should be created to document design decisions
+
+  - type: textarea
+    id: technical-considerations
+    attributes:
+      label: Technical Considerations
+      description: Any technical details, constraints, or implementation thoughts?
+      placeholder: |
+        - Performance requirements
+        - Security considerations
+        - Compatibility requirements
+        - Integration points
+        - Data migration needs
+    validations:
+      required: false
+
+  - type: textarea
+    id: user-stories
+    attributes:
+      label: User Stories
+      description: Describe how different users would interact with this feature
+      placeholder: |
+        As a [user type], I want [goal] so that [benefit].
+
+        Example:
+        As a tournament organizer, I want to bulk import team data so that I can save time during setup.
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What conditions must be met for this feature to be considered complete?
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+        - [ ] Criterion 3
+    validations:
+      required: false
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups/Wireframes
+      description: If applicable, add mockups, wireframes, or screenshots
+      placeholder: Drag and drop images here or provide links to design files
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: breaking-changes
+    attributes:
+      label: Breaking Changes
+      description: Could this feature introduce breaking changes?
+      options:
+        - label: This feature may require breaking changes to existing APIs
+        - label: This feature may require database migrations
+        - label: This feature may affect existing plugin compatibility
+        - label: This feature may change existing user workflows
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, links, or references about the feature request
+      placeholder: |
+        - Links to similar features in other products
+        - Research or user feedback
+        - Related issues or discussions
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Are you willing to contribute to this feature?
+      options:
+        - label: I'm willing to implement this feature
+        - label: I can help with design/planning
+        - label: I can help with testing
+        - label: I can help with documentation
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

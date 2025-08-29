@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["jest", "node", "@testing-library/jest-dom"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "typeRoots": ["../../node_modules/@types", "./node_modules/@types"]
+  },
+  "include": [
+    "types/jest-global.d.ts",
+    "**/*",
+    "components/**/__tests__/**/*",
+    "app/**/__tests__/**/*",
+    "__tests__/**/*",
+    "jest.setup.js",
+    "types/**/*"
+  ],
+  "exclude": ["node_modules", "cypress/**/*", "**/*.cy.ts", "**/*.cy.tsx"]
+}

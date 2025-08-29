@@ -1,0 +1,71 @@
+{
+  "name": "ump-plugin-harness-template",
+  "version": "1.0.0",
+  "description": "Template for testing UMP plugins with conformance harness",
+  "private": true,
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src --ext .ts,.tsx",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ump/core": "workspace:*",
+    "@ump/engine": "workspace:*",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "tailwind-merge": "^2.2.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.0.0",
+    "jest": "^29.5.0",
+    "jest-environment-jsdom": "^29.5.0",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupTests.ts"
+    ],
+    "moduleNameMapper": {
+      "^@ump/core$": "<rootDir>/../../packages/core/src/index.ts",
+      "^@ump/engine$": "<rootDir>/../../packages/engine/src/index.ts",
+      "^@ump/engine/harness$": "<rootDir>/../../packages/engine/src/harness/index.ts"
+    },
+    "transform": {
+      "^.+\\.(ts|tsx)$": [
+        "ts-jest",
+        {
+          "useESM": false,
+          "tsconfig": {
+            "jsx": "react-jsx",
+            "types": [
+              "jest",
+              "node",
+              "@testing-library/jest-dom"
+            ]
+          }
+        }
+      ]
+    },
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!src/**/*.d.ts",
+      "!src/setupTests.ts"
+    ]
+  }
+}

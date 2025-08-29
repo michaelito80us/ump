@@ -1,15 +1,125 @@
 {
   "name": "@ump/core",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
+  "description": "Core types and utilities for the Unified Management Platform",
+  "keywords": [
+    "tournament",
+    "sports",
+    "management",
+    "typescript"
+  ],
   "main": "./dist/index.js",
+  "module": "./dist-esm/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist-esm/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./generated": {
+      "types": "./dist/generated/index.d.ts",
+      "import": "./dist-esm/generated/index.js",
+      "require": "./dist/generated/index.js",
+      "default": "./dist/generated/index.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist-esm/types.js",
+      "require": "./dist/types.js",
+      "default": "./dist/types.js"
+    },
+    "./utils/date": {
+      "types": "./dist/utils/date.d.ts",
+      "import": "./dist-esm/utils/date.js",
+      "require": "./dist/utils/date.js",
+      "default": "./dist/utils/date.js"
+    },
+    "./utils/createPatch": {
+      "types": "./dist/utils/createPatch.d.ts",
+      "import": "./dist-esm/utils/createPatch.js",
+      "require": "./dist/utils/createPatch.js",
+      "default": "./dist/utils/createPatch.js"
+    },
+    "./backend": {
+      "types": "./dist/backend.d.ts",
+      "import": "./dist-esm/backend.js",
+      "require": "./dist/backend.js",
+      "default": "./dist/backend.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "import": "./dist-esm/server.js",
+      "require": "./dist/server.js",
+      "default": "./dist/server.js"
+    },
+    "./errors": {
+      "types": "./dist/errors.d.ts",
+      "import": "./dist-esm/errors.js",
+      "require": "./dist/errors.js",
+      "default": "./dist/errors.js"
+    },
+    "./types-only": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist-esm/types.js",
+      "require": "./dist/types.js",
+      "default": "./dist/types.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/**/*",
+    "dist-esm/**/*",
+    "README.md",
+    "package.json"
+  ],
   "scripts": {
-    "build": "tsc -b",
+    "build": "pnpm run codegen && pnpm run build:tsc && pnpm run build:esm",
+    "build:tsc": "tsc -b",
+    "build:esm": "tsc -b tsconfig.esm.json",
     "dev": "tsc -b --watch",
     "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
-    "test": "echo 'Core package - test pending'",
+    "test": "jest",
+    "test:types": "tsc --noEmit --project .",
+    "test:build": "pnpm run build && echo 'Build verification passed'",
+    "test:all": "pnpm run test:types && pnpm run test && pnpm run test:build",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist dist-esm",
+    "prepublishOnly": "pnpm run test:all && pnpm run build",
+    "codegen": "cd ../.. && graphql-codegen --config codegen.yml"
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^6.28.1",
+    "@tanstack/react-query": "^5.59.0",
+    "graphql": "^16.9.0",
+    "luxon": "^3.7.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/luxon": "^3.7.1",
+    "@types/node": "^24.2.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.8.3"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "restricted"
   }
 }

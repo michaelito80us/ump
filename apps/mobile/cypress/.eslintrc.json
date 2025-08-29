@@ -1,0 +1,11 @@
+{
+  "extends": ["../.eslintrc.json", "plugin:cypress/recommended"],
+  "plugins": ["cypress"],
+  "env": {
+    "cypress/globals": true
+  },
+  "rules": {
+    "@typescript-eslint/no-namespace": "off",
+    "@typescript-eslint/triple-slash-reference": "off"
+  }
+}

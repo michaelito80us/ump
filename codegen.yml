@@ -1,0 +1,51 @@
+schema: 'schema.graphql'
+documents:
+  - 'apps/**/*.{ts,tsx,graphql,gql}'
+  - 'packages/**/*.{ts,tsx,graphql,gql}'
+  - '!**/node_modules/**'
+  - '!**/dist/**'
+  - '!**/generated/**'
+generates:
+  packages/core/src/generated/graphql.ts:
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-react-query'
+    config:
+      # TypeScript configuration
+      scalars:
+        DateTime: 'string'
+        JSON: 'any'
+      enumsAsTypes: true
+      constEnums: true
+
+      # React Query configuration
+      reactQueryVersion: 5
+      addSuspenseQuery: true
+      addInfiniteQuery: true
+      exposeDocument: true
+      exposeQueryKeys: true
+      exposeMutationKeys: true
+      addDocumentNodeToHooks: true
+
+      # Naming conventions
+      operationResultSuffix: 'Result'
+      dedupeOperationSuffix: true
+      omitOperationSuffix: false
+
+      # Code generation options
+      skipTypename: false
+      withHooks: true
+      withHOC: false
+      withComponent: false
+      withRefetchFn: false
+
+  packages/core/src/generated/introspection.json:
+    plugins:
+      - 'introspection'
+    config:
+      minify: true
+
+hooks:
+  afterOneFileWrite:
+    - prettier --write

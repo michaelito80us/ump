@@ -1,0 +1,185 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ump-postgres
+    environment:
+      POSTGRES_DB: ump_dev
+      POSTGRES_USER: ump_user
+      POSTGRES_PASSWORD: ump_password
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ump_user -d ump_dev']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ump-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: ump-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ump-network
+
+  # Backend Service
+  backend:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    container_name: ump-backend
+    environment:
+      - NODE_ENV=development
+      - PORT=4001
+      - DATABASE_URL=postgresql://ump_user:ump_password@postgres:5432/ump_dev
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=dev-jwt-secret-change-in-production
+      - GRAPHQL_INTROSPECTION=true
+      - GRAPHQL_PLAYGROUND=true
+      - CORS_ORIGIN=http://localhost:3000,http://localhost:3001
+    ports:
+      - '4001:4001'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./packages/backend:/app/packages/backend
+      - ./packages/core:/app/packages/core
+      - ./packages/engine:/app/packages/engine
+      - /app/node_modules
+      - /app/packages/backend/node_modules
+    working_dir: /app/packages/backend
+    command: pnpm dev
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4001/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ump-network
+
+  # API Gateway
+  gateway:
+    build:
+      context: .
+      dockerfile: packages/gateway/Dockerfile
+    container_name: ump-gateway
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - GRAPHQL_INTROSPECTION=true
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+      - JWT_SECRET=dev-jwt-secret-change-in-production
+      - LOG_LEVEL=INFO
+      - CORE_SUBGRAPH_URL=http://backend:4001/graphql
+    ports:
+      - '3000:3000'
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./packages/gateway:/app/packages/gateway
+      - ./packages/core:/app/packages/core
+      - /app/node_modules
+      - /app/packages/gateway/node_modules
+    working_dir: /app/packages/gateway
+    command: pnpm dev
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ump-network
+
+  # Admin App
+  admin:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+    container_name: ump-admin
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_GRAPHQL_URL=http://localhost:3000/graphql
+      - NEXT_PUBLIC_WS_URL=ws://localhost:3000/graphql
+    ports:
+      - '3002:3000'
+    depends_on:
+      gateway:
+        condition: service_healthy
+    volumes:
+      - ./apps/admin:/app/apps/admin
+      - ./packages/core:/app/packages/core
+      - ./packages/ui:/app/packages/ui
+      - ./packages/engine:/app/packages/engine
+      - /app/node_modules
+      - /app/apps/admin/node_modules
+    working_dir: /app/apps/admin
+    command: pnpm dev
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ump-network
+
+  # Mobile App
+  mobile:
+    build:
+      context: .
+      dockerfile: apps/mobile/Dockerfile
+    container_name: ump-mobile
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_GRAPHQL_URL=http://localhost:3000/graphql
+      - NEXT_PUBLIC_WS_URL=ws://localhost:3000/graphql
+    ports:
+      - '3001:3001'
+    depends_on:
+      gateway:
+        condition: service_healthy
+    volumes:
+      - ./apps/mobile:/app/apps/mobile
+      - ./packages/core:/app/packages/core
+      - ./packages/ui:/app/packages/ui
+      - ./packages/engine:/app/packages/engine
+      - /app/node_modules
+      - /app/apps/mobile/node_modules
+    working_dir: /app/apps/mobile
+    command: pnpm dev -p 3001
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3001/api/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ump-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  ump-network:
+    driver: bridge

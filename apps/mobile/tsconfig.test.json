@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "jest"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "typeRoots": ["../../node_modules/@types", "./node_modules/@types"]
+  },
+  "include": [
+    "types/jest-global.d.ts",
+    "**/__tests__/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "jest.setup.js",
+    "lib/**/*",
+    "src/**/*"
+  ],
+  "exclude": ["cypress/**/*"]
+}

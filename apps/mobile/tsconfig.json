@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "lib": ["DOM", "DOM.Iterable", "ES6"],
+    "lib": ["DOM", "DOM.Iterable", "ES6", "ES2021"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -16,19 +16,21 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["cypress", "node", "jest"]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"],
-  "references": [
-    {
-      "path": "../../packages/core"
-    },
-    {
-      "path": "../../packages/ui"
-    },
-    {
-      "path": "../../packages/engine"
-    }
-  ]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "cypress/**/*.ts",
+    "eslint.config.js",
+    "jest.setup.js",
+    "src/types/**/*.d.ts"
+  ],
+  "exclude": ["node_modules"]
 }

@@ -4,6 +4,11 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  statuses: write
+  pull-requests: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -44,7 +49,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 9
+          version: 8.6.12
 
       - name: Get pnpm store directory
         shell: bash
@@ -63,7 +68,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Build mobile
-        run: pnpm turbo build --filter=mobile
+        run: pnpm turbo build --filter=@ump/mobile
 
       - name: Set deployment status
         env:
@@ -114,7 +119,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 9
+          version: 8.6.12
 
       - name: Get pnpm store directory
         shell: bash
@@ -134,7 +139,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build admin
-        run: pnpm turbo build --filter=admin
+        run: pnpm turbo build --filter=@ump/admin
 
       - name: Set deployment status
         env:

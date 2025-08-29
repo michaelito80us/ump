@@ -3,10 +3,19 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "noEmit": false
+    "noEmit": false,
+    "lib": ["ES2021", "DOM"],
+    "types": ["jest", "node"],
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["dist", "node_modules", "**/*.test.ts", "**/*.test.tsx"],
+  "include": ["src/**/*", "src/types/**/*.d.ts"],
+  "exclude": ["dist", "node_modules"],
   "references": [
     {
       "path": "../core"

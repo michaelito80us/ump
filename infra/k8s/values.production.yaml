@@ -1,0 +1,382 @@
+# Production values for UMP
+# This file contains production-specific overrides
+
+# Global settings for production
+global:
+  imageRegistry: "ghcr.io"
+  environment: "production"
+  imagePullSecrets:
+    - name: ghcr-secret
+
+# Image settings
+image:
+  registry: ghcr.io
+  repository: "ump"
+  pullPolicy: Always
+  tag: "latest"
+
+# Production replica counts
+replicaCount: 3
+
+# Production resource limits
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 3000
+
+# PostgreSQL production configuration
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "CHANGE_ME_IN_PRODUCTION"
+    username: "ump_user"
+    password: "CHANGE_ME_IN_PRODUCTION"
+    database: "ump_prod"
+  primary:
+    persistence:
+      enabled: true
+      size: 50Gi
+      storageClass: "fast-ssd"
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+    configuration: |
+      max_connections = 200
+      shared_buffers = 1GB
+      effective_cache_size = 3GB
+      maintenance_work_mem = 256MB
+      checkpoint_completion_target = 0.9
+      wal_buffers = 16MB
+      default_statistics_target = 100
+      random_page_cost = 1.1
+      effective_io_concurrency = 200
+      work_mem = 4MB
+      min_wal_size = 1GB
+      max_wal_size = 4GB
+
+# Redis production configuration
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "CHANGE_ME_IN_PRODUCTION"
+  master:
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: "fast-ssd"
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+  replica:
+    replicaCount: 2
+    persistence:
+      enabled: true
+      size: 10Gi
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+
+# Backend service production configuration
+backend:
+  enabled: true
+  replicaCount: 3
+  image:
+    repository: ump-backend
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 4000
+  env:
+    NODE_ENV: production
+    PORT: 4000
+    GRAPHQL_INTROSPECTION: false
+    GRAPHQL_PLAYGROUND: false
+    LOG_LEVEL: info
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 1000m
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+# Gateway service production configuration
+gateway:
+  enabled: true
+  replicaCount: 3
+  image:
+    repository: ump-gateway
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 4001
+  env:
+    NODE_ENV: production
+    PORT: 4001
+    GRAPHQL_INTROSPECTION: false
+    LOG_LEVEL: info
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 1000m
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+# Admin app production configuration
+admin:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: ump-admin
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 3000
+  env:
+    NODE_ENV: production
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80
+
+# Mobile app production configuration
+mobile:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: ump-mobile
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 3000
+  env:
+    NODE_ENV: production
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80
+
+# Production ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://ump.yourdomain.com"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+  host: "ump.yourdomain.com"
+  hosts:
+    - host: ump.yourdomain.com
+  tls:
+    - secretName: ump-prod-tls
+      hosts:
+        - ump.yourdomain.com
+
+# Production configuration values
+config:
+  graphqlHttpUrl: "https://ump.yourdomain.com/api/graphql"
+  graphqlWsUrl: "wss://ump.yourdomain.com/api/graphql"
+  corsOrigin: "https://ump.yourdomain.com"
+  corsOrigins: "https://ump.yourdomain.com"
+  coreSubgraphUrl: "http://ump-backend:4000/graphql"
+  logLevel: "warn"
+  graphqlIntrospection: "false"
+  graphqlPlayground: "false"
+  enableAnalytics: "true"
+  enableMonitoring: "true"
+  enableWebsockets: "true"
+  cdnUrl: "https://cdn.yourdomain.com"
+  assetsUrl: "https://assets.yourdomain.com"
+  rateLimitWindow: "60000"
+  rateLimitMax: "1000"
+  healthCheckTimeout: "10000"
+  healthCheckInterval: "30000"
+
+# Production secrets (these should be set via external secret management)
+secrets:
+  jwtSecret: "OVERRIDE_IN_PRODUCTION"
+  clerkPublishableKey: "OVERRIDE_IN_PRODUCTION"
+  clerkSecretKey: "OVERRIDE_IN_PRODUCTION"
+  clerkWebhookSecret: "OVERRIDE_IN_PRODUCTION"
+  openaiApiKey: "OVERRIDE_IN_PRODUCTION"
+  stripeSecretKey: "OVERRIDE_IN_PRODUCTION"
+  stripeWebhookSecret: "OVERRIDE_IN_PRODUCTION"
+  sendgridApiKey: "OVERRIDE_IN_PRODUCTION"
+  sentryDsn: "OVERRIDE_IN_PRODUCTION"
+  mixpanelToken: "OVERRIDE_IN_PRODUCTION"
+  googleAnalyticsId: "OVERRIDE_IN_PRODUCTION"
+  awsAccessKeyId: "OVERRIDE_IN_PRODUCTION"
+  awsSecretAccessKey: "OVERRIDE_IN_PRODUCTION"
+  awsS3Bucket: "ump-prod-storage"
+  awsRegion: "us-east-1"
+  firebaseProjectId: "OVERRIDE_IN_PRODUCTION"
+  firebasePrivateKey: "OVERRIDE_IN_PRODUCTION"
+  firebaseClientEmail: "OVERRIDE_IN_PRODUCTION"
+  encryptionKey: "OVERRIDE_IN_PRODUCTION"
+  sessionSecret: "OVERRIDE_IN_PRODUCTION"
+  datadogApiKey: "OVERRIDE_IN_PRODUCTION"
+  newrelicLicenseKey: "OVERRIDE_IN_PRODUCTION"
+  cloudflareApiToken: "OVERRIDE_IN_PRODUCTION"
+  migrationPassword: "OVERRIDE_IN_PRODUCTION"
+
+# Production backup configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM UTC
+  retention:
+    days: 90
+  s3:
+    bucket: "ump-prod-backups"
+    region: "us-east-1"
+    prefix: "postgres-backups"
+  image:
+    repository: postgres
+    tag: "15-alpine"
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+# Production autoscaling
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Node affinity for production
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: node-type
+          operator: In
+          values:
+          - production
+
+# Tolerations for production nodes
+tolerations:
+  - key: "production"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+
+# Pod disruption budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# Network policies
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: ingress-nginx
+      ports:
+      - protocol: TCP
+        port: 3000
+      - protocol: TCP
+        port: 4000
+      - protocol: TCP
+        port: 4001
+
+# Security context for production
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 3000
+  fsGroup: 2000
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+    - ALL
+
+# Monitoring and observability
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 10s
+  prometheusRule:
+    enabled: true
+
+# Logging
+logging:
+  level: "warn"
+  format: "json"
+  output: "stdout"

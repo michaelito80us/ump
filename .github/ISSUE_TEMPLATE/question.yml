@@ -1,0 +1,119 @@
+name: Question
+description: Ask a question about UMP
+title: '[Question]: '
+labels: ['question', 'triage']
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for asking a question! We're here to help.
+
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details
+      description: How can we get in touch with you if we need more info?
+      placeholder: ex. email@example.com
+    validations:
+      required: false
+
+  - type: dropdown
+    id: question-type
+    attributes:
+      label: Question Type
+      description: What type of question is this?
+      options:
+        - General Usage
+        - Plugin Development
+        - Tournament Setup
+        - API/Integration
+        - Performance
+        - Security
+        - Deployment
+        - Contributing
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know?
+      placeholder: Please be as specific as possible with your question
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Provide any relevant context that might help us answer your question
+      placeholder: |
+        - What are you trying to achieve?
+        - What have you already tried?
+        - Any relevant code, configuration, or setup details
+    validations:
+      required: false
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Related Component
+      description: Which part of UMP does your question relate to?
+      multiple: true
+      options:
+        - Mobile App
+        - Admin Dashboard
+        - Plugin System
+        - Tournament Engine
+        - API/Backend
+        - Database
+        - Infrastructure
+        - Documentation
+        - Not Sure
+    validations:
+      required: false
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment (if relevant)
+      description: Please provide details about your environment if relevant to your question
+      placeholder: |
+        - OS: [e.g. macOS 12.0, Windows 11, Ubuntu 20.04]
+        - Node.js version: [e.g. 18.17.0]
+        - pnpm version: [e.g. 8.6.0]
+        - UMP version: [e.g. v1.0.0, main branch]
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: Any other information that might be helpful
+      placeholder: Links, screenshots, code snippets, etc.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: research
+    attributes:
+      label: Research Done
+      description: Have you checked these resources before asking?
+      options:
+        - label: I've searched existing issues
+        - label: I've checked the documentation
+        - label: I've looked at the plugin development guide
+        - label: I've reviewed the developer handbook
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

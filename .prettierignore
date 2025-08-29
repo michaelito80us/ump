@@ -1,0 +1,9 @@
+# Ignore Kubernetes YAML files
+infra/k8s/
+
+# Ignore other generated files
+dist/
+build/
+node_modules/
+*.min.js
+*.min.css

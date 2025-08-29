@@ -1,0 +1,41 @@
+# Gitleaks configuration for secret scanning
+
+title = "Gitleaks Config for UMP"
+
+# Allowlist for test files and examples
+[allowlist]
+paths = [
+  ".env.example",
+  ".*\\.test\\.(ts|tsx)$",
+  ".*\\.spec\\.(ts|tsx)$",
+  ".*/test/.*",
+  ".*/tests/.*",
+  ".*/__tests__/.*",
+  ".*/mocks/.*",
+  ".*/__mocks__/.*",
+  ".*/fixtures/.*",
+  "docs/.*",
+  "README.md",
+  ".*/README.md"
+]
+
+# Allowlist for specific test secrets
+regexes = [
+  "test[_-]?key[_-]?[0-9a-f]{8,}",
+  "mock[_-]?secret[_-]?[0-9a-f]{8,}",
+  "dummy[_-]?token[_-]?[0-9a-f]{8,}",
+  "example[_-]?api[_-]?key",
+  "placeholder[_-]?secret"
+]
+
+# Stop words to reduce false positives
+stopwords = [
+  "example",
+  "test",
+  "mock",
+  "dummy",
+  "placeholder",
+  "sample",
+  "demo",
+  "fake"
+]

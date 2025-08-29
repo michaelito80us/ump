@@ -1,0 +1,265 @@
+scalar DateTime
+scalar JSON
+
+enum TournamentStatus {
+  DRAFT
+  REGISTRATION_OPEN
+  REGISTRATION_CLOSED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MatchStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  POSTPONED
+}
+
+enum PhaseStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PlayerRole {
+  PLAYER
+  CAPTAIN
+  SUBSTITUTE
+  COACH
+}
+
+type Tournament {
+  id: ID!
+  name: String!
+  sport: String
+  status: TournamentStatus!
+  startDate: DateTime
+  endDate: DateTime
+  isLocked: Boolean!
+  phases: [Phase!]!
+  teams: [Team!]!
+  settings: JSON
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Phase {
+  id: ID!
+  name: String!
+  pluginId: String
+  status: PhaseStatus!
+  tournament: Tournament!
+  tournamentId: ID!
+  matches: [Match!]!
+  order: Int!
+  startDate: DateTime
+  endDate: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Match {
+  id: ID!
+  name: String
+  status: MatchStatus!
+  phase: Phase!
+  phaseId: ID!
+  tournament: Tournament!
+  tournamentId: ID!
+  teamA: Team
+  teamB: Team
+  scoreA: Int
+  scoreB: Int
+  scheduledAt: DateTime
+  startedAt: DateTime
+  completedAt: DateTime
+  venue: String
+  result: JSON
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Team {
+  id: ID!
+  name: String!
+  description: String
+  tournament: Tournament!
+  tournamentId: ID!
+  players: [Player!]!
+  captain: Player
+  captainId: ID
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Player {
+  id: ID!
+  name: String!
+  email: String
+  role: PlayerRole!
+  team: Team!
+  teamId: ID!
+  tournament: Tournament!
+  tournamentId: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type LeaderboardEntry {
+  id: ID!
+  tournament: Tournament!
+  tournamentId: ID!
+  team: Team!
+  teamId: ID!
+  position: Int!
+  points: Int!
+  wins: Int!
+  losses: Int!
+  draws: Int!
+  stats: JSON
+  goalsFor: Int
+  goalsAgainst: Int
+  goalDifference: Int
+}
+
+input CreateTournamentInput {
+  name: String!
+  sport: String
+  description: String
+  startDate: DateTime
+  endDate: DateTime
+  maxTeams: Int
+  settings: JSON
+}
+
+input UpdateTournamentInput {
+  name: String
+  sport: String
+  description: String
+  status: TournamentStatus
+  startDate: DateTime
+  endDate: DateTime
+  maxTeams: Int
+  settings: JSON
+  isLocked: Boolean
+}
+
+input CreateTeamInput {
+  name: String!
+  description: String
+  tournamentId: ID!
+}
+
+input UpdateTeamInput {
+  name: String
+  description: String
+  captainId: ID
+}
+
+input CreatePlayerInput {
+  name: String!
+  email: String
+  role: PlayerRole!
+  teamId: ID!
+}
+
+input UpdatePlayerInput {
+  name: String
+  email: String
+  role: PlayerRole
+}
+
+input CreateMatchInput {
+  name: String
+  phaseId: ID!
+  teamAId: ID
+  teamBId: ID
+  scheduledAt: DateTime
+  venue: String
+}
+
+input UpdateMatchInput {
+  name: String
+  status: MatchStatus
+  scheduledAt: DateTime
+  venue: String
+  result: JSON
+}
+
+input CreatePhaseInput {
+  name: String!
+  pluginId: String
+  description: String
+  tournamentId: ID!
+  order: Int!
+  startDate: DateTime
+  endDate: DateTime
+}
+
+input UpdatePhaseInput {
+  name: String
+  pluginId: String
+  description: String
+  status: PhaseStatus
+  order: Int
+  startDate: DateTime
+  endDate: DateTime
+}
+
+type Query {
+  tournament(id: ID!): Tournament
+  tournaments: [Tournament!]!
+  
+  team(id: ID!): Team
+  teams(tournamentId: ID): [Team!]!
+  
+  player(id: ID!): Player
+  players(teamId: ID, tournamentId: ID): [Player!]!
+  
+  match(id: ID!): Match
+  matches(tournamentId: ID, phaseId: ID): [Match!]!
+  
+  phase(id: ID!): Phase
+  phases(tournamentId: ID!): [Phase!]!
+  
+  leaderboard(tournamentId: ID!): [LeaderboardEntry!]!
+}
+
+type Mutation {
+  createTournament(input: CreateTournamentInput!): Tournament!
+  updateTournament(id: ID!, input: UpdateTournamentInput!): Tournament!
+  deleteTournament(id: ID!): Boolean!
+  
+  createTeam(input: CreateTeamInput!): Team!
+  updateTeam(id: ID!, input: UpdateTeamInput!): Team!
+  deleteTeam(id: ID!): Boolean!
+  
+  createPlayer(input: CreatePlayerInput!): Player!
+  updatePlayer(id: ID!, input: UpdatePlayerInput!): Player!
+  deletePlayer(id: ID!): Boolean!
+  
+  createMatch(input: CreateMatchInput!): Match!
+  updateMatch(id: ID!, input: UpdateMatchInput!): Match!
+  deleteMatch(id: ID!): Boolean!
+  startMatch(id: ID!): Match!
+  completeMatch(id: ID!, result: JSON!): Match!
+  updateMatchScore(id: ID!, score: JSON!): Match!
+  
+  createPhase(input: CreatePhaseInput!): Phase!
+  updatePhase(id: ID!, input: UpdatePhaseInput!): Phase!
+  deletePhase(id: ID!): Boolean!
+}
+
+type Subscription {
+  tournamentUpdated(id: ID!): Tournament!
+  
+  matchUpdated(tournamentId: ID!): Match!
+  matchStarted(tournamentId: ID!): Match!
+  matchCompleted(tournamentId: ID!): Match!
+  
+  leaderboardUpdated(tournamentId: ID!): [LeaderboardEntry!]!
+}

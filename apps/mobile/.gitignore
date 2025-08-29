@@ -1,1 +1,12 @@
 .vercel
+
+# PWA files
+public/sw.js
+public/sw.js.map
+public/workbox-*.js
+public/workbox-*.js.map
+
+# next-pwa cache
+.next/cache/
+# clerk configuration (can include secrets)
+/.clerk/

@@ -1,0 +1,331 @@
+{
+  "_metadata": {
+    "description": "Suggested translation keys for UMP Tournament Manager Mobile App",
+    "priority": "Keys are organized by implementation priority",
+    "usage": "These keys should be added to both en.json and es.json files",
+    "generated": "2024-12-20"
+  },
+  "high_priority": {
+    "pwa": {
+      "install": {
+        "title": "Install UMP Tournament Manager",
+        "description": "Get the full app experience",
+        "install": "Install",
+        "dismiss": "Dismiss"
+      },
+      "update": {
+        "title": "App Update Available",
+        "description": "A new version is available.",
+        "update": "Update",
+        "later": "Later"
+      }
+    },
+    "connection": {
+      "status": {
+        "connected": "Connected",
+        "connecting": "Connecting...",
+        "disconnected": "Disconnected",
+        "offline": "Offline",
+        "error": "Error"
+      },
+      "messages": {
+        "backOnline": "Back Online!",
+        "youreOffline": "You're Offline",
+        "connectionRestored": "Your connection has been restored. You can now access all features.",
+        "noConnection": "No internet connection detected. Some features may be limited, but you can still view cached tournaments and matches.",
+        "limitedFeatures": "You are offline. Some features may be limited."
+      }
+    },
+    "schedule": {
+      "mySchedule": "My Schedule",
+      "upcomingMatches": "Upcoming Matches",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "noMatches": "No matches scheduled"
+    },
+    "live": {
+      "liveScores": "Live Scores",
+      "currentMatches": "Current Matches",
+      "noLiveMatches": "No live matches",
+      "checkBackLater": "Check back later",
+      "live": "Live",
+      "viewDetails": "View Details",
+      "followMatch": "Follow Match",
+      "scores": "Scores"
+    },
+    "standings": {
+      "standings": "Standings",
+      "currentRankings": "Current Rankings",
+      "leaderboard": "Leaderboard",
+      "rank": "Rank",
+      "team": "Team",
+      "played": "Played",
+      "wins": "Wins",
+      "draws": "Draws",
+      "losses": "Losses",
+      "goalDiff": "Goal Diff",
+      "points": "Points"
+    },
+    "archive": {
+      "tournamentArchive": "Tournament Archive",
+      "pastTournaments": "Past Tournaments"
+    },
+    "actions": {
+      "goToHome": "Go to Home",
+      "reloadPage": "Reload Page"
+    }
+  },
+  "medium_priority": {
+    "simulation": {
+      "title": "Live Match Simulation",
+      "controls": "Simulation Controls",
+      "showDebug": "Show Debug Info",
+      "hideDebug": "Hide Debug Info",
+      "start": "Start Simulation",
+      "stop": "Stop Simulation",
+      "status": {
+        "label": "Simulation Status:",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "teams": {
+        "thunderHawks": "Thunder Hawks",
+        "lightningBolts": "Lightning Bolts",
+        "stormRiders": "Storm Riders",
+        "windRunners": "Wind Runners",
+        "fireDragons": "Fire Dragons",
+        "icePhoenix": "Ice Phoenix",
+        "teamA": "Team A",
+        "teamB": "Team B"
+      },
+      "events": {
+        "matchEventOccurred": "Match event occurred",
+        "matchUpdated": "Match updated"
+      },
+      "parameters": {
+        "title": "Match Simulation Parameters",
+        "updateInterval": "Match Update Interval",
+        "eventProbability": "Event Probability",
+        "scoreChangeProbability": "Score Change Probability",
+        "statusChangeProbability": "Status Change Probability",
+        "matchEventProbability": "Match Event Probability"
+      }
+    },
+    "pages": {
+      "home": {
+        "pwaFeatures": "PWA Features to Test:",
+        "debugInfo": "Debug Info:",
+        "locale": "Locale:",
+        "messagesLoaded": "Messages loaded:",
+        "yes": "YES",
+        "no": "NO",
+        "navigation": "Navigation"
+      },
+      "simple": {
+        "title": "Simple Test Page",
+        "description": "This page has no client-side JavaScript or complex components."
+      },
+      "test": {
+        "action": "Action:",
+        "navigation": "Navigation:"
+      }
+    },
+    "match": {
+      "details": {
+        "matchId": "Match ID:",
+        "updateCount": "Update Count:",
+        "hasUpdated": "Has Updated:",
+        "connection": "Connection:",
+        "activeAnimations": "Active Animations:",
+        "error": "Error:"
+      }
+    },
+    "capabilities": {
+      "offlineCapabilities": "Offline Capabilities"
+    }
+  },
+  "low_priority": {
+    "pwa": {
+      "test": {
+        "title": "PWA Test Page",
+        "networkStatus": "Network Status",
+        "online": "Online",
+        "syncing": "Syncing",
+        "pendingActions": "Pending Actions",
+        "failedActions": "Failed Actions",
+        "serviceWorkerStatus": "Service Worker Status",
+        "supported": "Supported",
+        "registered": "Registered",
+        "updateAvailable": "Update Available",
+        "version": "Version",
+        "unknown": "Unknown",
+        "tournamentSavedOffline": "Tournament saved offline successfully!",
+        "syncCompleted": "Sync completed!",
+        "offlineDataCleared": "Offline data cleared!",
+        "sport": "Sport",
+        "id": "ID"
+      }
+    },
+    "debug": {
+      "title": "Runtime Debug Page",
+      "errors": "Runtime Errors",
+      "warnings": "Runtime Warnings",
+      "information": "Runtime Information",
+      "noErrors": "No errors detected",
+      "noWarnings": "No warnings detected",
+      "userAgent": "User Agent:",
+      "notAvailable": "N/A",
+      "windowDefined": "Window defined:",
+      "documentDefined": "Document defined:",
+      "navigatorOnline": "Navigator online:",
+      "triggerError": "Trigger Error",
+      "triggerWarning": "Trigger Warning",
+      "clearLogs": "Clear Logs"
+    },
+    "graphql": {
+      "test": {
+        "title": "GraphQL Client Test",
+        "authStatus": "Auth Status:",
+        "graphqlStatus": "GraphQL Status:",
+        "initializing": "Initializing...",
+        "gatewayRunning": "If Gateway is Running: Should show \"Connected\"",
+        "gatewayDown": "If Gateway is Down: Should show \"Error\" status with",
+        "authentication": "Authentication: Should show current Clerk auth"
+      }
+    }
+  },
+  "missing_english_keys": {
+    "_note": "These keys exist in es.json but are missing from en.json",
+    "common": {
+      "appName": "UMP Mobile",
+      "appDescription": "Unified Management Platform - Mobile Tournament Management",
+      "graphqlSetupComplete": "GraphQL Client Setup Complete",
+      "apolloClientIntegration": "Apollo Client Integration with Clerk Authentication",
+      "welcome": "Welcome",
+      "success": "Success",
+      "create": "Create",
+      "submit": "Submit",
+      "confirm": "Confirm",
+      "search": "Search",
+      "filter": "Filter",
+      "sort": "Sort",
+      "refresh": "Refresh"
+    },
+    "test": {
+      "title": "The Test Page Works!",
+      "description": "This is a simple static route test.",
+      "i18nIntegration": "This page is now properly integrated with the i18n layout structure.",
+      "layoutFixed": "Layout Fixed!",
+      "layoutDescription": "This page now has access to the root layout and supports internationalization.",
+      "currentLocale": "Current Language",
+      "backToHome": "Back to Home"
+    },
+    "navigation": {
+      "home": "Home",
+      "schedule": "Schedule",
+      "live": "Live Scores",
+      "standings": "Standings",
+      "teams": "Teams",
+      "profile": "Profile",
+      "settings": "Settings",
+      "tournaments": "Tournaments",
+      "players": "Players"
+    },
+    "tournament": {
+      "title": "Tournament",
+      "name": "Tournament Name",
+      "status": "Status",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "venue": "Venue",
+      "participants": "Participants",
+      "matches": "Matches",
+      "phases": "Phases"
+    },
+    "team": {
+      "title": "Team",
+      "name": "Team Name",
+      "players": "Players",
+      "coach": "Coach",
+      "stats": "Statistics"
+    },
+    "player": {
+      "title": "Player",
+      "name": "Player Name",
+      "position": "Position",
+      "number": "Number",
+      "stats": "Statistics"
+    },
+    "auth": {
+      "signIn": "Sign In",
+      "signOut": "Sign Out",
+      "signUp": "Sign Up",
+      "email": "Email",
+      "password": "Password",
+      "forgotPassword": "Forgot your password?",
+      "rememberMe": "Remember me"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "network": "Network error. Please check your connection.",
+      "unauthorized": "You are not authorized to perform this action.",
+      "notFound": "The requested resource was not found.",
+      "validation": "Please check your input and try again."
+    },
+    "marketplace": {
+      "title": "Plugin Marketplace",
+      "description": "Discover and install plugins to extend tournament management capabilities",
+      "loading": "Loading plugins...",
+      "install": "Install",
+      "installing": "Installing...",
+      "installSuccess": "Successfully installed {pluginName}",
+      "installError": "Error installing {pluginName}",
+      "author": "Author",
+      "version": "Version",
+      "languages": "Languages",
+      "capabilities": "Capabilities",
+      "noDescription": "No description available",
+      "searchPlaceholder": "Search plugins...",
+      "allCategories": "All Categories",
+      "category": {
+        "sports": "Sports",
+        "phases": "Phases",
+        "seeding": "Seeding",
+        "scheduling": "Scheduling",
+        "tournaments": "Tournaments"
+      },
+      "noPluginsFound": "No plugins found",
+      "refresh": "Refresh",
+      "pluginCount": "Showing {count} of {total} plugins"
+    }
+  },
+  "file_locations": {
+    "_note": "Files that need to be updated with these translation keys",
+    "high_priority_files": [
+      "src/components/PWAInstaller.tsx",
+      "src/components/ServiceWorkerRegistration.tsx",
+      "src/components/OfflineIndicator.tsx",
+      "app/[locale]/(spectator)/schedule/page.tsx",
+      "app/[locale]/(spectator)/live/page.tsx",
+      "app/[locale]/(spectator)/standings/page.tsx",
+      "app/[locale]/(spectator)/archive/page.tsx",
+      "app/[locale]/offline/page.tsx"
+    ],
+    "medium_priority_files": [
+      "app/[locale]/demo/realtime/page.tsx",
+      "app/[locale]/page.tsx",
+      "app/[locale]/simple/page.tsx",
+      "app/[locale]/test/page.tsx",
+      "src/components/LiveMatchCard.tsx"
+    ],
+    "low_priority_files": [
+      "app/[locale]/test-pwa/page.tsx",
+      "app/[locale]/debug/page.tsx",
+      "app/[locale]/test-graphql/page.tsx"
+    ],
+    "translation_files": [
+      "src/i18n/messages/en.json",
+      "src/i18n/messages/es.json"
+    ]
+  }
+}

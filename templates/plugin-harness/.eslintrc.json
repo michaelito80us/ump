@@ -1,0 +1,59 @@
+{
+  "env": {
+    "jest": true,
+    "node": true,
+    "es2022": true,
+    "browser": true
+  },
+  "extends": ["eslint:recommended"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": [],
+  "globals": {
+    "console": "readonly",
+    "process": "readonly",
+    "Buffer": "readonly",
+    "module": "readonly",
+    "require": "readonly",
+    "exports": "readonly",
+    "global": "readonly",
+    "window": "readonly",
+    "document": "readonly",
+    "React": "readonly",
+    "HTMLElement": "readonly",
+    "HTMLButtonElement": "readonly",
+    "HTMLDivElement": "readonly",
+    "HTMLParagraphElement": "readonly",
+    "HTMLHeadingElement": "readonly",
+    "Event": "readonly",
+    "KeyboardEvent": "readonly",
+    "MouseEvent": "readonly",
+    "jest": "readonly",
+    "describe": "readonly",
+    "it": "readonly",
+    "test": "readonly",
+    "expect": "readonly",
+    "beforeEach": "readonly",
+    "afterEach": "readonly",
+    "beforeAll": "readonly",
+    "afterAll": "readonly"
+  },
+  "rules": {
+    "prefer-const": "error",
+    "no-var": "error",
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ]
+  }
+}

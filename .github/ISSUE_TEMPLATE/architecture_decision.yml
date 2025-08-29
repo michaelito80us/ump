@@ -1,0 +1,201 @@
+name: Architecture Decision Record
+description: Propose or document an architectural decision
+title: '[ADR]: '
+labels: ['architecture', 'adr', 'triage']
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to propose or document significant architectural decisions that affect the UMP project.
+
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details
+      description: How can we get in touch with you if we need more info?
+      placeholder: ex. email@example.com
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What is the architectural issue or decision that needs to be made?
+      placeholder: |
+        Describe the current situation, problem, or opportunity that requires an architectural decision.
+        Include relevant background information, constraints, and requirements.
+    validations:
+      required: true
+
+  - type: textarea
+    id: decision
+    attributes:
+      label: Proposed Decision
+      description: What architectural approach do you propose?
+      placeholder: |
+        Describe the proposed architectural solution or approach.
+        Be specific about technologies, patterns, and implementation strategies.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What other architectural approaches were considered?
+      placeholder: |
+        List and briefly describe alternative approaches that were considered.
+        Explain why they were not chosen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: consequences
+    attributes:
+      label: Consequences
+      description: What are the positive and negative consequences of this decision?
+      placeholder: |
+        **Positive:**
+        - Benefit 1
+        - Benefit 2
+
+        **Negative:**
+        - Trade-off 1
+        - Trade-off 2
+
+        **Neutral:**
+        - Impact 1
+        - Impact 2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: Status
+      description: What is the current status of this decision?
+      options:
+        - Proposed - Under consideration
+        - Accepted - Decision has been made
+        - Deprecated - No longer recommended
+        - Superseded - Replaced by another decision
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: affected-areas
+    attributes:
+      label: Affected Areas
+      description: Which parts of the system will be affected by this decision?
+      options:
+        - label: Plugin System Architecture
+        - label: Tournament Engine Core
+        - label: Mobile Application
+        - label: Admin Dashboard
+        - label: API Design
+        - label: Database Schema
+        - label: Authentication/Authorization
+        - label: Real-time Features
+        - label: Performance/Scalability
+        - label: Security
+        - label: Development Workflow
+        - label: Testing Strategy
+        - label: Deployment/Infrastructure
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Implementation Details
+      description: How will this decision be implemented?
+      placeholder: |
+        - Implementation steps
+        - Timeline considerations
+        - Required resources
+        - Migration strategy (if applicable)
+    validations:
+      required: false
+
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation Criteria
+      description: How will we know if this decision is successful?
+      placeholder: |
+        - Success metrics
+        - Performance benchmarks
+        - Quality gates
+        - Review checkpoints
+    validations:
+      required: false
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks and Mitigation
+      description: What are the potential risks and how will they be mitigated?
+      placeholder: |
+        **Risk 1:** Description
+        **Mitigation:** Strategy
+
+        **Risk 2:** Description
+        **Mitigation:** Strategy
+    validations:
+      required: false
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: What other decisions, features, or systems does this depend on?
+      placeholder: |
+        - Dependency 1
+        - Dependency 2
+        - Related ADRs
+    validations:
+      required: false
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Links to relevant documentation, research, or discussions
+      placeholder: |
+        - Link to related issues
+        - Research papers or articles
+        - Similar implementations
+        - Team discussions
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: review-required
+    attributes:
+      label: Review Requirements
+      description: What type of review is needed for this decision?
+      options:
+        - label: Technical review by core team
+        - label: Security review required
+        - label: Performance impact assessment
+        - label: Plugin compatibility review
+        - label: User experience review
+        - label: Legal/compliance review
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other relevant information
+      placeholder: Additional context, diagrams, or supporting information
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

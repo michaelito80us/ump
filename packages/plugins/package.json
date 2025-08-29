@@ -2,22 +2,86 @@
   "name": "@ump/plugins",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc -b",
     "dev": "tsc -b --watch",
     "lint": "eslint src --ext .ts,.tsx",
-    "test": "echo 'Plugins package - test pending'",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
   "dependencies": {
     "@ump/core": "workspace:*",
-    "@ump/engine": "workspace:*"
+    "@ump/engine": "workspace:*",
+    "javascript-lp-solver": "^0.4.24",
+    "yalps": "^0.5.6"
   },
   "peerDependencies": {
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.17.50",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "jest": "^29.5.0",
+    "jest-environment-jsdom": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/__tests__/setup.ts"
+    ],
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.test.ts",
+      "**/*.test.ts"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": [
+        "ts-jest",
+        {
+          "useESM": false,
+          "tsconfig": {
+            "module": "CommonJS",
+            "moduleResolution": "node",
+            "types": [
+              "jest",
+              "node",
+              "@testing-library/jest-dom"
+            ]
+          }
+        }
+      ]
+    },
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "!src/**/*.d.ts",
+      "!src/__tests__/**"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!(@clerk/.*)/)"
+    ],
+    "moduleNameMapper": {
+      "^@ump/core$": "<rootDir>/../core/src/index.ts",
+      "^@ump/core/utils/date$": "<rootDir>/../core/src/utils/date.ts",
+      "^@ump/engine$": "<rootDir>/../engine/src/index.ts",
+      "^@ump/engine/harness$": "<rootDir>/../engine/src/harness/index.ts",
+      "^@clerk/nextjs/server$": "<rootDir>/src/__tests__/__mocks__/@clerk/nextjs/server.js",
+      "^@clerk/backend$": "<rootDir>/src/__tests__/__mocks__/@clerk/backend.js"
+    }
   }
 }

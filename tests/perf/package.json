@@ -1,0 +1,51 @@
+{
+  "name": "@ump/performance-tests",
+  "version": "1.0.0",
+  "description": "K6 performance testing suite for UMP platform - T-17.2 Load & Resilience Testing",
+  "private": true,
+  "scripts": {
+    "test": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run k6-load.js",
+    "test:scenarios": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run k6-scenarios.js",
+    "test:local": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run --env TARGET_URL=http://localhost:4001 k6-load.js",
+    "test:staging": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run --env TARGET_URL=http://localhost:4001 k6-load.js",
+    "test:production": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run --env TARGET_URL=https://ump.example.com k6-load.js",
+    "test:smoke": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run --vus 1 --duration 30s k6-load.js",
+    "test:load": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run --vus 10 --duration 5m k6-load.js",
+    "test:stress": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run --vus 50 --duration 10m k6-scenarios.js",
+    "test:spike": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run --vus 100 --duration 2m k6-load.js",
+    "test:with-report": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run --out json=results.json --summary-export=summary.json k6-load.js",
+    "test:dashboard": "k6\\k6-v0.47.0-windows-amd64\\k6.exe run --env K6_WEB_DASHBOARD=true --env K6_WEB_DASHBOARD_EXPORT=report.html k6-load.js",
+    "validate-p95": "node validate-performance.js",
+    "monitor": "node performance-monitor.js monitor",
+    "report": "node performance-monitor.js report",
+    "trends": "node performance-monitor.js trends",
+    "ci-test": "npm run test:with-report && npm run validate-p95 && npm run monitor",
+    "install-k6": "echo 'Please install k6 from https://k6.io/docs/getting-started/installation/'"
+  },
+  "keywords": [
+    "k6",
+    "performance",
+    "load-testing",
+    "ump",
+    "tournament-management",
+    "graphql",
+    "resilience-testing"
+  ],
+  "author": "UMP Development Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^18.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ump/ump.git",
+    "directory": "tests/perf"
+  },
+  "bugs": {
+    "url": "https://github.com/ump/ump/issues"
+  },
+  "homepage": "https://github.com/ump/ump#readme"
+}

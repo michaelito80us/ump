@@ -1,0 +1,169 @@
+# GitHub Project Board Automation Configuration
+# This file configures automatic project board management for UMP
+
+# Project board settings
+project:
+  name: 'UMP Development Board'
+  description: 'Automated project board for UMP development workflow'
+
+# Automation rules
+automation:
+  # Auto-add new issues to project
+  - trigger: issue_opened
+    conditions:
+      - label_exists: ['bug', 'enhancement', 'question', 'architecture']
+    actions:
+      - add_to_project: true
+      - set_status: 'Triage'
+
+  # Auto-add new PRs to project
+  - trigger: pull_request_opened
+    actions:
+      - add_to_project: true
+      - set_status: 'In Review'
+
+  # Move items based on labels
+  - trigger: label_added
+    conditions:
+      - label: 'triage'
+    actions:
+      - set_status: 'Triage'
+
+  - trigger: label_added
+    conditions:
+      - label: 'in-progress'
+    actions:
+      - set_status: 'In Progress'
+
+  - trigger: label_added
+    conditions:
+      - label: 'blocked'
+    actions:
+      - set_status: 'Blocked'
+
+  - trigger: label_added
+    conditions:
+      - label: 'ready-for-review'
+    actions:
+      - set_status: 'Ready for Review'
+
+  - trigger: label_added
+    conditions:
+      - label: 'needs-testing'
+    actions:
+      - set_status: 'Testing'
+
+  # Move items when PR is merged
+  - trigger: pull_request_merged
+    actions:
+      - set_status: 'Done'
+
+  # Move items when issue is closed
+  - trigger: issue_closed
+    conditions:
+      - state_reason: 'completed'
+    actions:
+      - set_status: 'Done'
+
+  - trigger: issue_closed
+    conditions:
+      - state_reason: 'not_planned'
+    actions:
+      - set_status: "Won't Do"
+
+# Project board columns/statuses
+statuses:
+  - name: 'Triage'
+    description: 'New items that need to be triaged and prioritized'
+
+  - name: 'Backlog'
+    description: 'Triaged items waiting to be worked on'
+
+  - name: 'In Progress'
+    description: 'Items currently being worked on'
+
+  - name: 'Blocked'
+    description: 'Items that are blocked and cannot proceed'
+
+  - name: 'Ready for Review'
+    description: 'Items ready for code review'
+
+  - name: 'Testing'
+    description: 'Items in testing phase'
+
+  - name: 'Done'
+    description: 'Completed items'
+
+  - name: "Won't Do"
+    description: "Items that won't be implemented"
+
+# Priority automation
+priority_automation:
+  # High priority items
+  - labels: ['critical', 'security', 'bug']
+    priority: 'High'
+
+  # Medium priority items
+  - labels: ['enhancement', 'architecture']
+    priority: 'Medium'
+
+  # Low priority items
+  - labels: ['question', 'documentation']
+    priority: 'Low'
+
+# Assignment automation
+assignment_automation:
+  # Auto-assign based on component
+  - labels: ['plugin-system']
+    assign_to: '@plugin-team'
+
+  - labels: ['mobile-app']
+    assign_to: '@mobile-team'
+
+  - labels: ['admin-dashboard']
+    assign_to: '@admin-team'
+
+  - labels: ['infrastructure']
+    assign_to: '@devops-team'
+
+# Milestone automation
+milestone_automation:
+  # Auto-assign to current sprint
+  - labels: ['in-progress']
+    milestone: 'current-sprint'
+
+  # Architecture decisions go to architecture milestone
+  - labels: ['architecture', 'adr']
+    milestone: 'architecture-decisions'
+
+# Notification settings
+notifications:
+  # Notify on high priority items
+  - trigger: issue_labeled
+    conditions:
+      - label: 'critical'
+    actions:
+      - notify_team: '@core-team'
+
+  # Notify on security issues
+  - trigger: issue_labeled
+    conditions:
+      - label: 'security'
+    actions:
+      - notify_team: '@security-team'
+
+# Stale item management
+stale_management:
+  # Mark items as stale after 30 days of inactivity
+  - trigger: no_activity
+    duration: 30
+    actions:
+      - add_label: 'stale'
+      - add_comment: 'This item has been marked as stale due to inactivity. Please update if still relevant.'
+
+  # Close stale items after 7 more days
+  - trigger: labeled_stale
+    duration: 7
+    actions:
+      - close_issue: true
+      - add_comment: 'Closing due to inactivity. Please reopen if still relevant.'

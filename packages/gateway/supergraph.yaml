@@ -1,0 +1,31 @@
+# Apollo Federation Supergraph Configuration
+# This file defines the subgraphs that compose the federated GraphQL schema
+
+federation_version: =2.6.0
+
+subgraphs:
+  # Core backend subgraph - contains main business logic
+  core:
+    routing_url: ${CORE_SUBGRAPH_URL:-http://localhost:4001/graphql}
+    schema:
+      subgraph_url: ${CORE_SUBGRAPH_URL:-http://localhost:4001/graphql}
+      introspection_headers:
+        Authorization: ${CORE_SUBGRAPH_AUTH:-}
+
+  # Plugin subgraphs will be loaded dynamically by the gateway
+  # This configuration serves as a template for static composition
+
+  # Example plugin subgraph (commented out - loaded dynamically)
+  # rugby-plugin:
+  #   routing_url: http://localhost:4002/graphql
+  #   schema:
+  #     subgraph_url: http://localhost:4002/graphql
+
+  # round-robin-plugin:
+  #   routing_url: http://localhost:4003/graphql
+  #   schema:
+  #     subgraph_url: http://localhost:4003/graphql
+# Development configuration
+# For local development, you can override URLs using environment variables:
+# CORE_SUBGRAPH_URL=http://localhost:4001/graphql
+# PLUGIN_SUBGRAPHS=rugby:http://localhost:4002/graphql,round-robin:http://localhost:4003/graphql

@@ -1,0 +1,103 @@
+{
+  "tournament": {
+    "id": "tournament-1",
+    "name": "Summer Basketball Championship",
+    "status": "COMPLETED",
+    "startDate": "2024-01-19T00:00:00Z",
+    "endDate": "2024-01-21T23:59:59Z",
+    "description": "Annual summer basketball tournament featuring top teams",
+    "location": "Sports Complex Arena",
+    "maxTeams": 8,
+    "currentTeams": 8,
+    "champion": "team-2"
+  },
+  "teams": [
+    {
+      "id": "team-1",
+      "name": "Lakers",
+      "players": [
+        { "id": "player-1", "name": "John Smith", "position": "Guard" },
+        { "id": "player-2", "name": "Mike Johnson", "position": "Forward" }
+      ]
+    },
+    {
+      "id": "team-2",
+      "name": "Warriors",
+      "players": [
+        { "id": "player-3", "name": "David Brown", "position": "Center" },
+        { "id": "player-4", "name": "Chris Wilson", "position": "Guard" }
+      ]
+    },
+    {
+      "id": "team-3",
+      "name": "Celtics",
+      "players": [
+        { "id": "player-5", "name": "Robert Davis", "position": "Forward" },
+        { "id": "player-6", "name": "James Miller", "position": "Guard" }
+      ]
+    },
+    {
+      "id": "team-4",
+      "name": "Heat",
+      "players": [
+        { "id": "player-7", "name": "Kevin Garcia", "position": "Center" },
+        { "id": "player-8", "name": "Tony Rodriguez", "position": "Forward" }
+      ]
+    },
+    {
+      "id": "team-5",
+      "name": "Bulls",
+      "players": [
+        { "id": "player-9", "name": "Mark Martinez", "position": "Guard" },
+        { "id": "player-10", "name": "Steve Anderson", "position": "Forward" }
+      ]
+    },
+    {
+      "id": "team-6",
+      "name": "Knicks",
+      "players": [
+        { "id": "player-11", "name": "Paul Taylor", "position": "Center" },
+        { "id": "player-12", "name": "Brian Thomas", "position": "Guard" }
+      ]
+    },
+    {
+      "id": "team-7",
+      "name": "Nets",
+      "players": [
+        { "id": "player-13", "name": "Daniel Jackson", "position": "Forward" },
+        { "id": "player-14", "name": "Ryan White", "position": "Guard" }
+      ]
+    },
+    {
+      "id": "team-8",
+      "name": "76ers",
+      "players": [
+        { "id": "player-15", "name": "Alex Harris", "position": "Center" },
+        { "id": "player-16", "name": "Sam Clark", "position": "Forward" }
+      ]
+    }
+  ],
+  "phases": [
+    {
+      "id": "phase-1",
+      "name": "Quarterfinals",
+      "status": "COMPLETED",
+      "startDate": "2024-01-19T00:00:00Z",
+      "endDate": "2024-01-19T23:59:59Z"
+    },
+    {
+      "id": "phase-2",
+      "name": "Semifinals",
+      "status": "COMPLETED",
+      "startDate": "2024-01-20T00:00:00Z",
+      "endDate": "2024-01-20T23:59:59Z"
+    },
+    {
+      "id": "phase-3",
+      "name": "Finals",
+      "status": "COMPLETED",
+      "startDate": "2024-01-21T00:00:00Z",
+      "endDate": "2024-01-21T23:59:59Z"
+    }
+  ]
+}

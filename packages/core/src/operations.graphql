@@ -1,0 +1,155 @@
+# Tournament Operations
+query GetTournaments {
+  tournaments {
+    id
+    name
+    sport
+    status
+    startDate
+    endDate
+    isLocked
+    createdAt
+    updatedAt
+  }
+}
+
+query GetTournament($id: ID!) {
+  tournament(id: $id) {
+    id
+    name
+    sport
+    status
+    startDate
+    endDate
+    phases {
+      id
+      name
+      pluginId
+      status
+      matches {
+        id
+        teamA {
+          id
+          name
+        }
+        teamB {
+          id
+          name
+        }
+        scoreA
+        scoreB
+        status
+        scheduledAt
+        venue
+      }
+    }
+    teams {
+      id
+      name
+      players {
+        id
+        name
+        email
+        role
+      }
+    }
+    settings
+    isLocked
+    createdAt
+    updatedAt
+  }
+}
+
+# Match Operations
+query GetMatches {
+  matches {
+    id
+    teamA {
+      id
+      name
+    }
+    teamB {
+      id
+      name
+    }
+    scoreA
+    scoreB
+    status
+    scheduledAt
+    venue
+  }
+}
+
+# Mutations
+mutation CreateTournament($input: CreateTournamentInput!) {
+  createTournament(input: $input) {
+    id
+    name
+    sport
+    status
+    startDate
+    endDate
+    settings
+    isLocked
+    createdAt
+    updatedAt
+  }
+}
+
+mutation UpdateMatchScore($id: ID!, $score: JSON!) {
+  updateMatchScore(id: $id, score: $score) {
+    id
+    scoreA
+    scoreB
+    status
+    completedAt
+  }
+}
+
+# Subscriptions
+subscription MatchUpdated($tournamentId: ID!) {
+  matchUpdated(tournamentId: $tournamentId) {
+    id
+    teamA {
+      id
+      name
+    }
+    teamB {
+      id
+      name
+    }
+    scoreA
+    scoreB
+    status
+  }
+}
+
+subscription TournamentUpdated($id: ID!) {
+  tournamentUpdated(id: $id) {
+    id
+    name
+    sport
+    status
+    phases {
+      id
+      name
+      status
+    }
+    updatedAt
+  }
+}
+
+subscription LeaderboardUpdated($tournamentId: ID!) {
+  leaderboardUpdated(tournamentId: $tournamentId) {
+    team {
+      id
+      name
+    }
+    position
+    points
+    wins
+    losses
+    draws
+    stats
+  }
+}

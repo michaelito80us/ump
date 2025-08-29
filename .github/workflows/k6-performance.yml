@@ -1,0 +1,265 @@
+name: K6 Performance Testing
+
+# Run nightly at 2 AM UTC as per T-17.2 requirements
+on:
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM UTC
+  workflow_dispatch: # Allow manual triggering
+    inputs:
+      target_url:
+        description: 'Target URL for performance testing'
+        required: false
+        default: 'https://ump-staging.example.com'
+        type: string
+      duration:
+        description: 'Test duration in minutes'
+        required: false
+        default: '16'
+        type: string
+
+concurrency:
+  group: k6-performance-${{ github.ref }}
+  cancel-in-progress: false # Don't cancel performance tests
+
+jobs:
+  k6-load-test:
+    name: K6 Load & Resilience Testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8.6.12
+
+      - name: Get pnpm store directory
+        shell: bash
+        id: pnpm-cache
+        run: |
+          echo "path=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build applications
+        run: |
+          pnpm build:mobile
+          pnpm build:admin
+
+      - name: Start test environment
+        run: |
+          # Start the applications in background
+          pnpm dev:mobile &
+          pnpm dev:admin &
+
+          # Wait for services to be ready
+          echo "Waiting for services to start..."
+          sleep 30
+
+          # Health check
+          curl --retry 10 --retry-delay 5 --retry-connrefused http://localhost:3000/api/health || exit 1
+          curl --retry 10 --retry-delay 5 --retry-connrefused http://localhost:3001/api/health || exit 1
+        env:
+          NODE_ENV: test
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Run K6 Load Test
+        run: |
+          # Set target URL based on input or default to localhost
+          TARGET_URL="${{ github.event.inputs.target_url || 'http://localhost:3000' }}"
+
+          echo "Running K6 load test against: $TARGET_URL"
+          echo "Performance target: P95 ≤ 200ms (T-17.2 requirement)"
+
+          # Run k6 with JSON output for parsing
+          k6 run \
+            --env BASE_URL="$TARGET_URL" \
+            --out json=k6-results.json \
+            --summary-export=k6-summary.json \
+            tests/perf/k6-load.js
+        env:
+          K6_WEB_DASHBOARD: true
+          K6_WEB_DASHBOARD_EXPORT: k6-report.html
+
+      - name: Validate performance requirements
+        run: |
+          cd tests/perf
+          node validate-performance.js results.json
+
+      - name: Monitor performance trends
+        run: |
+          cd tests/perf
+          node performance-monitor.js monitor results.json
+        continue-on-error: true
+
+      - name: Upload K6 Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: k6-performance-results-${{ github.run_number }}
+          path: |
+            tests/perf/results.json
+            tests/perf/summary.json
+            tests/perf/results/performance-validation.json
+            tests/perf/results/performance-report.md
+            tests/perf/results/performance-trends.json
+          retention-days: 30
+
+      - name: Comment PR with Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let comment = '## 🎯 T-17.2 K6 Performance Test Results\n\n';
+
+            // Read validation results
+            if (fs.existsSync('tests/perf/results/performance-validation.json')) {
+              const validation = JSON.parse(fs.readFileSync('tests/perf/results/performance-validation.json', 'utf8'));
+              
+              if (validation.error) {
+                comment += `❌ **Test Failed:** ${validation.error}\n\n`;
+              } else {
+                const { metrics, passed, overallPassed } = validation;
+                const status = overallPassed ? '✅ PASSED' : '❌ FAILED';
+                
+                comment += `**Overall Status:** ${status}\n\n`;
+                comment += `| Metric | Value | Threshold | Status |\n`;
+                comment += `|--------|-------|-----------|--------|\n`;
+                comment += `| P95 Response Time | ${metrics.p95ResponseTime}ms | ≤200ms | ${passed.p95ResponseTime ? '✅' : '❌'} |\n`;
+                comment += `| Error Rate | ${metrics.errorRate}% | ≤10% | ${passed.errorRate ? '✅' : '❌'} |\n`;
+                comment += `| Success Rate | ${metrics.successRate}% | ≥90% | ${passed.successRate ? '✅' : '❌'} |\n`;
+                comment += `| Total Requests | ${metrics.totalRequests} | - | ℹ️ |\n`;
+                comment += `| Max VUs | ${metrics.maxVUs} | - | ℹ️ |\n\n`;
+                
+                // Add performance report link if available
+                if (fs.existsSync('tests/perf/results/performance-report.md')) {
+                  comment += `📊 [View detailed performance report](../blob/${{ github.sha }}/tests/perf/results/performance-report.md)\n\n`;
+                }
+              }
+            } else {
+              comment += '❌ Performance validation results not available\n\n';
+            }
+
+            comment += `**Test Run:** ${{ github.run_number }}\n`;
+            comment += `**Commit:** ${{ github.sha }}\n`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Notify on Failure
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let issueBody = `🚨 **Nightly Performance Test Failed**\n\n`;
+            issueBody += `**Date:** ${new Date().toISOString()}\n`;
+            issueBody += `**Workflow:** [View Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\n\n`;
+
+            // Include validation results if available
+            if (fs.existsSync('tests/perf/results/performance-validation.json')) {
+              const validation = JSON.parse(fs.readFileSync('tests/perf/results/performance-validation.json', 'utf8'));
+              
+              if (validation.error) {
+                issueBody += `**Error:** ${validation.error}\n\n`;
+              } else if (!validation.overallPassed) {
+                const { metrics, passed } = validation;
+                issueBody += `**Failed Metrics:**\n`;
+                if (!passed.p95ResponseTime) {
+                  issueBody += `- P95 Response Time: ${metrics.p95ResponseTime}ms (threshold: ≤200ms)\n`;
+                }
+                if (!passed.errorRate) {
+                  issueBody += `- Error Rate: ${metrics.errorRate}% (threshold: ≤10%)\n`;
+                }
+                if (!passed.successRate) {
+                  issueBody += `- Success Rate: ${metrics.successRate}% (threshold: ≥90%)\n`;
+                }
+                issueBody += `\n`;
+              }
+            }
+
+            issueBody += `**Next Steps:**\n`;
+            issueBody += `1. Review server performance and resource utilization\n`;
+            issueBody += `2. Check for recent code changes that might impact performance\n`;
+            issueBody += `3. Analyze database query performance\n`;
+            issueBody += `4. Consider scaling infrastructure if needed\n`;
+
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Nightly Performance Test Failed - ${new Date().toLocaleDateString()}`,
+              body: issueBody,
+              labels: ['performance', 'ci-failure', 'T-17.2']
+            });
+
+  performance-monitoring:
+    name: Performance Monitoring
+    runs-on: ubuntu-latest
+    needs: k6-load-test
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download K6 Results
+        uses: actions/download-artifact@v4
+        with:
+          name: k6-performance-results-${{ github.run_number }}
+          path: ./tests/perf
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Generate performance trends report
+        run: |
+          cd tests/perf
+          if [ -f "results/performance-trends.json" ]; then
+            echo "📊 Performance trends updated"
+            node performance-monitor.js report
+          else
+            echo "📊 First performance test run - trends will be available after next run"
+          fi
+
+      - name: Upload updated trends
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-trends-${{ github.run_number }}
+          path: |
+            tests/perf/results/performance-trends.json
+            tests/perf/results/performance-report.md
+          retention-days: 90

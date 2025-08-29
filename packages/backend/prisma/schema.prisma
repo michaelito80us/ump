@@ -1,0 +1,276 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// User Management
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  clerkId   String?  @unique
+  avatar    String?
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  players       Player[]
+  teams         Team[]        @relation("TeamManagers")
+  tournaments   Tournament[]  @relation("TournamentCreators")
+  invitations   Invitation[]  @relation("InvitationSender")
+  joinRequests  JoinRequest[] @relation("JoinRequestUser")
+  auditLogs     AuditLog[]
+  playerOverrides    PlayerOverride[]
+  createdOverrides   PlayerOverride[] @relation("CreatedOverrides")
+
+  @@map("users")
+}
+
+// Core Domain Models
+model Team {
+  id        String   @id @default(cuid())
+  name      String
+  sportIds  String   // Comma-separated sport plugin IDs
+  seed      Int?
+  metadata  String   @default("{}") // Additional metadata as JSON string
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  players     Player[]
+  managers    User[]        @relation("TeamManagers")
+  tournaments Tournament[]  @relation("TournamentTeams")
+  matchesA    Match[]       @relation("MatchTeamA")
+  matchesB    Match[]       @relation("MatchTeamB")
+
+  @@map("teams")
+}
+
+model Player {
+  id     String @id @default(cuid())
+  userId String
+  sports String // Comma-separated sport plugin IDs
+
+  // Relations
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teams Team[]
+  stats PlayerStats[]
+
+  @@map("players")
+}
+
+model PlayerStats {
+  id           String @id @default(cuid())
+  playerId     String
+  sport        String
+  tournamentId String
+  stats        String // JSON string with metric keys and values
+
+  // Relations
+  player     Player     @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, tournamentId, sport])
+  @@map("player_stats")
+}
+
+model Tournament {
+  id          String   @id @default(cuid())
+  pluginId    String
+  name        String
+  description String?
+  sport       String   // Sport plugin ID
+  status      String   @default("NOT_STARTED") // TournamentStatus as string
+  config      String   // TournamentConfig as JSON string
+  metadata    String   @default("{}") // Additional metadata as JSON string
+  isLocked    Boolean  @default(false)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  creator      User           @relation("TournamentCreators", fields: [creatorId], references: [id])
+  creatorId    String
+  teams        Team[]         @relation("TournamentTeams")
+  phases       Phase[]
+  playerStats  PlayerStats[]
+  invitations  Invitation[]
+  joinRequests JoinRequest[]
+  auditLogs    AuditLog[]
+  playerOverrides PlayerOverride[]
+
+  @@map("tournaments")
+}
+
+model Phase {
+  id           String @id @default(cuid())
+  pluginId     String
+  phaseName    String
+  settings     String // Phase-specific settings as JSON string
+  tournamentId String
+
+  // Relations
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  matches    Match[]
+
+  @@map("phases")
+}
+
+model Match {
+  id            String    @id @default(cuid())
+  scoreA        Int       @default(0)
+  scoreB        Int       @default(0)
+  breakdown     String?   // MatchBreakdown as JSON string
+  scheduledTime DateTime?
+  venue         String?
+  status        String    @default("PENDING") // MatchStatus as string
+  phaseId       String
+
+  // Relations
+  phase       Phase              @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  teamA       Team               @relation("MatchTeamA", fields: [teamAId], references: [id])
+  teamAId     String
+  teamB       Team               @relation("MatchTeamB", fields: [teamBId], references: [id])
+  teamBId     String
+  scoreAudits MatchScoreAudit[]
+
+  @@map("matches")
+}
+
+model MatchScoreAudit {
+  id          String   @id @default(cuid())
+  matchId     String
+  submittedBy String
+  submittedAt DateTime @default(now())
+  breakdown   String   // MatchBreakdown as JSON string
+  scoreA      Int
+  scoreB      Int
+  source      String   // ScoreSource as string
+
+  // Relations
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@map("match_score_audits")
+}
+
+// Governance Models
+model Invitation {
+  id              String   @id @default(cuid())
+  type            String   // InvitationType as string
+  senderUserId    String
+  recipientEmail  String?
+  recipientUserId String?
+  token           String   @unique
+  role            String   // JSON array or single role
+  teamId          String?
+  tournamentId    String?
+  organizationId  String?
+  status          String   @default("PENDING") // InvitationStatus as string
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime
+
+  // Relations
+  sender     User        @relation("InvitationSender", fields: [senderUserId], references: [id])
+  tournament Tournament? @relation(fields: [tournamentId], references: [id])
+
+  @@map("invitations")
+}
+
+model JoinRequest {
+  id              String   @id @default(cuid())
+  requesterUserId String
+  targetEntity    String   // TargetEntity as string
+  entityId        String
+  roleRequested   String
+  status          String   @default("PENDING") // JoinRequestStatus as string
+  message         String?
+  createdAt       DateTime @default(now())
+
+  // Relations
+  requester  User        @relation("JoinRequestUser", fields: [requesterUserId], references: [id])
+  tournament Tournament? @relation(fields: [entityId], references: [id])
+
+  @@map("join_requests")
+}
+
+// Audit Logging
+model AuditLog {
+  id           String   @id @default(cuid())
+  type         String   // LogType as string
+  timestamp    DateTime @default(now())
+  actorId      String?
+  actorType    String   // ActorType as string
+  message      String
+  data         String   @default("{}")
+  tournamentId String?
+  phaseId      String?
+  matchId      String?
+  playerId     String?
+  teamId       String?
+  field        String?
+  originalValue String?
+  newValue     String?
+  affectedEntity String?
+  entityId     String?
+  context      String?
+  approvedById String?
+  approvalNote String?
+  approvalTimestamp DateTime?
+  source       String?
+  scoreA       Int?
+  scoreB       Int?
+  breakdown     String?
+  description  String?
+  action       String?
+  reason       String?
+
+  // Relations
+  actor      User?       @relation(fields: [actorId], references: [id])
+  tournament Tournament? @relation(fields: [tournamentId], references: [id])
+
+  @@index([type, timestamp])
+  @@index([actorId])
+  @@map("audit_logs")
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  settings    String   @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("organizations")
+}
+
+model PlayerOverride {
+  id           String   @id @default(cuid())
+  playerId     String
+  tournamentId String
+  field        String
+  originalValue String
+  overrideValue String
+  reason       String?
+  createdBy    String
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime?
+
+  // Relations
+  player     User       @relation(fields: [playerId], references: [id])
+  tournament Tournament @relation(fields: [tournamentId], references: [id])
+  creator    User       @relation("CreatedOverrides", fields: [createdBy], references: [id])
+
+  @@unique([playerId, tournamentId, field])
+  @@map("player_overrides")
+}
