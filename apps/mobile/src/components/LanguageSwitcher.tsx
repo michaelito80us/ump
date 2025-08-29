@@ -13,7 +13,10 @@ export function LanguageSwitcher() {
     const segments = pathname.split('/').filter(Boolean);
 
     // If the first segment is a locale, replace it
-    if (segments.length > 0 && (segments[0] === 'en' || segments[0] === 'es')) {
+    if (
+      segments.length > 0 &&
+      (segments[0] === 'en' || segments[0] === 'es' || segments[0] === 'zh-CN')
+    ) {
       segments[0] = newLocale;
     } else {
       // If no locale in path, add it at the beginning
@@ -48,6 +51,17 @@ export function LanguageSwitcher() {
         }`}
       >
         Español
+      </button>
+      <button
+        data-testid="language-switcher-zh-CN"
+        onClick={() => switchLanguage('zh-CN')}
+        className={`px-3 py-1 rounded ${
+          locale === 'zh-CN'
+            ? 'bg-blue-700 text-white'
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+        }`}
+      >
+        中文
       </button>
     </div>
   );

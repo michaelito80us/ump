@@ -6,7 +6,7 @@ import { PWAInstaller } from '../../src/components/PWAInstaller';
 import { OfflineIndicator } from '../../src/components/OfflineIndicator';
 import { ServiceWorkerRegistration } from '../../src/components/ServiceWorkerRegistration';
 
-const locales = ['en', 'es'];
+const locales = ['en', 'es', 'zh-CN'];
 
 interface LayoutProps {
   children: React.ReactNode;
